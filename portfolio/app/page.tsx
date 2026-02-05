@@ -11,54 +11,52 @@ import {
 
 // --- COMPONENTES AUXILIARES ---
 
-// 1. COMPONENTE DE TEXTO HACKER (Versão Final: Invisível -> Aleatório -> Texto)
+// 1. COMPONENTE DE TEXTO HACKER (CORRIGIDO)
 const ScrambleText = ({ text, className }: { text: string, className?: string }) => {
   const [displayText, setDisplayText] = useState(text);
-  const [isVisible, setIsVisible] = useState(false); // Começa invisível
+  const [isVisible, setIsVisible] = useState(false);
   const chars = "!@#$%^&*()_+-=[]{}|;':\",./<>?ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
   useEffect(() => {
-    // 1. Gera a bagunça inicial imediatamente
-    const randomStart = text.split("").map((char) => {
-        if (char === " ") return " ";
-        return chars[Math.floor(Math.random() * chars.length)];
-    }).join("");
-    
-    // 2. Define o texto bagunçado
-    setDisplayText(randomStart);
-    
-    // 3. Torna visível (usuário vê a bagunça)
-    setIsVisible(true);
-
-    let iteration = 0;
     let interval: NodeJS.Timeout;
+    
+    // Pequeno delay para evitar o erro de "Synchronous setState"
+    const startDelay = setTimeout(() => {
+        // 1. Gera a bagunça inicial
+        const randomStart = text.split("").map((char) => {
+            if (char === " ") return " ";
+            return chars[Math.floor(Math.random() * chars.length)];
+        }).join("");
+        
+        setDisplayText(randomStart);
+        setIsVisible(true);
 
-    const startAnimation = () => {
-        clearInterval(interval);
-        interval = setInterval(() => {
-            setDisplayText((currentText) => 
-                text.split("").map((letter, index) => {
-                    if (letter === " ") return " ";
-                    if (index < iteration) return text[index];
-                    return chars[Math.floor(Math.random() * chars.length)];
-                }).join("")
-            );
+        // 2. Inicia a animação de resolução
+        let iteration = 0;
+        
+        // Aguarda um pouco com o texto bagunçado antes de resolver
+        setTimeout(() => {
+            interval = setInterval(() => {
+                setDisplayText(() => 
+                    text.split("").map((letter, index) => {
+                        if (letter === " ") return " ";
+                        if (index < iteration) return text[index];
+                        return chars[Math.floor(Math.random() * chars.length)];
+                    }).join("")
+                );
+    
+                if (iteration >= text.length) clearInterval(interval);
+                iteration += 1 / 3; 
+            }, 30);
+        }, 500);
 
-            if (iteration >= text.length) clearInterval(interval);
-            iteration += 1 / 3; 
-        }, 30);
-    };
-
-    // 4. Aguarda 500ms mostrando a bagunça antes de resolver
-    const timeout = setTimeout(() => {
-        startAnimation();
-    }, 500);
+    }, 0);
 
     return () => {
         clearInterval(interval);
-        clearTimeout(timeout);
+        clearTimeout(startDelay);
     };
-  }, [text]);
+  }, [text]);  
 
   return (
     <span 
@@ -234,11 +232,11 @@ const TerminalSection = () => {
         <section className="mt-20 border-t border-white/5 pt-10 pb-20" onClick={() => inputRef.current?.focus()}>
             <div 
                 ref={terminalRef} 
-                className="w-full bg-black/50 p-6 font-mono text-sm border border-white/10 h-[300px] overflow-y-auto text-green-500 cursor-text custom-scrollbar"
+                className="w-full bg-black/50 p-6 font-mono text-sm border border-white/10 h-75 overflow-y-auto text-green-500 cursor-text custom-scrollbar"
             >
                 <div className="space-y-1 mb-2">
                     {history.map((line, i) => (
-                        <div key={i} className="break-words">{line}</div>
+                        <div key={i} className="wrap-break-word">{line}</div>
                     ))}
                 </div>
                 <div className="flex items-center flex-nowrap">
@@ -256,12 +254,223 @@ const TerminalSection = () => {
                 </div>
             </div>
             <p className="text-xs text-[#444] mt-2 font-mono text-center">
-                * Click terminal to type. Try 'help'.
+                * Click terminal to type. Try &apos;help&apos;.
             </p>
         </section>
     );
 };
 
+// 6. COMPONENTE COLOR SPOTTER GAME (CORRIGIDO)
+const ColorSpotter = () => {
+  const [score, setScore] = useState(0);
+  // Inicia com cores padrão para evitar erro de hidratação, depois muda no useEffect
+  const [colors, setColors] = useState({ main: "#222", diff: "#222" });
+  const [diffIndex, setDiffIndex] = useState(0);
+  const [shake, setShake] = useState(false);
+
+  // Função para gerar cores HSL aleatórias
+  const generateColors = (currentScore: number) => {
+    const hue = Math.floor(Math.random() * 360);
+    const sat = 75 + Math.floor(Math.random() * 25);
+    const light = 40 + Math.floor(Math.random() * 40);
+
+    const difference = Math.max(2, 20 - currentScore); 
+    
+    const isLighter = Math.random() > 0.5;
+    const diffLight = isLighter 
+        ? Math.min(95, light + difference) 
+        : Math.max(5, light - difference);
+
+    return {
+        main: `hsl(${hue}, ${sat}%, ${light}%)`,
+        diff: `hsl(${hue}, ${sat}%, ${diffLight}%)`
+    };
+  };
+
+  const startRound = (reset = false) => {
+    const newScore = reset ? 0 : score + 1;
+    setScore(newScore);
+    setColors(generateColors(newScore));
+    setDiffIndex(Math.floor(Math.random() * 6));
+  };
+
+  // Inicializa o jogo ao carregar (CORRIGIDO)
+  useEffect(() => {
+    // Timeout resolve o erro de "SetState synchronously"
+    const timer = setTimeout(() => {
+        startRound(true);
+    }, 0);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); 
+
+  const handleClick = (index: number) => {
+    if (index === diffIndex) {
+        startRound();
+    } else {
+        setShake(true);
+        setTimeout(() => setShake(false), 500);
+        setScore(0);
+        startRound(true);
+    }
+  };
+
+  return (
+    <div className={`w-full max-w-md mx-auto p-6 bg-[#111] border border-white/10 rounded-xl ${shake ? "animate-pulse border-red-500" : ""}`}>
+        <div className="flex justify-between items-end mb-6 font-mono">
+            <div>
+                <h3 className="text-white font-bold text-xl">Color Spotter</h3>
+                <p className="text-xs text-[#666] mt-1">Find the different block</p>
+            </div>
+            <div className="text-right">
+                <span className="text-xs text-[#444] block uppercase tracking-widest">Score</span>
+                <span className="text-4xl font-bold text-white">{score}</span>
+            </div>
+        </div>
+
+        <div className="grid grid-cols-3 gap-3 aspect-3/2">
+            {[...Array(6)].map((_, i) => (
+                <div
+                    key={i}
+                    onClick={() => handleClick(i)}
+                    style={{ 
+                        backgroundColor: i === diffIndex ? colors.diff : colors.main,
+                        boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.3)" 
+                    }}
+                    className="w-full h-full rounded-lg cursor-pointer hover:scale-[1.02] active:scale-95 transition-transform duration-100 ease-out"
+                />
+            ))}
+        </div>
+        <p className="text-center text-[#333] text-xs mt-6 font-mono">
+            {score > 5 && score < 10 && "Getting harder..."}
+            {score >= 10 && score < 15 && "Expert eyes!"}
+            {score >= 15 && "Godlike vision."}
+        </p>
+    </div>
+  );
+};
+
+// 7. COMPONENTE TECH QUIZ
+const TechQuiz = () => {
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [score, setScore] = useState(0);
+  const [showScore, setShowScore] = useState(false);
+  const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
+  const [status, setStatus] = useState<"idle" | "correct" | "wrong">("idle");
+
+  const questions = [
+    {
+      question: "Qual estrutura de dados utiliza o conceito LIFO (Last In, First Out)?",
+      options: ["Queue (Fila)", "Stack (Pilha)", "Linked List", "Hash Map"],
+      answer: 1 // Stack
+    },
+    {
+      question: "No contexto de APIs REST, qual método HTTP é tipicamente Idempotente?",
+      options: ["POST", "PUT", "PATCH", "CONNECT"],
+      answer: 1 // PUT
+    },
+    {
+      question: "O que significa o 'A' em ACID (banco de dados)?",
+      options: ["Availability", "Accuracy", "Atomicity", "Authorization"],
+      answer: 2 // Atomicity
+    },
+    {
+      question: "Em Machine Learning, o que ocorre quando o modelo decora o ruído em vez do padrão?",
+      options: ["Underfitting", "Backpropagation", "Gradient Descent", "Overfitting"],
+      answer: 3 // Overfitting
+    },
+    {
+      question: "Qual destes NÃO é um princípio do SOLID?",
+      options: ["Single Responsibility", "Open/Closed", "Loop Invariance", "Dependency Inversion"],
+      answer: 2 // Loop Invariance
+    }
+  ];
+
+  const handleAnswerClick = (index: number) => {
+    if (status !== "idle") return; // Previne cliques múltiplos
+
+    setSelectedAnswer(index);
+
+    if (index === questions[currentQuestion].answer) {
+      setStatus("correct");
+      setTimeout(() => {
+        const nextQuestion = currentQuestion + 1;
+        if (nextQuestion < questions.length) {
+          setCurrentQuestion(nextQuestion);
+          setStatus("idle");
+          setSelectedAnswer(null);
+        } else {
+          setScore(score + 1);
+          setShowScore(true);
+        }
+      }, 800); // Espera um pouco para mostrar o verde
+    } else {
+      setStatus("wrong");
+      setTimeout(() => {
+        setStatus("idle");
+        setSelectedAnswer(null);
+      }, 800); // Mostra o vermelho e reseta
+    }
+  };
+
+  const restartQuiz = () => {
+    setScore(0);
+    setCurrentQuestion(0);
+    setShowScore(false);
+    setStatus("idle");
+    setSelectedAnswer(null);
+  };
+
+  return (
+    <div className="w-full max-w-md mx-auto p-6 bg-[#111] border border-white/10 rounded-xl font-mono">
+      {showScore ? (
+        <div className="text-center py-10">
+          <h3 className="text-2xl text-white font-bold mb-4">Quiz Completed!</h3>
+          <p className="text-[#888] mb-8">You reached the end of the challenge.</p>
+          <button 
+            onClick={restartQuiz}
+            className="px-6 py-3 bg-white text-black font-bold uppercase tracking-widest hover:bg-gray-200 transition-colors rounded-sm"
+          >
+            Play Again
+          </button>
+        </div>
+      ) : (
+        <>
+          <div className="flex justify-between items-center mb-6 border-b border-white/5 pb-4">
+            <span className="text-xs text-[#666] uppercase tracking-widest">Question {currentQuestion + 1}/{questions.length}</span>
+            <span className="text-xs text-[#444] uppercase tracking-widest">Tech Trivia</span>
+          </div>
+
+          <h3 className="text-white text-lg font-bold mb-8 min-h-15">
+            {questions[currentQuestion].question}
+          </h3>
+
+          <div className="space-y-3">
+            {questions[currentQuestion].options.map((option, index) => {
+              let btnClass = "border-white/10 hover:bg-white/5 text-[#999]";
+              
+              if (selectedAnswer === index) {
+                if (status === "correct") btnClass = "bg-green-500/20 border-green-500 text-green-500";
+                if (status === "wrong") btnClass = "bg-red-500/20 border-red-500 text-red-500 animate-shake";
+              }
+
+              return (
+                <button
+                  key={index}
+                  onClick={() => handleAnswerClick(index)}
+                  className={`w-full text-left p-4 border rounded transition-all duration-200 text-sm ${btnClass}`}
+                >
+                  <span className="mr-3 opacity-50">{String.fromCharCode(65 + index)}.</span>
+                  {option}
+                </button>
+              );
+            })}
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
 
 // --- PÁGINA PRINCIPAL ---
 
@@ -269,7 +478,7 @@ export default function Home() {
   const [time, setTime] = useState("");
   const [activeSection, setActiveSection] = useState("hero");
   
-  const lines = Array.from({ length: 244 }, (_, i) => i + 1);
+  const lines = Array.from({ length: 310 }, (_, i) => i + 1);
 
   const stackData = [
     { name: "Python", percent: "87%", icon: "/stack/python.png" },
@@ -547,6 +756,44 @@ export default function Home() {
                             ))}
                         </div>
                     </section>
+
+
+                    {/* 7. COLOR GAME SECTION */}
+                    <section id="game" className="mb-48 scroll-mt-24">
+                        <p className="text-sm text-[#555] mb-10 font-mono">&lt;!-- Take a break --&gt;</p>
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                            <div>
+                                <h2 className="text-5xl md:text-7xl font-bold text-white font-sans mb-8 tracking-tight">
+                                    Pixel <br />
+                                    <span className="text-[#444]">Perfect</span>
+                                </h2>
+                                <p className="text-lg text-[#888] leading-relaxed max-w-md">
+                                    Think you have an eye for detail? Spot the square with the slightly different color. The higher the score, the smaller the difference.
+                                </p>
+                            </div>
+                            <div className="flex justify-center lg:justify-end">
+                                <ColorSpotter />
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* 8. QUIZ SECTION */}
+                    <section id="quiz" className="mb-48 scroll-mt-24">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                            <div className="order-2 lg:order-1 flex justify-center lg:justify-start">
+                                <TechQuiz />
+                            </div>
+                            <div className="order-1 lg:order-2 text-right">
+                                <h2 className="text-5xl md:text-7xl font-bold text-white font-sans mb-8 tracking-tight">
+                                    Knowledge <br />
+                                    <span className="text-[#444]">Check</span>
+                                </h2>
+                                <p className="text-lg text-[#888] leading-relaxed max-w-md ml-auto">
+                                    Validating backend concepts and architecture patterns. Test your knowledge against these technical interview questions.
+                                </p>
+                            </div>
+                        </div>
+                    </section>
                     
                     {/* 7. CONTACT SECTION */}
                     <section id="contact" className="mb-24 scroll-mt-24">
@@ -642,6 +889,8 @@ export default function Home() {
             <IndexLink id="experience" label="Experience" activeSection={activeSection} onClick={setActiveSection} />
             <IndexLink id="what-i-do" label="What I Do" activeSection={activeSection} onClick={setActiveSection} />
             <IndexLink id="stack" label="Tech Stack" activeSection={activeSection} onClick={setActiveSection} />
+            <IndexLink id="game" label="Mini Game" activeSection={activeSection} onClick={setActiveSection} />
+            <IndexLink id="quiz" label="Quiz" activeSection={activeSection} onClick={setActiveSection} />
             <div className="mt-8">
                  <IndexLink id="contact" label="Contact me" activeSection={activeSection} onClick={setActiveSection} />
             </div>
