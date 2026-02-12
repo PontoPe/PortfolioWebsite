@@ -90,7 +90,7 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
                           width={800}
                           height={450}
                           unoptimized={true}
-                          className="rounded-lg border border-white/10 shadow-2xl w-full h-auto object-cover my-8 block"
+                          className="w-full h-auto object-cover my-8 block"
                         />
                       );
                     }
