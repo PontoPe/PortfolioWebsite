@@ -79,6 +79,6 @@ export async function getPostContent(filename: string) {
         slug: filename.replace(".md", ""),
       };
   } catch (error) {
-      return { meta: { title: "Erro", date: "" }, content: "Erro de conexão.", slug: "error" };
+      return { meta: { title: "Erro", date: error }, content: "Erro de conexão.", slug: "error" };
   }
 }
