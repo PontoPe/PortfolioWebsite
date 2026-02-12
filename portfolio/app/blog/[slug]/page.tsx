@@ -2,6 +2,8 @@
 import Link from "next/link";
 import { getPostFiles, getPostContent } from "@/lib/github";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import remarkBreaks from "remark-breaks";
 
 export async function generateStaticParams() {
   const files = await getPostFiles();
@@ -51,9 +53,28 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
 
               <article className="prose prose-invert prose-green max-w-none 
                 prose-headings:text-white prose-headings:italic prose-headings:tracking-tighter
-                prose-p:text-[#B1B1B1] prose-p:leading-relaxed
-                prose-pre:bg-[#181818] prose-pre:border prose-pre:border-white/5">
-                <ReactMarkdown>{content}</ReactMarkdown>
+                [&>p]:text-[#B1B1B1] [&>p]:mb-8
+                prose-pre:bg-[#181818] prose-pre:border prose-pre:border-white/5
+                prose-li:marker:text-green-500 prose-ul:pl-5
+                [&_input[type='checkbox']]:appearance-none 
+                [&_input[type='checkbox']]:w-4 
+                [&_input[type='checkbox']]:h-4 
+                [&_input[type='checkbox']]:border 
+              [&_input[type='checkbox']]:border-white/30 
+                [&_input[type='checkbox']]:rounded-sm 
+              [&_input[type='checkbox']]:bg-[#111] 
+                [&_input[type='checkbox']]:mr-2 
+                [&_input[type='checkbox']]:translate-y-0.5
+              [&_input[type='checkbox']:checked]:bg-green-500 
+              [&_input[type='checkbox']:checked]:border-green-500">
+                <ReactMarkdown 
+                  remarkPlugins={[remarkGfm, remarkBreaks]}  // <--- AQUI QUE A MÁGICA ACONTECE
+                  components={{
+                    a: (props) => <a {...props} target="_blank" className="text-green-500 hover:underline" />
+                  }}
+                >
+                  {content}
+                </ReactMarkdown>
               </article>
             </div>
           </div>
