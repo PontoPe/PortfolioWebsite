@@ -1,0 +1,39 @@
+name: Deploy Website
+
+on:
+  push:
+    branches: [main]
+  # This allows the Blog Repo to trigger this workflow remotely
+  repository_dispatch:
+    types: [update_blog]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build Static Site
+        run: npm run build
+        env:
+          # This injects the token so the build script can read the private repo
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+
+      - name: Upload via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./out/
+          server-dir: ./public_html/ # Be careful! This overwrites your live site.
