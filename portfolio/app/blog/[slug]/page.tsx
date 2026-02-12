@@ -26,7 +26,7 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
       {/* COLUNA CENTRAL (Onde o blog acontece) */}
       <main className="flex-1 h-full flex flex-col relative min-w-0 bg-[#1F1F1F]">
         <header className="h-11 flex-none flex items-center px-10 border-b border-white/5 bg-[#181818] z-10 text-[10px] font-bold text-[#555] tracking-widest">
-          File: <span className="text-white ml-2">{decodedSlug}.md</span>
+          File: <span className="text-white ml-2">{decodedSlug}.md</span> _| Size: <span className="text-white ml-2">{content.length} bytes</span> _| Type: <span className="text-white ml-2">text/markdown</span>
         </header>
 
         <div className="flex-1 relative h-full overflow-y-auto scroll-smooth bg-[#1F1F1F] custom-scrollbar">

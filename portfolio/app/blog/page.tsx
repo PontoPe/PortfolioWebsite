@@ -24,19 +24,22 @@ export default async function BlogPage() {
       
       {/* SIDEBAR ESQUERDA (ESTÁTICA) */}
       <aside className="w-85 hidden lg:flex flex-col p-10 h-full border-r border-white/5 bg-[#181818] z-20">
-         <Link href="/" className="text-green-500 hover:text-white transition-colors mb-10 text-sm font-bold">
-           &lt; cd ../
-         </Link>
+         
+         
       </aside>
 
       {/* COLUNA CENTRAL */}
       <main className="flex-1 h-full flex flex-col relative min-w-0 bg-[#1F1F1F]"> 
         <header className="h-11 flex-none flex items-center justify-between px-10 border-b border-white/5 bg-[#181818] z-10 text-xs tracking-[0.2em] font-bold text-[#555]">
-          <span className="text-white">pontope.info / blog</span>
-          <span className="text-white opacity-50">
-            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-            status: system_online
-          </span>
+          <div className="flex gap-8">
+                <Link href="../" className="flex items-center gap-3 text-[#555] hover:text-white transition-colors cursor-pointer">pontope.info</Link>
+                <span className="text-white cursor-pointer">pontope.blog</span>
+                
+            </div>
+          <div className="flex items-center gap-8">
+                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                <span className="text-white hidden md:inline opacity-50">status = all.systems.online</span>
+            </div>
         </header>
 
         <div className="flex-1 relative h-full overflow-y-auto scroll-smooth bg-[#1F1F1F]">
@@ -52,7 +55,7 @@ export default async function BlogPage() {
             <div className="flex-1 py-16 md:py-24 pr-8 md:pr-12 w-full max-w-[95%] mx-auto pl-8">
               <section className="mb-20">
                 <p className="text-sm text-[#555] mb-10 font-mono">&lt;!-- Blog directory --&gt;</p>
-                <h1 className="text-7xl md:text-3xl font-bold text-white tracking-tighter mb-12 italic">/var/log/blog</h1>
+                <h1 className="text-7xl md:text-5xl font-bold text-white tracking-tighter mb-12 italic">/var/log/blog</h1>
               </section>
 
               <div className="space-y-0 border-t border-white/5">
@@ -69,14 +72,14 @@ export default async function BlogPage() {
 
                     {/* TÍTULO REAL DO POST (OU SLUG SE NÃO HOUVER TÍTULO) */}
                     <span className="font-sans font-bold text-white text-3xl flex-1 group-hover:translate-x-4 transition-transform duration-300 italic ">
-                      {post.meta.title || post.slug.replace(/-/g, " ")}<br />
-                    </span>
-                    <p className="font-mono text-base text-[#555] w-64 mb-2 md:mb-0">
+                      {post.meta.title || post.slug.replace(/-/g, " ")}<br /><br />
+                      <p className="font-mono text-base text-[#555] w-full mb-2 md:mb-0">
                         {post.meta.description || " "}
                     </p>
+                    </span>
                     
                     <span className="text-green-500 font-bold opacity-0 group-hover:opacity-100 transition-opacity">
-                      READ_LOG
+                      read_log
                     </span>
                   </Link>
                 ))}

@@ -601,6 +601,7 @@ export default function Home() {
         <header className="h-11 flex-none flex items-center justify-between px-10 border-b border-white/5 bg-[#181818] z-10 text-xs tracking-[0.2em] font-bold text-[#555]">
             <div className="flex gap-8">
                 <span className="text-white cursor-pointer">pontope.info</span>
+                <Link href="/blog" className="flex items-center gap-3 text-[#555] hover:text-white transition-colors cursor-pointer">pontope.blog</Link>
             </div>
             <div className="flex items-center gap-8">
                 <span className="flex items-center gap-3 text-green-400 bg-green-900/10 px-3 py-1.5 rounded-full border border-green-900/20">
