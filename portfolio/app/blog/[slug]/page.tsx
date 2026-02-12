@@ -42,7 +42,7 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
             </div>
 
             {/* ARTIGO */}
-            <div className="flex-1 py-16 md:py-24 px-8 md:px-20 max-w-4xl">
+            <div className="flex-1 py-16 md:py-24 px-8 md:px-20 max-w-[85%]">
               <h1 className="text-5xl md:text-6xl font-bold text-white tracking-tighter mb-4">
                 {meta.title || decodedSlug.replace(/-/g, " ")}
               </h1>
@@ -90,7 +90,7 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
                           width={800}
                           height={450}
                           unoptimized={true}
-                          className="w-full h-auto object-cover my-8 block"
+                          className="min-w-[30%] max-w-full h-auto object-cover my-8 block"
                         />
                       );
                     }
