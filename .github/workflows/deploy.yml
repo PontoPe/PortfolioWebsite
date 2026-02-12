@@ -20,20 +20,24 @@ jobs:
         with:
           node-version: '20'
 
+      # 1. Entra na pasta portfolio para instalar
       - name: Install Dependencies
         run: npm ci
+        working-directory: ./portfolio
 
+      # 2. Entra na pasta portfolio para criar o site
       - name: Build Static Site
         run: npm run build
+        working-directory: ./portfolio
         env:
-          # This injects the token so the build script can read the private repo
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
 
+      # 3. Faz o Upload (Note que o caminho mudou para incluir portfolio/)
       - name: Upload via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./out/
-          server-dir: ./public_html/ # Be careful! This overwrites your live site.
+          local-dir: ./portfolio/out/    # <--- MUDANÇA IMPORTANTE AQUI
+          server-dir: ./public_html/
