@@ -478,7 +478,7 @@ export default function Home() {
   const [time, setTime] = useState("");
   const [activeSection, setActiveSection] = useState("hero");
   
-  const lines = Array.from({ length: 310 }, (_, i) => i + 1);
+  const lines = Array.from({ length: 315 }, (_, i) => i + 1);
 
   const stackData = [
     { name: "Python", percent: "87%", icon: "/stack/python.png" },
@@ -645,6 +645,9 @@ export default function Home() {
                             <ProjectCard title="CowRec" slug="cowrec" status="Live" subtitle="Computer Vision backend for livestock tracking">
                                 <Image src="/projects/cow1.jpeg" alt="CowRec Project" fill className="object-cover" />
                             </ProjectCard>
+                            <ProjectCard title="Docker Email Tracker" slug="docker-tracker" status="MIT License" subtitle="a Docker project that tracks email opens and clicks using FastAPI, Redis and PostgreSQL">
+                                <Image src="/projects/docker-tracker.png" alt="Docker Email Tracker Project" fill className="object-cover" />
+                            </ProjectCard>
                             <ProjectCard title="Hyundai Backend" slug="hyundai" subtitle="Enterprise scalable API architecture">
                                 <Image src="/projects/hyundai.png" alt="Hyundai Project" fill className="object-cover" />
                             </ProjectCard>
@@ -656,9 +659,6 @@ export default function Home() {
                             </ProjectCard>
                             <ProjectCard title="OlaMundo!" slug="olamundo" subtitle="Educational platform backend">
                                 <Image src="/projects/olamundo.png" alt="OlaMundo Project" fill className="object-cover" />
-                            </ProjectCard>
-                            <ProjectCard title="Portfolio Website" slug="portfolio" subtitle="Next.js & Tailwind Personal Site">
-                                <Image src="/projects/portfolio.png" alt="Portfolio Project" fill className="object-cover" />
                             </ProjectCard>
                         </div>
                     </section>
