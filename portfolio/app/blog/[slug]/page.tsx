@@ -1,5 +1,6 @@
 /* eslint-disable react/jsx-no-comment-textnodes */
 import Link from "next/link";
+import Image from "next/image";
 import { getPostFiles, getPostContent } from "@/lib/github";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -70,7 +71,29 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
                 <ReactMarkdown 
                   remarkPlugins={[remarkGfm, remarkBreaks]}  // <--- AQUI QUE A MÁGICA ACONTECE
                   components={{
-                    a: (props) => <a {...props} target="_blank" className="text-green-500 hover:underline" />
+                    a: (props) => <a {...props} target="_blank" className="text-green-500 hover:underline" />,
+                    img: (props) => {
+                      const rawSrc = (props.src as string) || "";
+                      
+                      // Codifica espaços para URL (ex: "minha foto.png" -> "minha%20foto.png")
+                      const sanitizedSrc = rawSrc.split(' ').join('%20');
+
+                      // Verifica se é link externo ou interno do repo
+                      const imageSrc = rawSrc.startsWith("http")
+                        ? rawSrc
+                        : `https://raw.githubusercontent.com/PontoPe/ObsidianGit/main/posts/assets/${sanitizedSrc}`;
+
+                      return (
+                        <Image
+                          src={imageSrc}
+                          alt={props.alt || "Blog Image"}
+                          width={800}
+                          height={450}
+                          unoptimized={true}
+                          className="rounded-lg border border-white/10 shadow-2xl w-full h-auto object-cover my-8 block"
+                        />
+                      );
+                    }
                   }}
                 >
                   {content}
