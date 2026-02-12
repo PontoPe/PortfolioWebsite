@@ -12,11 +12,10 @@ export default async function BlogPage() {
       <aside className="w-85 hidden lg:flex flex-col justify-between p-10 h-full border-r border-white/5 bg-[#181818] z-20">
         <div className="flex flex-col gap-10">
           <div>
-            <h2 className="text-white font-bold text-lg">PontoPe</h2>
-            <p className="text-xs uppercase tracking-widest text-[#666] mt-1 font-bold">Backend & AI Dev</p>
+            
           </div>
           <p className="text-base leading-relaxed text-[#999]">
-            Logs do sistema e pensamentos sobre arquitetura.
+            
           </p>
         </div>
         <Link href="/" className="w-full py-4 border border-white/10 text-white text-center font-bold text-sm uppercase tracking-widest hover:bg-white/5 transition-colors">
@@ -44,7 +43,7 @@ export default async function BlogPage() {
             <div className="flex-1 py-16 md:py-24 pr-8 md:pr-12 w-full max-w-[95%] mx-auto pl-8">
               <section className="mb-20">
                 <p className="text-sm text-[#555] mb-10 font-mono">&lt;!-- Blog directory --&gt;</p>
-                <h1 className="text-7xl md:text-8xl font-bold text-white tracking-tighter mb-12 uppercase italic">THOUGHTS</h1>
+                <h1 className="text-7xl md:text-8xl font-bold text-white tracking-tighter mb-12 italic">/var/log/blog</h1>
               </section>
 
               <div className="space-y-0 border-t border-white/5">
@@ -53,7 +52,7 @@ export default async function BlogPage() {
                   return (
                     <Link key={slug} href={`/blog/${slug}`} className="group flex flex-col md:flex-row md:items-baseline justify-between py-10 border-b border-white/5 hover:bg-white/2 transition-colors px-6 -mx-6">
                       <span className="font-mono text-base text-[#555] w-64 mb-2 md:mb-0">2026-02-12</span>
-                      <span className="font-sans font-bold text-white text-3xl flex-1 group-hover:translate-x-4 transition-transform duration-300 italic uppercase">
+                      <span className="font-sans font-bold text-white text-3xl flex-1 group-hover:translate-x-4 transition-transform duration-300 italic">
                         {slug.replace(/-/g, " ")}
                       </span>
                       <span className="text-green-500 font-bold opacity-0 group-hover:opacity-100 transition-opacity">READ_LOG</span>
@@ -72,12 +71,7 @@ export default async function BlogPage() {
 
       {/* SIDEBAR DIREITA */}
       <aside className="w-60 hidden xl:flex flex-col p-10 h-full border-l border-white/5 bg-[#181818] pt-32 z-20">
-        <h3 className="text-white font-bold mb-10 uppercase tracking-widest text-xs">Categories</h3>
-        <nav className="flex flex-col gap-6 text-[10px] font-bold text-[#555] uppercase">
-          <span className="text-white">All Logs</span>
-          <span className="hover:text-white cursor-pointer transition-colors">Backend</span>
-          <span className="hover:text-white cursor-pointer transition-colors">AI & Automation</span>
-        </nav>
+        
       </aside>
     </div>
   );
