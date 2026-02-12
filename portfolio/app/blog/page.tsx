@@ -24,7 +24,7 @@ export default async function BlogPage() {
       
       {/* SIDEBAR ESQUERDA (ESTÁTICA) */}
       <aside className="w-85 hidden lg:flex flex-col p-10 h-full border-r border-white/5 bg-[#181818] z-20">
-         <Link href="/blog" className="text-green-500 hover:text-white transition-colors mb-10 text-sm font-bold">
+         <Link href="/" className="text-green-500 hover:text-white transition-colors mb-10 text-sm font-bold">
            &lt; cd ../
          </Link>
       </aside>
@@ -33,7 +33,10 @@ export default async function BlogPage() {
       <main className="flex-1 h-full flex flex-col relative min-w-0 bg-[#1F1F1F]"> 
         <header className="h-11 flex-none flex items-center justify-between px-10 border-b border-white/5 bg-[#181818] z-10 text-xs tracking-[0.2em] font-bold text-[#555]">
           <span className="text-white">pontope.info / blog</span>
-          <span className="text-white opacity-50"><span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>status: system_online</span>
+          <span className="text-white opacity-50">
+            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+            status: system_online
+          </span>
         </header>
 
         <div className="flex-1 relative h-full overflow-y-auto scroll-smooth bg-[#1F1F1F]">

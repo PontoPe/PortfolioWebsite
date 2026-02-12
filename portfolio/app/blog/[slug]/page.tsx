@@ -44,8 +44,7 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
                 {meta.title || decodedSlug.replace(/-/g, " ")}
               </h1>
               <p className="text-xs text-[#555] mb-16 font-bold uppercase tracking-widest">
-                <br />Published: {meta.date || "2026.02.12"} // Root Access: Granted<br /><br />
-                Description: {meta.description || "No description available."}
+                Published: {meta.date || "2026.02.12"} // Root Access: Granted
               </p>
               <p className="text-xs text-[#555] mb-16 font-bold uppercase tracking-widest">
               </p>
