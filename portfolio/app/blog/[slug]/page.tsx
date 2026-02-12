@@ -19,7 +19,7 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
       {/* SIDEBAR ESQUERDA (MANTIDA PARA PADRÃO) */}
       <aside className="w-85 hidden lg:flex flex-col p-10 h-full border-r border-white/5 bg-[#181818] z-20">
          <Link href="/blog" className="text-green-500 hover:text-white transition-colors mb-10 text-sm font-bold">
-           &lt; cd ..
+           &lt; cd ../
          </Link>
       </aside>
 

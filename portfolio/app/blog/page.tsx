@@ -23,18 +23,10 @@ export default async function BlogPage() {
     <div className="h-screen w-full bg-[#181818] text-[#B1B1B1] font-mono overflow-hidden flex selection:bg-white/20 selection:text-black">
       
       {/* SIDEBAR ESQUERDA (ESTÁTICA) */}
-      <aside className="w-85 hidden lg:flex flex-col justify-between p-10 h-full border-r border-white/5 bg-[#181818] z-20">
-        <div className="flex flex-col gap-10">
-          <div>
-            
-          </div>
-          <p className="text-base leading-relaxed text-[#999]">
-            
-          </p>
-        </div>
-        <Link href="/" className="w-full py-4 border border-white/10 text-white text-center font-bold text-sm uppercase tracking-widest hover:bg-white/5 transition-colors">
-          Back to Home
-        </Link>
+      <aside className="w-85 hidden lg:flex flex-col p-10 h-full border-r border-white/5 bg-[#181818] z-20">
+         <Link href="/blog" className="text-green-500 hover:text-white transition-colors mb-10 text-sm font-bold">
+           &lt; cd ../
+         </Link>
       </aside>
 
       {/* COLUNA CENTRAL */}
@@ -73,8 +65,9 @@ export default async function BlogPage() {
                     </span>
 
                     {/* TÍTULO REAL DO POST (OU SLUG SE NÃO HOUVER TÍTULO) */}
-                    <span className="font-sans font-bold text-white text-3xl flex-1 group-hover:translate-x-4 transition-transform duration-300 italic uppercase">
-                      {post.meta.title || post.slug.replace(/-/g, " ")}
+                    <span className="font-sans font-bold text-white text-3xl flex-1 group-hover:translate-x-4 transition-transform duration-300 italic ">
+                      {post.meta.title || post.slug.replace(/-/g, " ")}<br />
+                      {post.meta.description || " "}
                     </span>
                     
                     <span className="text-green-500 font-bold opacity-0 group-hover:opacity-100 transition-opacity">
