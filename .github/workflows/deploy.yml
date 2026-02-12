@@ -6,7 +6,6 @@ on:
   # This allows the Blog Repo to trigger this workflow remotely
   repository_dispatch:
     types: [update_blog]
-  workflow_dispatch:
 
 jobs:
   build-and-deploy:
