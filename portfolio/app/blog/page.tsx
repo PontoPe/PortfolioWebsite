@@ -1,10 +1,24 @@
 import Link from "next/link";
-import { getPostFiles } from "@/lib/github";
+import { getPostFiles, getPostContent } from "@/lib/github";
 
 export default async function BlogPage() {
-  const posts = await getPostFiles();
-  const lines = Array.from({ length: 100 }, (_, i) => i + 1);
+  // 1. Pegamos a lista de arquivos
+  const files = await getPostFiles();
 
+  // 2. Buscamos o metadado (title, date, etc) de cada arquivo individualmente
+  const posts = await Promise.all(
+    files.map(async (file) => {
+      const postData = await getPostContent(file.name);
+      return postData;
+    })
+  );
+
+  // 3. Opcional: Ordenar por data (da mais nova para a mais antiga)
+  const sortedPosts = posts.sort((a, b) => {
+    return new Date(b.meta.date).getTime() - new Date(a.meta.date).getTime();
+  });
+
+  const lines = Array.from({ length: Math.max(100, sortedPosts.length * 15) }, (_, i) => i + 1);
   return (
     <div className="h-screen w-full bg-[#181818] text-[#B1B1B1] font-mono overflow-hidden flex selection:bg-white/20 selection:text-black">
       
@@ -27,7 +41,7 @@ export default async function BlogPage() {
       <main className="flex-1 h-full flex flex-col relative min-w-0 bg-[#1F1F1F]"> 
         <header className="h-11 flex-none flex items-center justify-between px-10 border-b border-white/5 bg-[#181818] z-10 text-xs tracking-[0.2em] font-bold text-[#555]">
           <span className="text-white">pontope.info / blog</span>
-          <span className="text-white opacity-50">status: system_online</span>
+          <span className="text-white opacity-50"><span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>status: system_online</span>
         </header>
 
         <div className="flex-1 relative h-full overflow-y-auto scroll-smooth bg-[#1F1F1F]">
@@ -47,18 +61,27 @@ export default async function BlogPage() {
               </section>
 
               <div className="space-y-0 border-t border-white/5">
-                {posts.map((post) => {
-                  const slug = post.name.replace(".md", "");
-                  return (
-                    <Link key={slug} href={`/blog/${slug}`} className="group flex flex-col md:flex-row md:items-baseline justify-between py-10 border-b border-white/5 hover:bg-white/2 transition-colors px-6 -mx-6">
-                      <span className="font-mono text-base text-[#555] w-64 mb-2 md:mb-0">2026-02-12</span>
-                      <span className="font-sans font-bold text-white text-3xl flex-1 group-hover:translate-x-4 transition-transform duration-300 italic">
-                        {slug.replace(/-/g, " ")}
-                      </span>
-                      <span className="text-green-500 font-bold opacity-0 group-hover:opacity-100 transition-opacity">READ_LOG</span>
-                    </Link>
-                  );
-                })}
+                {sortedPosts.map((post) => (
+                  <Link 
+                    key={post.slug} 
+                    href={`/blog/${post.slug}`} 
+                    className="group flex flex-col md:flex-row md:items-baseline justify-between py-10 border-b border-white/5 hover:bg-white/2 transition-colors px-6 -mx-6"
+                  >
+                    {/* DATA REAL DO POST */}
+                    <span className="font-mono text-base text-[#555] w-64 mb-2 md:mb-0">
+                      {post.meta.date || "0000-00-00"}
+                    </span>
+
+                    {/* TÍTULO REAL DO POST (OU SLUG SE NÃO HOUVER TÍTULO) */}
+                    <span className="font-sans font-bold text-white text-3xl flex-1 group-hover:translate-x-4 transition-transform duration-300 italic uppercase">
+                      {post.meta.title || post.slug.replace(/-/g, " ")}
+                    </span>
+                    
+                    <span className="text-green-500 font-bold opacity-0 group-hover:opacity-100 transition-opacity">
+                      READ_LOG
+                    </span>
+                  </Link>
+                ))}
               </div>
             </div>
           </div>
