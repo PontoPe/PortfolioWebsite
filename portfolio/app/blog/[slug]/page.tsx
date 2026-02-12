@@ -1,70 +1,64 @@
+/* eslint-disable react/jsx-no-comment-textnodes */
 import Link from "next/link";
 import { getPostFiles, getPostContent } from "@/lib/github";
 import ReactMarkdown from "react-markdown";
 
 export async function generateStaticParams() {
   const files = await getPostFiles();
-  return files.map((file) => ({
-    slug: file.name.replace(".md", ""),
-  }));
+  return files.map((file) => ({ slug: file.name.replace(".md", "") }));
 }
 
 export default async function BlogPost({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const decodedSlug = decodeURIComponent(slug);
   const { meta, content } = await getPostContent(`${decodedSlug}.md`);
+  const lines = Array.from({ length: 200 }, (_, i) => i + 1);
 
   return (
-    <div className="flex min-h-screen bg-[#0a0a0a] text-[#B1B1B1] font-mono">
-      
-      {/* 1. CALHA LATERAL ESQUERDA (NÚMEROS DE LINHA) */}
-      <div className="hidden md:flex flex-col items-center py-32 w-12 border-r border-[#222] text-[#333] select-none">
-        {Array.from({ length: 40 }).map((_, i) => (
-          <span key={i} className="text-xs leading-relaxed">
-            {String(i + 1).padStart(2, '0')}
-          </span>
-        ))}
-      </div>
+    <div className="h-screen w-full bg-[#181818] text-[#B1B1B1] font-mono overflow-hidden flex">
+      {/* SIDEBAR ESQUERDA (MANTIDA PARA PADRÃO) */}
+      <aside className="w-85 hidden lg:flex flex-col p-10 h-full border-r border-white/5 bg-[#181818] z-20">
+         <Link href="/blog" className="text-green-500 hover:text-white transition-colors mb-10 text-sm font-bold">
+           &lt; cd ..
+         </Link>
+      </aside>
 
-      {/* 2. ÁREA DE CONTEÚDO CENTRAL */}
-      <main className="flex-1 flex flex-col pt-32 px-6 md:px-20 max-w-5xl pb-20">
-        
-        {/* NAVEGAÇÃO / HEADER */}
-        <div className="mb-12">
-          <Link 
-            href="/blog" 
-            className="flex items-center gap-2 text-green-500 hover:text-green-400 mb-6 w-fit transition-colors"
-          >
-            <span>&lt; cd ..</span>
-          </Link>
+      {/* COLUNA CENTRAL (Onde o blog acontece) */}
+      <main className="flex-1 h-full flex flex-col relative min-w-0 bg-[#1F1F1F]">
+        <header className="h-11 flex-none flex items-center px-10 border-b border-white/5 bg-[#181818] z-10 text-[10px] font-bold text-[#555] uppercase tracking-widest">
+          File: <span className="text-white ml-2">{decodedSlug}.md</span>
+        </header>
 
-          <div className="flex items-center gap-2 text-[#444] mb-2 text-sm">
-            <span>FILE:</span>
-            <span className="text-[#888]">{decodedSlug}.md</span>
-          </div>
-          
-          <h1 className="text-4xl text-white font-bold tracking-tighter italic uppercase">
-            {meta.title || decodedSlug.replace(/-/g, " ")}
-          </h1>
-          
-          <div className="flex items-center gap-4 mt-4 text-[10px] text-[#666]">
-            <span>DATE: {meta.date || "2026-02-12"}</span>
-            <span>STATUS: STABLE</span>
-            <div className="h-[1px] flex-1 bg-[#222]"></div>
+        <div className="flex-1 relative h-full overflow-y-auto scroll-smooth bg-[#1F1F1F] custom-scrollbar">
+          <div className="min-h-full flex flex-row">
+            {/* GUTTER DE NÚMEROS IGUAL À HOME */}
+            <div className="flex-none opacity-50 w-10 py-4 flex flex-col items-end pr-2 border-r border-[#f8f8f81c] select-none">
+              {lines.map((num) => (
+                <span key={num} className="text-[10px] text-white leading-6 font-mono">{num}</span>
+              ))}
+            </div>
+
+            {/* ARTIGO */}
+            <div className="flex-1 py-16 md:py-24 px-8 md:px-20 max-w-4xl">
+              <h1 className="text-5xl md:text-6xl font-bold text-white tracking-tighter italic uppercase mb-4">
+                {meta.title || decodedSlug.replace(/-/g, " ")}
+              </h1>
+              <p className="text-xs text-[#555] mb-16 font-bold uppercase tracking-widest">
+                Published: {meta.date || "2026.02.12"} // Root Access: Granted
+              </p>
+
+              <article className="prose prose-invert prose-green max-w-none 
+                prose-headings:text-white prose-headings:italic prose-headings:tracking-tighter
+                prose-p:text-[#B1B1B1] prose-p:leading-relaxed
+                prose-pre:bg-[#181818] prose-pre:border prose-pre:border-white/5">
+                <ReactMarkdown>{content}</ReactMarkdown>
+              </article>
+            </div>
           </div>
         </div>
-
-        {/* ARTIGO (MARKDOWN) */}
-        <article className="prose prose-invert prose-green max-w-none 
-          prose-headings:italic prose-headings:tracking-tighter
-          prose-pre:bg-[#0d0d0d] prose-pre:border prose-pre:border-[#222]">
-          <ReactMarkdown>{content}</ReactMarkdown>
-        </article>
-
       </main>
 
-      {/* 3. BARRA LATERAL DIREITA (DECORAÇÃO) */}
-      <div className="hidden lg:block w-32 border-l border-[#222] bg-[#0d0d0d] opacity-50"></div>
+      <aside className="w-60 hidden xl:block h-full border-l border-white/5 bg-[#181818] z-20 opacity-30"></aside>
     </div>
   );
 }

@@ -3,62 +3,82 @@ import { getPostFiles } from "@/lib/github";
 
 export default async function BlogPage() {
   const posts = await getPostFiles();
+  const lines = Array.from({ length: 100 }, (_, i) => i + 1);
 
   return (
-    <div className="flex min-h-screen bg-[#0a0a0a] text-[#B1B1B1] font-mono">
-      {/* BARRA LATERAL ESQUERDA (NÚMEROS) */}
-      <div className="hidden md:flex flex-col items-center py-32 w-12 border-r border-[#222] text-[#333] select-none">
-        {Array.from({ length: 20 }).map((_, i) => (
-          <span key={i} className="text-xs leading-relaxed">
-            {String(i + 1).padStart(2, '0')}
-          </span>
-        ))}
-      </div>
-
-      {/* ÁREA CENTRAL */}
-      <main className="flex-1 flex flex-col pt-32 px-6 md:px-20 max-w-5xl">
-        {/* HEADER ESTILO TERMINAL */}
-        <div className="mb-12">
-          <div className="flex items-center gap-2 text-[#666] mb-2 text-sm">
-            <span className="text-green-500">➜</span>
-            <span>~/portfolio/blog</span>
-            <span className="animate-pulse">_</span>
+    <div className="h-screen w-full bg-[#181818] text-[#B1B1B1] font-mono overflow-hidden flex selection:bg-white/20 selection:text-black">
+      
+      {/* SIDEBAR ESQUERDA (ESTÁTICA) */}
+      <aside className="w-85 hidden lg:flex flex-col justify-between p-10 h-full border-r border-white/5 bg-[#181818] z-20">
+        <div className="flex flex-col gap-10">
+          <div>
+            <h2 className="text-white font-bold text-lg">PontoPe</h2>
+            <p className="text-xs uppercase tracking-widest text-[#666] mt-1 font-bold">Backend & AI Dev</p>
           </div>
-          <h1 className="text-4xl text-white font-bold tracking-tighter italic">BLOG</h1>
-          <div className="h-1 w-20 bg-green-500 mt-2"></div>
+          <p className="text-base leading-relaxed text-[#999]">
+            Logs do sistema e pensamentos sobre arquitetura.
+          </p>
+        </div>
+        <Link href="/" className="w-full py-4 border border-white/10 text-white text-center font-bold text-sm uppercase tracking-widest hover:bg-white/5 transition-colors">
+          Back to Home
+        </Link>
+      </aside>
+
+      {/* COLUNA CENTRAL */}
+      <main className="flex-1 h-full flex flex-col relative min-w-0 bg-[#1F1F1F]"> 
+        <header className="h-11 flex-none flex items-center justify-between px-10 border-b border-white/5 bg-[#181818] z-10 text-xs tracking-[0.2em] font-bold text-[#555]">
+          <span className="text-white">pontope.info / blog</span>
+          <span className="text-white opacity-50">status: system_online</span>
+        </header>
+
+        <div className="flex-1 relative h-full overflow-y-auto scroll-smooth bg-[#1F1F1F]">
+          <div className="min-h-full flex flex-row">
+            {/* NUMERAÇÃO DE LINHAS (ESTILO VSCODE) */}
+            <div className="flex-none opacity-50 w-10 py-4 flex flex-col items-end pr-2 border-r border-[#f8f8f81c] select-none bg-[#1F1F1F]">
+              {lines.map((num) => (
+                <span key={num} className="text-[10px] text-white leading-6 font-mono">{num}</span>
+              ))}
+            </div>
+
+            {/* CONTEÚDO DOS POSTS */}
+            <div className="flex-1 py-16 md:py-24 pr-8 md:pr-12 w-full max-w-[95%] mx-auto pl-8">
+              <section className="mb-20">
+                <p className="text-sm text-[#555] mb-10 font-mono">&lt;!-- Blog directory --&gt;</p>
+                <h1 className="text-7xl md:text-8xl font-bold text-white tracking-tighter mb-12 uppercase italic">THOUGHTS</h1>
+              </section>
+
+              <div className="space-y-0 border-t border-white/5">
+                {posts.map((post) => {
+                  const slug = post.name.replace(".md", "");
+                  return (
+                    <Link key={slug} href={`/blog/${slug}`} className="group flex flex-col md:flex-row md:items-baseline justify-between py-10 border-b border-white/5 hover:bg-white/2 transition-colors px-6 -mx-6">
+                      <span className="font-mono text-base text-[#555] w-64 mb-2 md:mb-0">2026-02-12</span>
+                      <span className="font-sans font-bold text-white text-3xl flex-1 group-hover:translate-x-4 transition-transform duration-300 italic uppercase">
+                        {slug.replace(/-/g, " ")}
+                      </span>
+                      <span className="text-green-500 font-bold opacity-0 group-hover:opacity-100 transition-opacity">READ_LOG</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* LISTA DE POSTS */}
-        <div className="space-y-10">
-          {posts.length > 0 ? (
-            posts.map((post) => {
-              const slug = post.name.replace(".md", "");
-              return (
-                <Link 
-                  key={slug} 
-                  href={`/blog/${slug}`}
-                  className="group block border-l-2 border-[#222] hover:border-green-500 pl-6 transition-all"
-                >
-                  <span className="text-xs text-[#666] group-hover:text-green-500 transition-colors">
-                    [ 12/02/2026 ] {/* Aqui você pode puxar a data real se desejar */}
-                  </span>
-                  <h2 className="text-2xl text-white group-hover:translate-x-2 transition-transform duration-300 uppercase italic font-black">
-                    {slug.replace(/-/g, " ")}
-                  </h2>
-                  <p className="text-sm text-[#888] mt-2 group-hover:text-[#aaa]">
-                    Clique para ler o log completo deste pensamento...
-                  </p>
-                </Link>
-              );
-            })
-          ) : (
-            <p className="text-[#666] italic">nenhum log encontrado no sistema.</p>
-          )}
-        </div>
+        <footer className="h-16 flex-none flex items-center justify-between px-10 border-t border-white/5 bg-[#181818] z-10 text-xs uppercase tracking-widest text-[#555]">
+          <span className="font-bold text-[#777]">Pedro Martins © 2026</span>
+        </footer>
       </main>
 
-      {/* BARRA LATERAL DIREITA (DECORAÇÃO) */}
-      <div className="hidden lg:block w-32 border-l border-[#222] bg-[#0d0d0d] opacity-50"></div>
+      {/* SIDEBAR DIREITA */}
+      <aside className="w-60 hidden xl:flex flex-col p-10 h-full border-l border-white/5 bg-[#181818] pt-32 z-20">
+        <h3 className="text-white font-bold mb-10 uppercase tracking-widest text-xs">Categories</h3>
+        <nav className="flex flex-col gap-6 text-[10px] font-bold text-[#555] uppercase">
+          <span className="text-white">All Logs</span>
+          <span className="hover:text-white cursor-pointer transition-colors">Backend</span>
+          <span className="hover:text-white cursor-pointer transition-colors">AI & Automation</span>
+        </nav>
+      </aside>
     </div>
   );
 }
