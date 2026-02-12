@@ -45,14 +45,21 @@ export default async function BlogPage() {
         <div className="flex-1 relative h-full overflow-y-auto scroll-smooth bg-[#1F1F1F]">
           <div className="min-h-full flex flex-row">
             {/* NUMERAÇÃO DE LINHAS (ESTILO VSCODE) */}
-            <div className="flex-none opacity-50 w-10 py-4 flex flex-col items-end pr-2 border-r border-[#f8f8f81c] select-none bg-[#1F1F1F]">
+            {/* Changes made:
+                1. Added 'absolute left-0 top-0 h-full overflow-hidden'
+                2. Removed 'flex-none' (no longer needed as it's absolute)
+            */}
+            <div className="absolute left-0 top-0 h-full overflow-hidden opacity-50 w-10 py-4 flex flex-col items-end pr-2 border-r border-[#f8f8f81c] select-none bg-[#1F1F1F]">
               {lines.map((num) => (
                 <span key={num} className="text-[10px] text-white leading-6 font-mono">{num}</span>
               ))}
             </div>
 
             {/* CONTEÚDO DOS POSTS */}
-            <div className="flex-1 py-16 md:py-24 pr-8 md:pr-12 w-full max-w-[95%] mx-auto pl-8">
+            {/* Changes made:
+                1. Changed 'pl-8' to 'pl-12' to make room for the absolute gutter 
+            */}
+            <div className="flex-1 py-16 md:py-24 pr-8 md:pr-12 w-full max-w-[95%] mx-auto pl-12">
               <section className="mb-20">
                 <p className="text-sm text-[#555] mb-10 font-mono">&lt;!-- Blog directory --&gt;</p>
                 <h1 className="text-7xl md:text-5xl font-bold text-white tracking-tighter mb-12 italic">/var/log/blog</h1>
@@ -89,7 +96,7 @@ export default async function BlogPage() {
         </div>
 
         <footer className="h-16 flex-none flex items-center justify-between px-10 border-t border-white/5 bg-[#181818] z-10 text-xs uppercase tracking-widest text-[#555]">
-          <span className="font-bold text-[#777]">Pedro Martins © 2026</span>
+        
         </footer>
       </main>
 
