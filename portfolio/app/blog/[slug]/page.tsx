@@ -81,7 +81,7 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
                       // Verifica se é link externo ou interno do repo
                       const imageSrc = rawSrc.startsWith("http")
                         ? rawSrc
-                        : `https://raw.githubusercontent.com/PontoPe/ObsidianGit/main/posts/assets/${sanitizedSrc}`;
+                        : `https://raw.githubusercontent.com/PontoPe/ObsidianGit/main/posts/${sanitizedSrc}`;
 
                       return (
                         <Image
