@@ -40,14 +40,14 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
 
             {/* ARTIGO */}
             <div className="flex-1 py-16 md:py-24 px-8 md:px-20 max-w-4xl">
-              <h1 className="text-5xl md:text-6xl font-bold text-white tracking-tighter italic mb-4">
+              <h1 className="text-5xl md:text-6xl font-bold text-white tracking-tighter mb-4">
                 {meta.title || decodedSlug.replace(/-/g, " ")}
               </h1>
               <p className="text-xs text-[#555] mb-16 font-bold uppercase tracking-widest">
-                Published: {meta.date || "2026.02.12"} // Root Access: Granted
+                Published: {meta.date || "2026.02.12"} // Root Access: Granted<br />
+                Description: {meta.description || "No description available."}
               </p>
               <p className="text-xs text-[#555] mb-16 font-bold uppercase tracking-widest">
-                Description: {meta.description || "No description available."}
               </p>
 
               <article className="prose prose-invert prose-green max-w-none 

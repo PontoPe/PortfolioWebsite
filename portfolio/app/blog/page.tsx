@@ -43,7 +43,7 @@ export default async function BlogPage() {
             <div className="flex-1 py-16 md:py-24 pr-8 md:pr-12 w-full max-w-[95%] mx-auto pl-8">
               <section className="mb-20">
                 <p className="text-sm text-[#555] mb-10 font-mono">&lt;!-- Blog directory --&gt;</p>
-                <h1 className="text-7xl md:text-8xl font-bold text-white tracking-tighter mb-12 italic">/var/log/blog</h1>
+                <h1 className="text-7xl md:text-xl font-bold text-white tracking-tighter mb-12 italic">/var/log/blog</h1>
               </section>
 
               <div className="space-y-0 border-t border-white/5">
