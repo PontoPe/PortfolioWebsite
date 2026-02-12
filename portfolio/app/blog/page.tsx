@@ -67,8 +67,10 @@ export default async function BlogPage() {
                     {/* TÍTULO REAL DO POST (OU SLUG SE NÃO HOUVER TÍTULO) */}
                     <span className="font-sans font-bold text-white text-3xl flex-1 group-hover:translate-x-4 transition-transform duration-300 italic ">
                       {post.meta.title || post.slug.replace(/-/g, " ")}<br />
-                      {post.meta.description || " "}
                     </span>
+                    <p className="font-mono text-base text-[#555] w-64 mb-2 md:mb-0">
+                        {post.meta.description || " "}
+                    </p>
                     
                     <span className="text-green-500 font-bold opacity-0 group-hover:opacity-100 transition-opacity">
                       READ_LOG
