@@ -19,31 +19,26 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
 
   return (
     <div className="h-screen w-full bg-[#181818] text-[#B1B1B1] font-mono overflow-hidden flex">
-      {/* SIDEBAR ESQUERDA */}
       <aside className="w-85 hidden lg:flex flex-col p-10 h-full border-r border-white/5 bg-[#181818] z-20">
          <Link href="/blog" className="text-green-500 hover:text-white transition-colors mb-10 text-sm font-bold">
            &lt; cd ../
          </Link>
       </aside>
 
-      {/* COLUNA CENTRAL */}
       <main className="flex-1 h-full flex flex-col relative min-w-0 bg-[#1F1F1F]">
         <header className="h-11 flex-none flex items-center px-10 border-b border-white/5 bg-[#181818] z-10 text-[10px] font-bold text-[#555] tracking-widest">
           File: <span className="text-white ml-2">{decodedSlug}.md</span> _| Size: <span className="text-white ml-2">{content.length} bytes</span> _| Type: <span className="text-white ml-2">text/markdown</span>
         </header>
 
         <div className="flex-1 relative h-full overflow-y-auto scroll-smooth bg-[#1F1F1F] custom-scrollbar">
-          {/* 1. Add relative here to catch the absolute gutter */}
           <div className="min-h-full flex flex-row relative">
-            
-            {/* 2. GUTTER: Absolute, h-full, overflow-hidden */}
+
             <div className="absolute left-0 top-0 h-full overflow-hidden opacity-50 w-10 py-4 flex flex-col items-end pr-2 border-r border-[#f8f8f81c] select-none bg-[#1F1F1F]">
               {lines.map((num) => (
                 <span key={num} className="text-[10px] text-white leading-6 font-mono">{num}</span>
               ))}
             </div>
 
-            {/* 3. ARTIGO: Changed px-8 to pl-12 pr-8 to accommodate the gutter width */}
             <div className="flex-1 py-16 md:py-24 pl-12 pr-8 md:px-20 max-w-[85%]">
               <h1 className="text-5xl md:text-6xl font-bold text-white tracking-tighter mb-4">
                 {meta.title || decodedSlug.replace(/-/g, " ")}
@@ -51,30 +46,31 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
               <p className="text-xs text-[#555] mb-16 font-bold uppercase tracking-widest">
                 Published: {meta.date || "2026.02.12"} // Root Access: Granted
               </p>
-              
-              <article className="prose prose-invert prose-green max-w-none 
+
+              <article className="prose prose-invert prose-green max-w-none
                 prose-headings:text-white prose-headings:italic prose-headings:tracking-tighter
                 [&>p]:text-[#B1B1B1] [&>p]:mb-8
                 prose-pre:bg-[#181818] prose-pre:border prose-pre:border-white/5
                 prose-li:marker:text-green-500 prose-ul:pl-5
-                [&_input[type='checkbox']]:appearance-none 
-                [&_input[type='checkbox']]:w-4 
-                [&_input[type='checkbox']]:h-4 
-                [&_input[type='checkbox']]:border 
-              [&_input[type='checkbox']]:border-white/30 
-                [&_input[type='checkbox']]:rounded-sm 
-              [&_input[type='checkbox']]:bg-[#111] 
-                [&_input[type='checkbox']]:mr-2 
+                [&_input[type='checkbox']]:appearance-none
+                [&_input[type='checkbox']]:w-4
+                [&_input[type='checkbox']]:h-4
+                [&_input[type='checkbox']]:border
+              [&_input[type='checkbox']]:border-white/30
+                [&_input[type='checkbox']]:rounded-sm
+              [&_input[type='checkbox']]:bg-[#111]
+                [&_input[type='checkbox']]:mr-2
                 [&_input[type='checkbox']]:translate-y-0.5
-              [&_input[type='checkbox']:checked]:bg-green-500 
+              [&_input[type='checkbox']:checked]:bg-green-500
               [&_input[type='checkbox']:checked]:border-green-500">
-                <ReactMarkdown 
-                  remarkPlugins={[remarkGfm, remarkBreaks]} 
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm, remarkBreaks]}
                   components={{
                     a: (props) => <a {...props} target="_blank" className="text-green-500 hover:underline" />,
                     img: (props) => {
                       const rawSrc = (props.src as string) || "";
                       const sanitizedSrc = rawSrc.split(' ').join('%20');
+                      // relative paths are resolved against the github repo's posts folder
                       const imageSrc = rawSrc.startsWith("http")
                         ? rawSrc
                         : `https://raw.githubusercontent.com/PontoPe/ObsidianGit/main/posts/${sanitizedSrc}`;

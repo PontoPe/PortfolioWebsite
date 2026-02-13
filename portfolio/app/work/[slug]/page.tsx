@@ -2,7 +2,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft, Github, Globe } from "lucide-react";
 
-// 1. DEFINIR A INTERFACE
 interface Project {
   title: string;
   category: string;
@@ -14,7 +13,6 @@ interface Project {
   demo?: string;
 }
 
-// 2. DADOS DOS PROJETOS
 const projectsData: Record<string, Project> = {
   "cowrec": {
     title: "CowRec System",
@@ -22,21 +20,21 @@ const projectsData: Record<string, Project> = {
     date: "2024",
     description: `
       A computer vision system designed for precision livestock farming. It uses YOLOv8 and convolutional neural networks to process real-time video feeds, allowing for the identification, tracking, and behavioral analysis of individual animals.
-      
+
       The architecture runs in edge computing environments, collecting health and productivity data locally to enable data-driven decisions in dairy production.
     `,
     stack: ["Python", "YOLOv8", "OpenCV", "FastAPI", "Docker"],
-    image: "/projects/cow1.jpeg", 
-    github: "https://github.com/PontoPe/CowRec", 
-    demo: "https://cowrec.com", 
+    image: "/projects/cow1.jpeg",
+    github: "https://github.com/PontoPe/CowRec",
+    demo: "https://cowrec.com",
   },
-  "docker-tracker": { 
+  "docker-tracker": {
     title: "Docker Email Tracker",
     category: "Docker / Backend / FastAPI / DevOps",
     date: "2026",
     description: `
       An independent pixel tracking system for monitoring email engagement. It captures "email open" metrics by serving a 1x1 transparent image that triggers a backend event when loaded by a client.
-      
+
       The infrastructure uses Docker Compose to orchestrate three services: FastAPI for logic, Redis for high-performance counting, and PostgreSQL for persistent logging. Key features include isolated networks for security, persistent volumes for data integrity, and custom healthchecks to manage service startup order.
     `,
     stack: ["Python", "FastAPI", "uvicorn", "HTML", "PostgreSQL", "Redis"],
@@ -49,7 +47,7 @@ const projectsData: Record<string, Project> = {
     date: "2023",
     description: `
       A process orchestration system built for automotive manufacturing operations. It acts as a central logic unit, automating decisions ranging from predictive parts inventory for vehicle assembly to dynamic staff allocation on the production line.
-      
+
       The system also manages administrative workflows, such as hiring and termination processes, standardizing operations to reduce downtime and resource waste.
     `,
     stack: ["Java", "Spring Boot", "AWS", "PostgreSQL"],
@@ -60,8 +58,8 @@ const projectsData: Record<string, Project> = {
     category: "Data Engineering",
     date: "2023",
     description: `
-      A high-throughput data pipeline architecture designed to ingest and process production metrics in real-time. 
-      
+      A high-throughput data pipeline architecture designed to ingest and process production metrics in real-time.
+
       Built on Apache Kafka, the system decouples data production from analysis, preventing data loss during high load peaks. It feeds a Data Lake that drives executive dashboards, providing granular monitoring of operational efficiency.
     `,
     stack: ["Python", "Apache Kafka", "Pandas", "SQL"],
@@ -73,7 +71,7 @@ const projectsData: Record<string, Project> = {
     date: "2023",
     description: `
       A SaaS platform for e-sports tournament management. The system includes an algorithmic bracket generator and real-time match updates to replace manual spreadsheet management.
-      
+
       The interface provides players and spectators with immediate access to results and schedules, supporting both local events and larger scale competitions.
     `,
     stack: ["React", "Node.js", "MongoDB"],
@@ -86,7 +84,7 @@ const projectsData: Record<string, Project> = {
     date: "2024",
     description: `
       A gamified educational platform for learning programming logic. It features a custom Java-based Graphical User Interface (GUI) that guides users through progressive coding challenges.
-      
+
       The system abstracts complex syntax to focus on algorithmic reasoning, helping beginners understand core concepts before moving to raw code.
     `,
     stack: ["Java", "Swing/FX", "OOP Patterns"],
@@ -98,7 +96,7 @@ const projectsData: Record<string, Project> = {
     date: "2025",
     description: `
       A personal portfolio website built on Next.js 14+. It utilizes Server Components for fast initial loading and Tailwind CSS for styling.
-      
+
       Features include a simulated terminal file system and text decryption effects. The project focuses on performance optimization and responsive design across devices.
     `,
     stack: ["Next.js", "Tailwind CSS", "TypeScript"],
@@ -106,13 +104,10 @@ const projectsData: Record<string, Project> = {
   }
 };
 
-// 3. COMPONENTE DE PÁGINA (SERVER COMPONENT)
 export default async function ProjectPage({ params }: { params: Promise<{ slug: string }> }) {
-  
   const { slug } = await params;
   const project = projectsData[slug];
 
-  // 404
   if (!project) {
     return (
       <div className="h-screen w-full bg-[#181818] flex flex-col items-center justify-center text-white font-mono">
@@ -149,10 +144,10 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
         </div>
 
         <div className="w-full aspect-video bg-[#111] border border-white/10 rounded-lg overflow-hidden mb-16 relative">
-             <Image 
-                src={project.image} 
-                alt={project.title} 
-                fill 
+             <Image
+                src={project.image}
+                alt={project.title}
+                fill
                 className="object-cover"
                 priority
              />
@@ -186,7 +181,6 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
   );
 }
 
-// 4. GERAÇÃO ESTÁTICA
 export async function generateStaticParams() {
   return [
     { slug: 'cowrec' },
@@ -195,6 +189,6 @@ export async function generateStaticParams() {
     { slug: 'tourneysys' },
     { slug: 'olamundo' },
     { slug: 'docker-tracker' },
-    { slug: 'portfolio' }, 
+    { slug: 'portfolio' },
   ];
 }

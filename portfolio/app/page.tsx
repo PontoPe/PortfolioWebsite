@@ -2,16 +2,17 @@
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation"; 
-import { 
-  Github, Linkedin, Mail, MapPin, Phone, 
+import { useRouter } from "next/navigation";
+import {
+  Github, Linkedin, Mail, MapPin, Phone,
   Download, Clock, ArrowRight, Instagram,
   Globe,
 } from "lucide-react";
 
-// --- COMPONENTES AUXILIARES ---
+export const sleep = async (ms: number): Promise<void> => {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+};
 
-// 1. COMPONENTE DE TEXTO HACKER (CORRIGIDO)
 const ScrambleText = ({ text, className }: { text: string, className?: string }) => {
   const [displayText, setDisplayText] = useState(text);
   const [isVisible, setIsVisible] = useState(false);
@@ -19,34 +20,31 @@ const ScrambleText = ({ text, className }: { text: string, className?: string })
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    
-    // Pequeno delay para evitar o erro de "Synchronous setState"
+
+    // deferred so we don't setState during render
     const startDelay = setTimeout(() => {
-        // 1. Gera a bagunça inicial
         const randomStart = text.split("").map((char) => {
             if (char === " ") return " ";
             return chars[Math.floor(Math.random() * chars.length)];
         }).join("");
-        
+
         setDisplayText(randomStart);
         setIsVisible(true);
 
-        // 2. Inicia a animação de resolução
         let iteration = 0;
-        
-        // Aguarda um pouco com o texto bagunçado antes de resolver
+
         setTimeout(() => {
             interval = setInterval(() => {
-                setDisplayText(() => 
+                setDisplayText(() =>
                     text.split("").map((letter, index) => {
                         if (letter === " ") return " ";
                         if (index < iteration) return text[index];
                         return chars[Math.floor(Math.random() * chars.length)];
                     }).join("")
                 );
-    
+
                 if (iteration >= text.length) clearInterval(interval);
-                iteration += 1 / 3; 
+                iteration += 1 / 3; // lower fraction = slower text resolve
             }, 30);
         }, 500);
 
@@ -56,10 +54,10 @@ const ScrambleText = ({ text, className }: { text: string, className?: string })
         clearInterval(interval);
         clearTimeout(startDelay);
     };
-  }, [text]);  
+  }, [text]);
 
   return (
-    <span 
+    <span
       className={`${className} transition-opacity duration-100 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
     >
         {displayText}
@@ -67,26 +65,25 @@ const ScrambleText = ({ text, className }: { text: string, className?: string })
   );
 };
 
-// 2. Componente Link do Índice
-const IndexLink = ({ 
-    id, 
-    label, 
-    activeSection, 
-    onClick 
-}: { 
-    id: string, 
-    label: string, 
-    activeSection: string, 
-    onClick: (id: string) => void 
+const IndexLink = ({
+    id,
+    label,
+    activeSection,
+    onClick
+}: {
+    id: string,
+    label: string,
+    activeSection: string,
+    onClick: (id: string) => void
 }) => {
     const isActive = activeSection === id;
     return (
-      <a 
-        href={`#${id}`} 
+      <a
+        href={`#${id}`}
         onClick={() => onClick(id)}
-        className={`flex items-center gap-3 transition-all duration-300 
-          ${isActive 
-            ? "text-white -ml-4 font-bold" 
+        className={`flex items-center gap-3 transition-all duration-300
+          ${isActive
+            ? "text-white -ml-4 font-bold"
             : "text-[#555] hover:text-white hover:translate-x-2"
           }`}
       >
@@ -96,29 +93,28 @@ const IndexLink = ({
     );
 };
 
-// 3. Card de Projeto
-const ProjectCard = ({ 
-    title, 
-    subtitle, 
-    status, 
-    slug, 
-    children 
-}: { 
-    title: string, 
-    subtitle?: string, 
-    status?: string, 
-    slug: string, 
-    children: React.ReactNode 
+const ProjectCard = ({
+    title,
+    subtitle,
+    status,
+    slug,
+    children
+}: {
+    title: string,
+    subtitle?: string,
+    status?: string,
+    slug: string,
+    children: React.ReactNode
 }) => (
-  <Link 
-    href={`/work/${slug}`} 
+  <Link
+    href={`/work/${slug}`}
     className="group relative flex flex-col bg-[#181818] border border-white/10 hover:border-white/30 transition-all duration-300 cursor-pointer"
   >
     <div className="flex items-center justify-between p-6 border-b border-white/5 bg-[#181818] z-10">
         <h3 className="text-white font-bold font-mono text-xl tracking-wide">{title}</h3>
         <ArrowRight className="w-6 h-6 text-[#666] group-hover:text-white group-hover:-rotate-45 transition-all duration-300" />
     </div>
-    
+
     <div className="aspect-video w-full bg-[#111] overflow-hidden relative">
         {status && (
             <div className="absolute top-6 right-6 z-20">
@@ -140,17 +136,16 @@ const ProjectCard = ({
   </Link>
 );
 
-// 4. Card de Tech Stack
 const TechCard = ({ name, percent, icon }: { name: string, percent: string, icon: string }) => (
     <div className="aspect-16/10 bg-[#181818] border border-white/5 p-5 flex flex-col justify-between relative hover:border-white/20 transition-colors group cursor-default">
        <span className="text-sm text-[#888] font-mono group-hover:text-white transition-colors">{name}</span>
        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div className="relative w-12 h-12">
-            <Image 
-                src={icon} 
-                alt={name} 
-                fill 
-                className="object-contain opacity-50 group-hover:opacity-100 transition-opacity duration-300" 
+            <Image
+                src={icon}
+                alt={name}
+                fill
+                className="object-contain opacity-50 group-hover:opacity-100 transition-opacity duration-300"
             />
           </div>
        </div>
@@ -158,15 +153,45 @@ const TechCard = ({ name, percent, icon }: { name: string, percent: string, icon
     </div>
 );
 
-// 5. COMPONENTE TERMINAL
+
+import { virtualFS } from '../lib/virtualFS';
+type DirNode = { type: 'dir'; children: Record<string, DirNode | FileNode>; };
+type FileNode = { type: 'file'; content: string; };
+type FSNode = DirNode | FileNode;
+type PathArr = string[];
+function getNode(pathArr: PathArr, fs: typeof virtualFS): FSNode | null {
+  let node: FSNode = fs['/'] as FSNode;
+  for (const part of pathArr) {
+    if (node.type !== 'dir' || !(part in node.children)) return null;
+    node = node.children[part];
+  }
+  return node;
+}
+function getPathString(pathArr: PathArr): string {
+  const base = 'guest@PTP-SV';
+  const path = pathArr.join('/');
+  return `${base}/${path ? path : ''}`;
+}
+const fsHelpText = [
+  'Available commands:',
+  '  ls         - List files',
+  '  cd <dir>   - Change directory',
+  '  cat <file> - Show file contents',
+  '  help       - Show this help',
+  '  clear      - Clear terminal',
+  '',
+  'You can also use: blog, youtube, twitch, mimiza, secret',
+];
+
 const TerminalSection = () => {
     const router = useRouter();
     const [input, setInput] = useState("");
     const [history, setHistory] = useState<string[]>([
-        "PontoPe OS [Version 1.0.0]", 
+        "PontoPe OS [Version 1.0.0]",
         "(c) Pedro Martins. All rights reserved.",
         "Type 'help' to see available commands."
     ]);
+    const [cwd, setCwd] = useState<PathArr>([]);
     const inputRef = useRef<HTMLInputElement>(null);
     const terminalRef = useRef<HTMLDivElement>(null);
 
@@ -176,51 +201,98 @@ const TerminalSection = () => {
         }
     }, [history]);
 
-    const handleCommand = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter') {
-            const command = input.trim().toLowerCase();
-            const newHistory = [...history, `C:\\Users\\Guest> ${input}`];
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Tab') {
+            e.preventDefault();
+            const args = input.split(/\s+/);
+            if (args.length > 1) {
+                const partial = args[args.length - 1];
+                const node = getNode(cwd, virtualFS);
+                if (node && node.type === 'dir') {
+                    const candidates = Object.keys(node.children).filter(name => name.startsWith(partial));
+                    if (candidates.length === 1) {
+                        const newArgs = [...args];
+                        newArgs[newArgs.length - 1] = candidates[0];
+                        setInput(newArgs.join(' '));
+                    }
+                }
+            } else if (args.length === 1 && args[0].length > 0) {
+                 const commands = ['ls', 'cd', 'cat', 'help', 'clear', 'blog', 'youtube', 'twitch', 'mimiza', 'secret'];
+                 const partial = args[0];
+                 const candidates = commands.filter(c => c.startsWith(partial));
+                 if (candidates.length === 1) {
+                     setInput(candidates[0] + ' ');
+                 }
+            }
+        } else if (e.key === 'Enter') {
+            const rawInput = input;
+            const command = input.trim();
+            const parts = command.split(/\s+/);
+            const cmd = parts[0]?.toLowerCase();
+            const args = parts.slice(1);
 
-            switch(command) {
-                case 'help':
-                case '?':
-                    newHistory.push("Available commands:");
-                    newHistory.push("  blog      - Read my thoughts & articles");
-                    newHistory.push("  youtube   - Visit my channel");
-                    newHistory.push("  twitch    - Watch me code live");
-                    newHistory.push("  mimiza    - Check out my girl's art");
-                    newHistory.push("  secret    - ?????");
-                    newHistory.push("  clear     - Clear terminal");
-                    break;
-                case 'blog':
-                    newHistory.push("Redirecting to /blog...");
-                    router.push('/blog');
-                    break;
-                case 'youtube':
-                    newHistory.push("Opening YouTube channel...");
-                    window.open('https://youtube.com/@pontopepe', '_blank');
-                    break;
-                case 'twitch':
-                    newHistory.push("Opening Twitch.tv...");
-                    window.open('https://twitch.tv/pontope', '_blank');
-                    break;
-                case 'mimiza':
+            const newHistory = [...history, `${getPathString(cwd)} $ ${rawInput}`];
+
+            const node = getNode(cwd, virtualFS);
+            if (cmd === 'ls') {
+                if (!node || node.type !== 'dir') newHistory.push('Not a directory.');
+                else {
+                    const showAll = args.includes('-a');
+                    const files = Object.keys(node.children).filter(name => showAll || !name.startsWith('.'));
+                    newHistory.push(files.join('  '));
+                }
+            } else if (cmd === 'cd') {
+                if (!args[0]) newHistory.push('Usage: cd <dir>');
+                else {
+                    const target = args[0].endsWith('/') ? args[0].slice(0, -1) : args[0];
+                    if (target === '..' || target === '../') {
+                         if (cwd.length > 0) setCwd(cwd.slice(0, -1));
+                    } else if (target === '.') {
+                    } else if (node && node.type === 'dir' && node.children[target] && node.children[target].type === 'dir') {
+                        setCwd([...cwd, target]);
+                    } else {
+                        newHistory.push('No such directory.');
+                    }
+                }
+            } else if (cmd === 'cat') {
+                if (!args[0]) newHistory.push('Usage: cat <file>');
+                else if (node && node.type === 'dir' && node.children[args[0]] && node.children[args[0]].type === 'file') {
+                    newHistory.push((node.children[args[0]] as FileNode).content);
+                } else newHistory.push('No such file.');
+            } else if (cmd === 'help' || cmd === '?') {
+                newHistory.push(...fsHelpText);
+            } else if (cmd === 'clear') {
+                setHistory([]);
+                setInput("");
+                return;
+            } else if (cmd === 'blog') {
+                newHistory.push("Redirecting to /blog...");
+                router.push('/blog');
+            } else if (cmd === 'youtube') {
+                newHistory.push("Opening YouTube channel...");
+                window.open('https://youtube.com/@pontopepe', '_blank');
+            } else if (cmd === 'twitch') {
+                newHistory.push("Opening Twitch.tv...");
+                window.open('https://twitch.tv/pontope', '_blank');
+            } else if (cmd === 'mimiza') {
+                newHistory.push("⠀⠀⠀⠀⠀⠀⠀ ⠀⣠⣶⣶⣶⣦⠀⠀");
+                newHistory.push("⠀⠀⣠⣤⣤⣄⣀⣾⣿⠟⠛⠻⢿⣷⠀");
+                newHistory.push("⢰⣿⡿⠛⠙⠻⣿⣿⠁⠀⠀⠀⣶⢿⡇");
+                newHistory.push("⢿⣿⣇⠀⠀⠀⠈⠏⠀⠀⠀ Love u babe");
+                newHistory.push("⠀⠻⣿⣷⣦⣤⣀⠀⠀⠀⠀⣾⡿⠃⠀ ");
+                newHistory.push("⠀⠀⠀⠀⠉⠉⠻⣿⣄⣴⣿⠟⠀⠀⠀ ");
+                newHistory.push("⠀⠀⠀⠀⠀⠀⠀⣿⡿⠟⠁⠀⠀⠀⠀");
+                sleep(2000).then(() => {
                     newHistory.push("Opening Behance portfolio...");
                     window.open('https://behance.net/milenacaldas', '_blank');
-                    break;
-                case 'secret':
-                    newHistory.push("Unlock sequence initiated...");
-                    window.open('https://youtube.com/watch?v=dQw4w9WgXcQ', '_blank');
-                    break;
-                case 'clear':
-                    setHistory([]);
-                    setInput("");
-                    return; 
-                case '':
-                    break;
-                default:
-                    newHistory.push(`'${command}' is not recognized as an internal or external command.`);
-                    newHistory.push("Type 'help' for a list of commands.");
+                });
+            } else if (cmd === 'secret') {
+                newHistory.push("Unlock sequence initiated...");
+                window.open('https://youtube.com/watch?v=dQw4w9WgXcQ', '_blank');
+            } else if (cmd === '') {
+            } else {
+                newHistory.push(`'${command}' is not recognized as an internal or external command.`);
+                newHistory.push("Type 'help' for a list of commands.");
             }
 
             setHistory(newHistory);
@@ -230,8 +302,8 @@ const TerminalSection = () => {
 
     return (
         <section className="mt-20 border-t border-white/5 pt-10 pb-20" onClick={() => inputRef.current?.focus()}>
-            <div 
-                ref={terminalRef} 
+            <div
+                ref={terminalRef}
                 className="w-full bg-black/50 p-6 font-mono text-sm border border-white/10 h-75 overflow-y-auto text-green-500 cursor-text custom-scrollbar"
             >
                 <div className="space-y-1 mb-2">
@@ -240,13 +312,13 @@ const TerminalSection = () => {
                     ))}
                 </div>
                 <div className="flex items-center flex-nowrap">
-                    <span className="mr-2 whitespace-nowrap shrink-0">C:\Users\Guest&gt;</span>
-                    <input 
+                    <span className="mr-2 whitespace-nowrap shrink-0">{getPathString(cwd)} $</span>
+                    <input
                         ref={inputRef}
-                        type="text" 
+                        type="text"
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
-                        onKeyDown={handleCommand}
+                        onKeyDown={handleKeyDown}
                         className="bg-transparent border-none outline-none text-green-500 w-full caret-green-500"
                         spellCheck={false}
                         autoComplete="off"
@@ -260,25 +332,23 @@ const TerminalSection = () => {
     );
 };
 
-// 6. COMPONENTE COLOR SPOTTER GAME (CORRIGIDO)
 const ColorSpotter = () => {
   const [score, setScore] = useState(0);
-  // Inicia com cores padrão para evitar erro de hidratação, depois muda no useEffect
+  // default values prevent hydration mismatch — real colors set in useEffect
   const [colors, setColors] = useState({ main: "#222", diff: "#222" });
   const [diffIndex, setDiffIndex] = useState(0);
   const [shake, setShake] = useState(false);
 
-  // Função para gerar cores HSL aleatórias
   const generateColors = (currentScore: number) => {
     const hue = Math.floor(Math.random() * 360);
     const sat = 75 + Math.floor(Math.random() * 25);
     const light = 40 + Math.floor(Math.random() * 40);
 
-    const difference = Math.max(2, 20 - currentScore); 
-    
+    const difference = Math.max(2, 20 - currentScore); // minimum 2, shrinks as score climbs
+
     const isLighter = Math.random() > 0.5;
-    const diffLight = isLighter 
-        ? Math.min(95, light + difference) 
+    const diffLight = isLighter
+        ? Math.min(95, light + difference)
         : Math.max(5, light - difference);
 
     return {
@@ -294,15 +364,14 @@ const ColorSpotter = () => {
     setDiffIndex(Math.floor(Math.random() * 6));
   };
 
-  // Inicializa o jogo ao carregar (CORRIGIDO)
   useEffect(() => {
-    // Timeout resolve o erro de "SetState synchronously"
+    // same deferred setState fix as ScrambleText
     const timer = setTimeout(() => {
         startRound(true);
     }, 0);
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); 
+  }, []);
 
   const handleClick = (index: number) => {
     if (index === diffIndex) {
@@ -333,9 +402,9 @@ const ColorSpotter = () => {
                 <div
                     key={i}
                     onClick={() => handleClick(i)}
-                    style={{ 
+                    style={{
                         backgroundColor: i === diffIndex ? colors.diff : colors.main,
-                        boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.3)" 
+                        boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.3)"
                     }}
                     className="w-full h-full rounded-lg cursor-pointer hover:scale-[1.02] active:scale-95 transition-transform duration-100 ease-out"
                 />
@@ -350,7 +419,6 @@ const ColorSpotter = () => {
   );
 };
 
-// 7. COMPONENTE TECH QUIZ
 const TechQuiz = () => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [score, setScore] = useState(0);
@@ -362,32 +430,32 @@ const TechQuiz = () => {
     {
       question: "Qual estrutura de dados utiliza o conceito LIFO (Last In, First Out)?",
       options: ["Queue (Fila)", "Stack (Pilha)", "Linked List", "Hash Map"],
-      answer: 1 // Stack
+      answer: 1
     },
     {
       question: "No contexto de APIs REST, qual método HTTP é tipicamente Idempotente?",
       options: ["POST", "PUT", "PATCH", "CONNECT"],
-      answer: 1 // PUT
+      answer: 1
     },
     {
       question: "O que significa o 'A' em ACID (banco de dados)?",
       options: ["Availability", "Accuracy", "Atomicity", "Authorization"],
-      answer: 2 // Atomicity
+      answer: 2
     },
     {
       question: "Em Machine Learning, o que ocorre quando o modelo decora o ruído em vez do padrão?",
       options: ["Underfitting", "Backpropagation", "Gradient Descent", "Overfitting"],
-      answer: 3 // Overfitting
+      answer: 3
     },
     {
       question: "Qual destes NÃO é um princípio do SOLID?",
       options: ["Single Responsibility", "Open/Closed", "Loop Invariance", "Dependency Inversion"],
-      answer: 2 // Loop Invariance
+      answer: 2
     }
   ];
 
   const handleAnswerClick = (index: number) => {
-    if (status !== "idle") return; // Previne cliques múltiplos
+    if (status !== "idle") return; // ignore while feedback animation plays
 
     setSelectedAnswer(index);
 
@@ -403,13 +471,13 @@ const TechQuiz = () => {
           setScore(score + 1);
           setShowScore(true);
         }
-      }, 800); // Espera um pouco para mostrar o verde
+      }, 800);
     } else {
       setStatus("wrong");
       setTimeout(() => {
         setStatus("idle");
         setSelectedAnswer(null);
-      }, 800); // Mostra o vermelho e reseta
+      }, 800);
     }
   };
 
@@ -427,7 +495,7 @@ const TechQuiz = () => {
         <div className="text-center py-10">
           <h3 className="text-2xl text-white font-bold mb-4">Quiz Completed!</h3>
           <p className="text-[#888] mb-8">You reached the end of the challenge.</p>
-          <button 
+          <button
             onClick={restartQuiz}
             className="px-6 py-3 bg-white text-black font-bold uppercase tracking-widest hover:bg-gray-200 transition-colors rounded-sm"
           >
@@ -448,7 +516,7 @@ const TechQuiz = () => {
           <div className="space-y-3">
             {questions[currentQuestion].options.map((option, index) => {
               let btnClass = "border-white/10 hover:bg-white/5 text-[#999]";
-              
+
               if (selectedAnswer === index) {
                 if (status === "correct") btnClass = "bg-green-500/20 border-green-500 text-green-500";
                 if (status === "wrong") btnClass = "bg-red-500/20 border-red-500 text-red-500 animate-shake";
@@ -472,12 +540,10 @@ const TechQuiz = () => {
   );
 };
 
-// --- PÁGINA PRINCIPAL ---
-
 export default function Home() {
   const [time, setTime] = useState("");
   const [activeSection, setActiveSection] = useState("hero");
-  
+
   const lines = Array.from({ length: 315 }, (_, i) => i + 1);
 
   const stackData = [
@@ -503,6 +569,7 @@ export default function Home() {
     updateTime();
     const interval = setInterval(updateTime, 1000);
 
+    // -20% top / -60% bottom shrinks the trigger zone so only the centered section is "active"
     const observerOptions = {
       root: null,
       rootMargin: "-20% 0px -60% 0px",
@@ -530,13 +597,12 @@ export default function Home() {
   return (
     <div className="h-screen w-full bg-[#181818] text-[#B1B1B1] font-mono overflow-hidden flex selection:bg-white/20 selection:text-black">
 
-      {/* --- SIDEBAR ESQUERDA --- */}
       <aside className="w-85 hidden lg:flex flex-col justify-between p-10 h-full border-r border-white/5 bg-[#181818] z-20 overflow-y-auto custom-scrollbar">
         <div className="flex flex-col gap-10">
             <div className="flex items-center gap-5">
                 <div className="w-16 h-16 overflow-hidden shrink-0 flex items-center justify-center relative rounded-full">
-                     <Image 
-                        src="/Pedro.jpg" 
+                     <Image
+                        src="/Pedro.jpg"
                         alt="profilePic"
                         fill
                         className="object-cover"
@@ -549,7 +615,7 @@ export default function Home() {
             </div>
 
             <p className="text-base leading-relaxed text-[#999] font-mono">
-                I’m Pedro Martins, a backend developer bringing elegant solutions to messy, complicated problems.
+                I&apos;m Pedro Martins, a backend developer bringing elegant solutions to messy, complicated problems.
             </p>
 
             <div className="flex flex-col gap-5 text-sm font-medium text-[#777]">
@@ -561,7 +627,7 @@ export default function Home() {
                     <MapPin className="w-5 h-5 shrink-0" />
                     <span>Curitiba, Brazil</span>
                 </div>
-                
+
                 <div className="flex items-start gap-4 hover:text-white transition-colors cursor-default">
                     <Globe className="w-5 h-5 shrink-0 mt-1" />
                     <span className="text-xs leading-relaxed">
@@ -595,9 +661,8 @@ export default function Home() {
         </div>
       </aside>
 
-      {/* --- COLUNA CENTRAL --- */}
-      <main className="flex-1 h-full flex flex-col relative min-w-0 bg-[#1F1F1F]"> 
-        
+      <main className="flex-1 h-full flex flex-col relative min-w-0 bg-[#1F1F1F]">
+
         <header className="h-11 flex-none flex items-center justify-between px-10 border-b border-white/5 bg-[#181818] z-10 text-xs tracking-[0.2em] font-bold text-[#555]">
             <div className="flex gap-8">
                 <span className="text-white cursor-pointer">pontope.info</span>
@@ -614,7 +679,7 @@ export default function Home() {
 
         <div className="flex-1 relative h-full overflow-y-auto scroll-smooth bg-[#1F1F1F]">
             <div className="min-h-full flex flex-row">
-                
+
                 <div className="flex-none opacity-50 w-10 py-4 flex flex-col items-end pr-2 border-r border-[#f8f8f81c] select-none bg-[#1F1F1F]">
                     {lines.map((num) => (
                         <span key={num} className="text-[10px] text-white leading-6 font-mono">
@@ -623,9 +688,8 @@ export default function Home() {
                     ))}
                 </div>
 
-                <div className="flex-1 py-16 md:py-24 pr-8 md:pr-12 w-full max-w-[95%] mx-auto pl-8"> 
-                    
-                    {/* 1. HERO SECTION */}
+                <div className="flex-1 py-16 md:py-24 pr-8 md:pr-12 w-full max-w-[95%] mx-auto pl-8">
+
                     <section id="hero" className="mb-48 scroll-mt-32">
                         <p className="text-sm text-[#555] mb-10 font-mono">&lt;!-- Hero section --&gt;</p>
                         <h1 className="text-7xl md:text-9xl font-bold text-white font-sans leading-[0.9] tracking-tighter mb-12">
@@ -633,11 +697,10 @@ export default function Home() {
                             <ScrambleText text="AI " /><span className="text-[#444]"><ScrambleText text="Engineer" /></span>
                         </h1>
                         <p className="text-2xl md:text-l text-[#999] max-w-4xl leading-relaxed font-mono font-thin">
-                            I’m Pedro Martins, a passionate backend developer creating elegant, simple solutions to messy, complicated problems.
+                            I&apos;m Pedro Martins, a passionate backend developer creating elegant, simple solutions to messy, complicated problems.
                         </p>
                     </section>
 
-                    {/* 2. WORK SECTION */}
                     <section id="work" className="mb-48 scroll-mt-24">
                         <div className="flex justify-between items-end mb-10">
                             <p className="text-sm text-[#555] font-mono">&lt;!-- Featured work --&gt;</p>
@@ -664,7 +727,6 @@ export default function Home() {
                         </div>
                     </section>
 
-                    {/* 3. ABOUT SECTION */}
                     <section id="about" className="mb-48 scroll-mt-24">
                         <p className="text-sm text-[#555] mb-10 font-mono">&lt;!-- About me --&gt;</p>
                         <h2 className="text-5xl md:text-7xl font-bold text-white font-sans mb-16 tracking-tight">
@@ -673,7 +735,7 @@ export default function Home() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-16 text-[#B1B1B1] leading-relaxed text-lg md:text-xl">
                             <div className="space-y-8">
                                 <p>
-                                    I’m an <span className="text-white bg-[#333] px-1 font-medium">Automation & AI Engineer</span> with a passion for architecting systems that are as creative as they are functional. My approach is built on a simple philosophy: <span className="text-white underline decoration-white/30 underline-offset-4">no problem is too complex if you know how to break it down.</span>
+                                    I&apos;m an <span className="text-white bg-[#333] px-1 font-medium">Automation & AI Engineer</span> with a passion for architecting systems that are as creative as they are functional. My approach is built on a simple philosophy: <span className="text-white underline decoration-white/30 underline-offset-4">no problem is too complex if you know how to break it down.</span>
                                 </p>
                             </div>
                             <div className="space-y-8">
@@ -683,8 +745,7 @@ export default function Home() {
                             </div>
                         </div>
                     </section>
-                    
-                    {/* 4. EXPERIENCE SECTION */}
+
                     <section id="experience" className="mb-48 scroll-mt-24">
                         <p className="text-sm text-[#555] mb-10 font-mono">&lt;!-- Professional history --&gt;</p>
                         <div className="space-y-0 border-t border-white/5">
@@ -702,7 +763,6 @@ export default function Home() {
                         </div>
                     </section>
 
-                    {/* 5. WHAT I DO SECTION */}
                     <section id="what-i-do" className="mb-48 scroll-mt-24">
                         <p className="text-sm text-[#555] mb-10 font-mono">&lt;!-- What I do --&gt;</p>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-16">
@@ -742,23 +802,21 @@ export default function Home() {
                         </div>
                     </section>
 
-                    {/* 6. STACK SECTION */}
                     <section id="stack" className="mb-32 scroll-mt-24">
                         <p className="text-sm text-[#555] mb-10 font-mono">&lt;!-- My tech stack --&gt;</p>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-0 border-l border-t border-white/5">
                             {stackData.map((tech) => (
-                                <TechCard 
-                                    key={tech.name} 
-                                    name={tech.name} 
-                                    percent={tech.percent} 
-                                    icon={tech.icon} 
+                                <TechCard
+                                    key={tech.name}
+                                    name={tech.name}
+                                    percent={tech.percent}
+                                    icon={tech.icon}
                                 />
                             ))}
                         </div>
                     </section>
 
 
-                    {/* 7. COLOR GAME SECTION */}
                     <section id="game" className="mb-48 scroll-mt-24">
                         <p className="text-sm text-[#555] mb-10 font-mono">&lt;!-- Take a break --&gt;</p>
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
@@ -777,7 +835,6 @@ export default function Home() {
                         </div>
                     </section>
 
-                    {/* 8. QUIZ SECTION */}
                     <section id="quiz" className="mb-48 scroll-mt-24">
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
                             <div className="order-2 lg:order-1 flex justify-center lg:justify-start">
@@ -794,8 +851,7 @@ export default function Home() {
                             </div>
                         </div>
                     </section>
-                    
-                    {/* 7. CONTACT SECTION */}
+
                     <section id="contact" className="mb-24 scroll-mt-24">
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
                             <div>
@@ -806,14 +862,14 @@ export default function Home() {
                                 </h2>
                             </div>
 
-                            <form 
-                                action="https://formsubmit.co/pegradowski@hotmail.com" 
+                            <form
+                                action="https://formsubmit.co/pegradowski@hotmail.com"
                                 method="POST"
                                 className="space-y-8 pt-16"
                             >
                                 <input type="hidden" name="_template" value="table" />
                                 <input type="hidden" name="_captcha" value="false" />
-                                <input type="hidden" name="_next" value="https://pontope.info" /> 
+                                <input type="hidden" name="_next" value="https://pontope.info" />
                                 <input type="hidden" name="_subject" value="Novo Contato do Portfólio!" />
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -849,14 +905,12 @@ export default function Home() {
                         </div>
                     </section>
 
-                    {/* 8. TERMINAL SECTION (CMD) */}
                     <TerminalSection />
 
                 </div>
             </div>
         </div>
 
-        {/* RODAPÉ DO FRAME */}
         <footer className="h-16 flex-none flex items-center justify-between px-10 border-t border-white/5 bg-[#181818] z-10 text-xs uppercase tracking-widest text-[#555]">
             <span className="font-bold text-[#777]"></span>
             <div className="flex items-center gap-8">
@@ -869,17 +923,16 @@ export default function Home() {
                     </a>
                     <a href="https://linkedin.com/in/pedro-g-martins" target="_blank" rel="noopener noreferrer">
                         <Linkedin className="w-5 h-5 hover:text-white cursor-pointer transition-colors" />
-                    </a>    
+                    </a>
                     <a href="mailto:pegradowski@hotmail.com" target="_blank" rel="noopener noreferrer">
                         <Mail className="w-5 h-5 hover:text-white cursor-pointer transition-colors" />
-                    </a>        
+                    </a>
                 </div>
             </div>
         </footer>
 
       </main>
 
-      {/* --- SIDEBAR DIREITA --- */}
       <aside className="w-60 hidden xl:flex flex-col p-10 h-full border-l border-white/5 bg-[#181818] pt-32 z-20">
         <h3 className="text-white font-mono font-bold mb-10 uppercase tracking-widest">Index</h3>
         <nav className="flex flex-col gap-6 text-xs font-mono font-bold tracking-wider">
