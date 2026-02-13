@@ -543,6 +543,11 @@ const TechQuiz = () => {
 export default function Home() {
   const [time, setTime] = useState("");
   const [activeSection, setActiveSection] = useState("hero");
+  const [matrixMode, setMatrixMode] = useState(false);
+  const [bsodPhase, setBsodPhase] = useState<'idle' | 'bsod' | 'glitch' | 'black' | 'reboot' | 'done'>('idle');
+  const konamiRef = useRef(0);
+  const bsodActiveRef = useRef(false);
+  const [enteringMatrix, setEnteringMatrix] = useState(true);
 
   const lines = Array.from({ length: 315 }, (_, i) => i + 1);
 
@@ -569,6 +574,43 @@ export default function Home() {
     updateTime();
     const interval = setInterval(updateTime, 1000);
 
+    // Konami Code: ↑ ↑ ↓ ↓ ← → ← → B A
+    const KONAMI = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+    const savedMatrix = localStorage.getItem('matrixMode') === 'true';
+    if (savedMatrix) setTimeout(() => setMatrixMode(true), 0);
+
+    const triggerBSOD = () => {
+      if (bsodActiveRef.current) return;
+      bsodActiveRef.current = true;
+      setEnteringMatrix(localStorage.getItem('matrixMode') !== 'true');
+      setBsodPhase('bsod');
+      setTimeout(() => setBsodPhase('glitch'), 1500);
+      setTimeout(() => setBsodPhase('black'), 2500);
+      setTimeout(() => {
+        setBsodPhase('reboot');
+        setMatrixMode(prev => {
+          const next = !prev;
+          localStorage.setItem('matrixMode', String(next));
+          return next;
+        });
+      }, 3500);
+      setTimeout(() => setBsodPhase('done'), 5000);
+      setTimeout(() => { setBsodPhase('idle'); bsodActiveRef.current = false; }, 6000);
+    };
+
+    const handleKonami = (e: KeyboardEvent) => {
+      if (e.key === KONAMI[konamiRef.current]) {
+        konamiRef.current++;
+        if (konamiRef.current === KONAMI.length) {
+          konamiRef.current = 0;
+          triggerBSOD();
+        }
+      } else {
+        konamiRef.current = 0;
+      }
+    };
+    window.addEventListener('keydown', handleKonami);
+
     // -20% top / -60% bottom shrinks the trigger zone so only the centered section is "active"
     const observerOptions = {
       root: null,
@@ -591,11 +633,15 @@ export default function Home() {
     return () => {
       clearInterval(interval);
       observer.disconnect();
+      window.removeEventListener('keydown', handleKonami);
     };
   }, []);
 
   return (
-    <div className="h-screen w-full bg-[#181818] text-[#B1B1B1] font-mono overflow-hidden flex selection:bg-white/20 selection:text-black">
+    <div
+      className={`h-screen w-full bg-[#181818] text-[#B1B1B1] font-mono overflow-hidden flex selection:bg-white/20 selection:text-black ${matrixMode ? 'matrix-theme' : ''}`}
+      style={matrixMode ? { backgroundColor: '#0a0a0a' } : undefined}
+    >
 
       <aside className="w-85 hidden lg:flex flex-col justify-between p-10 h-full border-r border-white/5 bg-[#181818] z-20 overflow-y-auto custom-scrollbar">
         <div className="flex flex-col gap-10">
@@ -949,6 +995,45 @@ export default function Home() {
             </div>
         </nav>
       </aside>
+
+      {/* BSOD Overlay — Konami Code Easter Egg */}
+      {bsodPhase !== 'idle' && (
+        <div className="fixed inset-0 z-[99999] bg-black">
+          {(bsodPhase === 'bsod' || bsodPhase === 'glitch') && (
+            <div className={`w-full h-full bg-[#0078d7] flex items-center justify-center p-10 ${bsodPhase === 'glitch' ? 'bsod-glitch' : ''}`}>
+              <div className="max-w-2xl text-white font-mono space-y-6">
+                <p className="text-[80px] leading-none">:(</p>
+                <h1 className="text-2xl font-bold">Your portfolio ran into a problem and needs to restart.</h1>
+                <p className="text-base opacity-80">Error: KONAMI_CODE_DETECTED</p>
+                <div className="text-xs opacity-50 space-y-1 leading-relaxed">
+                  <p>*** STOP: 0x0000K0DE (0xUPUPDOWN, 0xDOWNLEFT, 0xRIGHTBA, 0xSECRET)</p>
+                  <p>*** portfolio.exe &mdash; KONAMI_OVERRIDE initiated at 0xDEADBEEF</p>
+                  <p className="pt-4">Collecting error data.......... 100% complete</p>
+                  <p>Physical memory dump............. complete</p>
+                  <p>Preparing system override........ ready</p>
+                </div>
+              </div>
+            </div>
+          )}
+          {bsodPhase === 'black' && <div className="w-full h-full bg-black" />}
+          {bsodPhase === 'reboot' && (
+            <div className="w-full h-full bg-black flex flex-col items-center justify-center gap-6 font-mono">
+              <p className="text-[#00ff41] text-lg tracking-widest animate-pulse">
+                {enteringMatrix ? '> ENTERING THE MATRIX...' : '> RESTORING SYSTEM...'}
+              </p>
+              <div className="flex gap-2">
+                {[0, 1, 2].map(i => (
+                  <div key={i} className="w-2 h-2 bg-[#00ff41] rounded-full animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
+                ))}
+              </div>
+            </div>
+          )}
+          {bsodPhase === 'done' && <div className="w-full h-full bg-black animate-fade-out" />}
+        </div>
+      )}
+
+      {/* Matrix CRT scanlines + vignette */}
+      {matrixMode && <div className="matrix-scanlines" />}
 
     </div>
   );

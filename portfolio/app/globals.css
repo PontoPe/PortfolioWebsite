@@ -45,3 +45,206 @@ body {
 .animate-shake {
   animation: shake 0.2s ease-in-out 3;
 }
+
+/* ═══════════════════════════════════════════
+   KONAMI CODE — BSOD & MATRIX THEME
+   ═══════════════════════════════════════════ */
+
+/* BSOD Glitch Animation */
+@keyframes bsod-glitch {
+  0%   { transform: translate(0); filter: none; clip-path: none; }
+  10%  { transform: translate(-3px, 2px); filter: hue-rotate(90deg); }
+  20%  { transform: translate(3px, -2px); filter: brightness(1.5); }
+  30%  { transform: translate(-2px, 3px); clip-path: inset(30% 0 40% 0); }
+  40%  { transform: translate(2px, -3px); filter: hue-rotate(180deg); }
+  50%  { transform: translate(0); filter: none; clip-path: none; }
+  60%  { transform: translate(4px, 0); clip-path: inset(60% 0 5% 0); }
+  70%  { transform: translate(-4px, 2px); filter: saturate(5) brightness(1.3); }
+  80%  { transform: translate(0, -2px); clip-path: inset(5% 0 70% 0); }
+  90%  { transform: translate(2px, 3px); filter: hue-rotate(270deg) brightness(2); }
+  100% { transform: translate(0); filter: none; clip-path: none; opacity: 0; }
+}
+
+.bsod-glitch {
+  animation: bsod-glitch 1s steps(3) forwards;
+}
+
+/* Fade Out */
+@keyframes fade-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+.animate-fade-out {
+  animation: fade-out 0.8s ease-out forwards;
+}
+
+/* Matrix Scanline + CRT Overlay */
+.matrix-scanlines {
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.06) 2px,
+    rgba(0, 0, 0, 0.06) 4px
+  );
+  pointer-events: none;
+  z-index: 9998;
+}
+
+.matrix-scanlines::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 50%, rgba(0, 0, 0, 0.4) 100%);
+  pointer-events: none;
+}
+
+/* ─── MATRIX THEME ─── */
+
+/* Root backgrounds */
+.matrix-theme                         { background-color: #0a0a0a !important; }
+.matrix-theme aside,
+.matrix-theme header,
+.matrix-theme footer                  { background-color: #050505 !important; }
+.matrix-theme main                    { background-color: #0a0a0a !important; }
+
+/* Headings — bright green with glow */
+.matrix-theme h1,
+.matrix-theme h2,
+.matrix-theme h3 {
+  color: #00ff41 !important;
+  text-shadow: 0 0 10px rgba(0, 255, 65, 0.4), 0 0 40px rgba(0, 255, 65, 0.1);
+}
+
+/* Body text — muted green */
+.matrix-theme p,
+.matrix-theme span,
+.matrix-theme li,
+.matrix-theme label,
+.matrix-theme a {
+  color: #00aa2a !important;
+}
+
+/* Keep white-classed text bright green */
+.matrix-theme .text-white {
+  color: #00ff41 !important;
+}
+
+/* Links hover */
+.matrix-theme a:hover {
+  color: #00ff41 !important;
+  text-shadow: 0 0 10px rgba(0, 255, 65, 0.6);
+}
+
+/* Borders — subtle green */
+.matrix-theme * {
+  border-color: rgba(0, 255, 65, 0.1) !important;
+}
+
+/* Buttons */
+.matrix-theme button {
+  color: #00ff41 !important;
+  border-color: rgba(0, 255, 65, 0.25) !important;
+}
+
+.matrix-theme button:hover {
+  background-color: rgba(0, 255, 65, 0.08) !important;
+  text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+}
+
+/* Primary (filled) buttons */
+.matrix-theme .bg-white {
+  background-color: #00ff41 !important;
+  color: #000000 !important;
+  text-shadow: none !important;
+}
+
+.matrix-theme .bg-white:hover {
+  background-color: #00cc33 !important;
+}
+
+/* Inputs */
+.matrix-theme input,
+.matrix-theme textarea {
+  background-color: #050505 !important;
+  color: #00ff41 !important;
+  caret-color: #00ff41 !important;
+}
+
+.matrix-theme input::placeholder,
+.matrix-theme textarea::placeholder {
+  color: #003a00 !important;
+}
+
+/* Images — green tint */
+.matrix-theme img {
+  filter: grayscale(1) brightness(0.7) sepia(1) hue-rotate(70deg) saturate(2);
+}
+
+/* Cards and panels */
+.matrix-theme .bg-\[\#181818\] { background-color: #050505 !important; }
+.matrix-theme .bg-\[\#111\]    { background-color: #020802 !important; }
+.matrix-theme .bg-\[\#1F1F1F\] { background-color: #0a0a0a !important; }
+.matrix-theme .bg-black\/50    { background-color: rgba(0, 10, 0, 0.7) !important; }
+
+/* Terminal section */
+.matrix-theme .text-green-500 {
+  color: #00ff41 !important;
+  text-shadow: 0 0 4px rgba(0, 255, 65, 0.4);
+}
+
+.matrix-theme .caret-green-500 {
+  caret-color: #00ff41 !important;
+}
+
+/* "Open to work" badge glow */
+.matrix-theme .text-green-400 {
+  color: #00ff41 !important;
+  text-shadow: 0 0 8px rgba(0, 255, 65, 0.6);
+}
+
+.matrix-theme .bg-green-500 {
+  box-shadow: 0 0 10px rgba(0, 255, 65, 0.8);
+}
+
+.matrix-theme .bg-green-900\/10 {
+  background-color: rgba(0, 255, 65, 0.05) !important;
+}
+
+.matrix-theme .border-green-900\/20 {
+  border-color: rgba(0, 255, 65, 0.15) !important;
+}
+
+/* Selection */
+.matrix-theme ::selection {
+  background-color: rgba(0, 255, 65, 0.3) !important;
+  color: #fff !important;
+}
+
+/* Scrollbar */
+.matrix-theme ::-webkit-scrollbar-track {
+  background: #050505 !important;
+  border-left-color: rgba(0, 255, 65, 0.05) !important;
+}
+
+.matrix-theme ::-webkit-scrollbar-thumb {
+  background-color: #003300 !important;
+  border-color: #050505 !important;
+}
+
+.matrix-theme ::-webkit-scrollbar-thumb:hover {
+  background-color: #006600 !important;
+}
+
+/* Quiz state colors preserved */
+.matrix-theme .bg-red-500\/20   { background-color: rgba(255, 0, 64, 0.15) !important; }
+.matrix-theme .border-red-500    { border-color: #ff0040 !important; }
+.matrix-theme .text-red-500      { color: #ff0040 !important; }
+
+.matrix-theme > aside svg,
+.matrix-theme > main svg {
+  filter: sepia(1) hue-rotate(90deg) saturate(4);
+}
