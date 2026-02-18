@@ -6,6 +6,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
 
+// ESTA É A FUNÇÃO QUE ESTAVA FALTANDO E CAUSOU O ERRO
 export async function generateStaticParams() {
   const files = await getPostFiles();
   return files.map((file) => ({
