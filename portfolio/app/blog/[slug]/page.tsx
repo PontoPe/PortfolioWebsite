@@ -6,14 +6,6 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
 
-// ESTA É A FUNÇÃO QUE ESTAVA FALTANDO E CAUSOU O ERRO
-export async function generateStaticParams() {
-  const files = await getPostFiles();
-  return files.map((file) => ({
-    slug: file.name.replace(".md", ""),
-  }));
-}
-
 export default async function BlogPost({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const decodedSlug = decodeURIComponent(slug);
@@ -103,4 +95,12 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
       <aside className="w-60 hidden xl:block h-full border-l border-white/5 bg-[#181818] z-20 opacity-30"></aside>
     </div>
   );
+}
+
+
+export async function generateStaticParams() {
+  const files = await getPostFiles();
+  return files.map((file) => ({
+    slug: file.name.replace(".md", ""),
+  }));
 }
