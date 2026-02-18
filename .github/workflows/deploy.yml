@@ -13,20 +13,20 @@ jobs:
     name: 🎉 Deploy
     runs-on: ubuntu-latest
     steps:
-      # 1. Baixa o código do SITE (PortfolioWebsite)
+      # 1. Baixa o código do SITE
       - name: 🚚 Get latest code (Website)
         uses: actions/checkout@v4
-        with:
-          path: .
 
       # 2. Baixa o código do BLOG (ObsidianGit - Privado)
+      # ATENÇÃO: Baixamos para DENTRO da pasta 'portfolio/_content'
+      # para que seu script lib/github.ts consiga achar os arquivos facilmente.
       - name: 🔐 Get private content (Obsidian)
         uses: actions/checkout@v4
         with:
           repository: PontoPe/ObsidianGit
-          token: ${{ secrets.GH_PAT }} # O token permite ler o repo privado
-          path: _content               # Salva numa pasta separada chamada "_content"
-          fetch-depth: 1               # Baixa só a última versão (mais rápido)
+          token: ${{ secrets.GH_PAT }}
+          path: portfolio/_content
+          fetch-depth: 1
 
       # 3. Configura o Node.js
       - name: ⚙️ Setup Node.js 20
@@ -34,21 +34,26 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
+          # AQUI A CORREÇÃO DO ERRO: Dizemos onde está o package-lock.json
+          cache-dependency-path: portfolio/package-lock.json
 
-      # 4. Instala dependências
+      # 4. Instala dependências (Rodando dentro da pasta portfolio)
       - name: 📦 Install Dependencies
+        working-directory: ./portfolio
         run: npm ci
 
-      # 5. PREPARAÇÃO DE CONTEÚDO (Mágica das Imagens)
-      # Cria a pasta e copia todas as imagens (png, jpg, etc) do Obsidian para o Public do site
+      # 5. Move Imagens (Rodando dentro da pasta portfolio)
       - name: 🖼️ Move Blog Images to Public
+        working-directory: ./portfolio
         run: |
           mkdir -p public/blog-images
+          # Procura imagens dentro de _content e copia para public/blog-images
           find _content -type f \( -name "*.png" -o -name "*.jpg" -o -name "*.jpeg" -o -name "*.gif" -o -name "*.webp" \) -exec cp {} public/blog-images/ \;
-          echo "Imagens copiadas com sucesso para public/blog-images"
+          echo "Imagens copiadas com sucesso!"
 
-      # 6. Build do Next.js
+      # 6. Build do Next.js (Rodando dentro da pasta portfolio)
       - name: 🏗️ Build Project
+        working-directory: ./portfolio
         run: npm run build
 
       # 7. Deploy via FTP
@@ -58,7 +63,8 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./out/
+          # O site buildado agora está dentro de portfolio/out
+          local-dir: ./portfolio/out/
           server-dir: ./
           exclude: |
             **/.git*
