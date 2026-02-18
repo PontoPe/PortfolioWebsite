@@ -23,6 +23,10 @@ export const virtualFS = {
                   'hidden.txt': {
                     type: 'file',
                     content: 'hmmmm... sneaky!'
+                  },
+                  '.hidden.txt': {
+                    type: 'file',
+                    content: 'try the konami code'
                   }
                 }
               },

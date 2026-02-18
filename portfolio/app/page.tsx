@@ -998,7 +998,7 @@ export default function Home() {
 
       {/* BSOD Overlay — Konami Code Easter Egg */}
       {bsodPhase !== 'idle' && (
-        <div className="fixed inset-0 z-[99999] bg-black">
+        <div className="fixed inset-0 z-99999 bg-black">
           {(bsodPhase === 'bsod' || bsodPhase === 'glitch') && (
             <div className={`w-full h-full bg-[#0078d7] flex items-center justify-center p-10 ${bsodPhase === 'glitch' ? 'bsod-glitch' : ''}`}>
               <div className="max-w-2xl text-white font-mono space-y-6">

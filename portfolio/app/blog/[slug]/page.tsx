@@ -69,11 +69,15 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
                     a: (props) => <a {...props} target="_blank" className="text-green-500 hover:underline" />,
                     img: (props) => {
                       const rawSrc = (props.src as string) || "";
-                      const sanitizedSrc = rawSrc.split(' ').join('%20');
-                      // relative paths are resolved against the github repo's posts folder
+                      
+                      // Limpa o nome da imagem (remove caminhos de pastas do Obsidian se houver)
+                      const filename = rawSrc.split('/').pop() || "";
+                      const sanitizedFilename = filename.split(' ').join('%20');
+
+                      // Agora apontamos para a pasta local pública
                       const imageSrc = rawSrc.startsWith("http")
                         ? rawSrc
-                        : `https://raw.githubusercontent.com/PontoPe/ObsidianGit/main/posts/${sanitizedSrc}`;
+                        : `/blog-images/${sanitizedFilename}`; // <--- MUDANÇA AQUI
 
                       return (
                         <Image
