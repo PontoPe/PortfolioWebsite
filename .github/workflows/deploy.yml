@@ -13,13 +13,12 @@ jobs:
     name: 🎉 Deploy
     runs-on: ubuntu-latest
     steps:
-      # 1. Baixa o código do SITE
+      # 1. Baixa o SITE
       - name: 🚚 Get latest code (Website)
         uses: actions/checkout@v4
 
-      # 2. Baixa o código do BLOG (ObsidianGit - Privado)
-      # ATENÇÃO: Baixamos para DENTRO da pasta 'portfolio/_content'
-      # para que seu script lib/github.ts consiga achar os arquivos facilmente.
+      # 2. Baixa o BLOG (Privado)
+      # Importante: path relativo à raiz do runner
       - name: 🔐 Get private content (Obsidian)
         uses: actions/checkout@v4
         with:
@@ -28,42 +27,57 @@ jobs:
           path: portfolio/_content
           fetch-depth: 1
 
-      # 3. Configura o Node.js
+      # 3. Setup Node
       - name: ⚙️ Setup Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
-          # AQUI A CORREÇÃO DO ERRO: Dizemos onde está o package-lock.json
           cache-dependency-path: portfolio/package-lock.json
 
-      # 4. Instala dependências (Rodando dentro da pasta portfolio)
+      # 4. Instala Dependências
       - name: 📦 Install Dependencies
         working-directory: ./portfolio
         run: npm ci
 
-      # 5. Move Imagens (Rodando dentro da pasta portfolio)
+      # --- PASSO DE DEBUG NOVO ---
+      # Isso vai mostrar no log se a pasta _content está lá mesmo
+      - name: 🔍 DEBUG - List Files
+        run: |
+          echo "Listando raiz do portfolio para encontrar _content:"
+          ls -la portfolio/
+          echo "--------------------------------------------------"
+          if [ -d "portfolio/_content" ]; then
+            echo "ACHEI! Conteúdo da pasta _content:"
+            ls -la portfolio/_content/
+          else
+            echo "ERRO: A pasta portfolio/_content NÃO EXISTE!"
+          fi
+
+      # 5. Move Imagens
       - name: 🖼️ Move Blog Images to Public
         working-directory: ./portfolio
         run: |
           mkdir -p public/blog-images
-          # Procura imagens dentro de _content e copia para public/blog-images
-          find _content -type f \( -name "*.png" -o -name "*.jpg" -o -name "*.jpeg" -o -name "*.gif" -o -name "*.webp" \) -exec cp {} public/blog-images/ \;
-          echo "Imagens copiadas com sucesso!"
+          # O 'find' agora deve funcionar sem erro porque checamos antes
+          if [ -d "_content" ]; then
+            find _content -type f \( -name "*.png" -o -name "*.jpg" -o -name "*.jpeg" -o -name "*.gif" -o -name "*.webp" \) -exec cp {} public/blog-images/ \;
+          else
+            echo "Pulei a cópia de imagens pois _content não existe."
+          fi
 
-      # 6. Build do Next.js (Rodando dentro da pasta portfolio)
+      # 6. Build
       - name: 🏗️ Build Project
         working-directory: ./portfolio
         run: npm run build
 
-      # 7. Deploy via FTP
+      # 7. FTP Deploy
       - name: 🚀 FTP Deploy
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          # O site buildado agora está dentro de portfolio/out
           local-dir: ./portfolio/out/
           server-dir: ./
           exclude: |
