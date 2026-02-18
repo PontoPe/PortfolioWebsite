@@ -1,37 +1,50 @@
 import fs from "fs";
 import path from "path";
-import matter from "gray-matter"; // Você vai precisar instalar: npm install gray-matter
+import matter from "gray-matter";
 
+// Define o caminho. Note que em produção (Vercel/GitHub Actions) o cwd pode variar,
+// mas geralmente isso aponta para a raiz do projeto onde o package.json está.
 const contentDirectory = path.join(process.cwd(), "_content");
 
-// Lista os arquivos .md
 export async function getPostFiles() {
-  // Verifica se a pasta existe (para não quebrar em dev local se você não tiver clonado)
-  if (!fs.existsSync(contentDirectory)) return [];
+  try {
+    // 1. SEGURANÇA: Se a pasta não existe, retorna vazio e avisa no log.
+    // Isso impede o erro "missing generateStaticParams" de acontecer por crash.
+    if (!fs.existsSync(contentDirectory)) {
+      console.warn(`[AVISO] A pasta de conteúdo não foi encontrada em: ${contentDirectory}`);
+      console.warn("[AVISO] O build vai continuar, mas sem gerar posts de blog.");
+      return [];
+    }
 
-  const fileNames = fs.readdirSync(contentDirectory);
-  
-  return fileNames
-    .filter((fileName) => fileName.endsWith(".md"))
-    .map((fileName) => ({
-      name: fileName,
-    }));
+    const fileNames = fs.readdirSync(contentDirectory);
+
+    return fileNames
+      .filter((fileName) => fileName.endsWith(".md"))
+      .map((fileName) => ({
+        name: fileName,
+      }));
+      
+  } catch (error) {
+    console.error("[ERRO CRÍTICO] Falha ao ler arquivos do blog:", error);
+    return []; // Retorna vazio em caso de erro bizarro para não derrubar o site
+  }
 }
 
-// Lê o conteúdo de um post
 export async function getPostContent(slug: string) {
   const fullPath = path.join(contentDirectory, slug);
   
-  // Se não achar, retorna vazio
-  if (!fs.existsSync(fullPath)) return { meta: {}, content: "" };
+  if (!fs.existsSync(fullPath)) {
+    return {
+      meta: { title: "Post Not Found", date: "0000-00-00" },
+      content: "# Erro 404\nPost não encontrado ou arquivo ausente.",
+    };
+  }
 
   const fileContents = fs.readFileSync(fullPath, "utf8");
-  
-  // O gray-matter separa o cabeçalho (meta) do corpo (content)
   const { data, content } = matter(fileContents);
 
   return {
-    meta: data,    // Título, data, etc.
-    content,       // O texto em Markdown
+    meta: data,
+    content,
   };
 }
