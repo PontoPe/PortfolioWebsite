@@ -691,19 +691,21 @@ export default function Home() {
                 </div>
             </div>
 
-            <button className="flex items-center justify-between w-full px-6 py-4 border border-white/10 rounded-sm hover:bg-white/5 transition-colors group mt-2">
+            <button onClick={() => window.open("https://drive.google.com/file/d/15peACphrIc_1-NVd9ZRhiRJ9CK4rhScJ/view?usp=drive_link", "_blank")} className="flex items-center justify-between w-full px-6 py-4 border border-white/10 rounded-sm hover:bg-white/5 transition-colors group mt-2">
                 <span className="text-sm font-bold text-white font-mono tracking-widest">Download CV</span>
                 <Download className="w-5 h-5 text-[#666] group-hover:text-white group-hover:translate-y-0.5 transition-transform" />
             </button>
         </div>
 
         <div className="flex flex-col gap-3 mt-10">
-             <button className="w-full py-4 bg-white text-black font-mono font-bold text-sm uppercase tracking-widest rounded-sm hover:bg-gray-200 transition-colors">
+             <button onClick={() => window.open("https://calendly.com/pegradowski/30min", "_blank")} className="w-full py-4 bg-white text-black font-mono font-bold text-sm uppercase tracking-widest rounded-sm hover:bg-gray-200 transition-colors">
                 Schedule a call
              </button>
-             <button className="w-full py-4 border border-white/10 text-white font-mono font-bold text-sm uppercase tracking-widest rounded-sm hover:bg-white/5 transition-colors">
-                Work with me
-             </button>
+             <a href="#contact">
+                <button className="w-full py-4 border border-white/10 text-white font-mono font-bold text-sm uppercase tracking-widest rounded-sm hover:bg-white/5 transition-colors">
+                    Work with me
+                </button>
+             </a>
         </div>
       </aside>
 
