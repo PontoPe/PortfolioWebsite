@@ -2,22 +2,31 @@ import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
 
-// Define o caminho. Note que em produção (Vercel/GitHub Actions) o cwd pode variar,
-// mas geralmente isso aponta para a raiz do projeto onde o package.json está.
-const contentDirectory = path.join(process.cwd(), "_content");
+// Ajustamos para procurar dentro de _content/posts se existir, ou _content direto
+const rootContent = path.join(process.cwd(), "_content");
+
+function getContentDir() {
+  // Se existir a pasta 'posts' (padrão do ObsidianGit), usa ela
+  const postsDir = path.join(rootContent, "posts");
+  if (fs.existsSync(postsDir)) {
+    return postsDir;
+  }
+  // Se não, usa a raiz _content mesmo
+  return rootContent;
+}
 
 export async function getPostFiles() {
+  const targetDir = getContentDir();
+
   try {
-    // 1. SEGURANÇA: Se a pasta não existe, retorna vazio e avisa no log.
-    // Isso impede o erro "missing generateStaticParams" de acontecer por crash.
-    if (!fs.existsSync(contentDirectory)) {
-      console.warn(`[AVISO] A pasta de conteúdo não foi encontrada em: ${contentDirectory}`);
-      console.warn("[AVISO] O build vai continuar, mas sem gerar posts de blog.");
+    if (!fs.existsSync(targetDir)) {
+      console.warn(`[AVISO] Pasta não encontrada: ${targetDir}`);
       return [];
     }
 
-    const fileNames = fs.readdirSync(contentDirectory);
+    const fileNames = fs.readdirSync(targetDir);
 
+    // Filtra apenas arquivos .md
     return fileNames
       .filter((fileName) => fileName.endsWith(".md"))
       .map((fileName) => ({
@@ -25,18 +34,19 @@ export async function getPostFiles() {
       }));
       
   } catch (error) {
-    console.error("[ERRO CRÍTICO] Falha ao ler arquivos do blog:", error);
-    return []; // Retorna vazio em caso de erro bizarro para não derrubar o site
+    console.error("[ERRO CRÍTICO] Falha ao ler arquivos:", error);
+    return [];
   }
 }
 
 export async function getPostContent(slug: string) {
-  const fullPath = path.join(contentDirectory, slug);
+  const targetDir = getContentDir();
+  const fullPath = path.join(targetDir, slug);
   
   if (!fs.existsSync(fullPath)) {
     return {
       meta: { title: "Post Not Found", date: "0000-00-00" },
-      content: "# Erro 404\nPost não encontrado ou arquivo ausente.",
+      content: "# 404\nPost não encontrado.",
     };
   }
 
