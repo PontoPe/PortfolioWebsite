@@ -7,7 +7,10 @@ export default async function BlogPage() {
   const posts = await Promise.all(
     files.map(async (file) => {
       const postData = await getPostContent(file.name);
-      return postData;
+      return {
+        ...postData,
+        slug: file.name.replace(".md", "")
+      };
     })
   );
 
