@@ -2,42 +2,65 @@ name: Deploy Website
 
 on:
   push:
-    branches: [main]
-  # This allows the Blog Repo to trigger this workflow remotely
+    branches:
+      - main
   repository_dispatch:
     types: [update_blog]
+  workflow_dispatch:
 
 jobs:
-  build-and-deploy:
+  web-deploy:
+    name: 🎉 Deploy
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
+      # 1. Baixa o código do SITE (PortfolioWebsite)
+      - name: 🚚 Get latest code (Website)
+        uses: actions/checkout@v4
+        with:
+          path: .
 
-      - name: Setup Node
-        uses: actions/setup-node@v3
+      # 2. Baixa o código do BLOG (ObsidianGit - Privado)
+      - name: 🔐 Get private content (Obsidian)
+        uses: actions/checkout@v4
+        with:
+          repository: PontoPe/ObsidianGit
+          token: ${{ secrets.GH_PAT }} # O token permite ler o repo privado
+          path: _content               # Salva numa pasta separada chamada "_content"
+          fetch-depth: 1               # Baixa só a última versão (mais rápido)
+
+      # 3. Configura o Node.js
+      - name: ⚙️ Setup Node.js 20
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
 
-      # 1. Entra na pasta portfolio para instalar
-      - name: Install Dependencies
+      # 4. Instala dependências
+      - name: 📦 Install Dependencies
         run: npm ci
-        working-directory: ./portfolio
 
-      # 2. Entra na pasta portfolio para criar o site
-      - name: Build Static Site
+      # 5. PREPARAÇÃO DE CONTEÚDO (Mágica das Imagens)
+      # Cria a pasta e copia todas as imagens (png, jpg, etc) do Obsidian para o Public do site
+      - name: 🖼️ Move Blog Images to Public
+        run: |
+          mkdir -p public/blog-images
+          find _content -type f \( -name "*.png" -o -name "*.jpg" -o -name "*.jpeg" -o -name "*.gif" -o -name "*.webp" \) -exec cp {} public/blog-images/ \;
+          echo "Imagens copiadas com sucesso para public/blog-images"
+
+      # 6. Build do Next.js
+      - name: 🏗️ Build Project
         run: npm run build
-        working-directory: ./portfolio
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
 
-      # 3. Faz o Upload (Note que o caminho mudou para incluir portfolio/)
-      - name: Upload via FTP
+      # 7. Deploy via FTP
+      - name: 🚀 FTP Deploy
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./portfolio/out/    # <--- MUDANÇA IMPORTANTE AQUI
+          local-dir: ./out/
           server-dir: ./
+          exclude: |
+            **/.git*
+            **/.git*/**
+            node_modules/**
