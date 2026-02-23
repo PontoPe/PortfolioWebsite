@@ -552,18 +552,18 @@ export default function Home() {
   const lines = Array.from({ length: 315 }, (_, i) => i + 1);
 
   const stackData = [
-    { name: "Python", percent: "87%", icon: "/stack/python.png" },
-    { name: "FastAPI", percent: "76%", icon: "/stack/fastapi.png" },
-    { name: "Github", percent: "75%", icon: "/stack/github.png" },
-    { name: "Java", percent: "72%", icon: "/stack/java.png" },
-    { name: "Docker", percent: "68%", icon: "/stack/docker.png" },
-    { name: "OpenCV", percent: "64%", icon: "/stack/opencv.png" },
-    { name: "AWS", percent: "63%", icon: "/stack/aws.png" },
-    { name: "SQL", percent: "63%", icon: "/stack/sql.png" },
-    { name: "Slack", percent: "62%", icon: "/stack/slack.png" },
-    { name: "Terraform", percent: "59%", icon: "/stack/terraform.png" },
-    { name: "React", percent: "57%", icon: "/stack/react.png" },
-    { name: "Go", percent: "57%", icon: "/stack/go.png" },
+    { name: "Python", percent: "", icon: "/stack/python.png" },
+    { name: "FastAPI", percent: "", icon: "/stack/fastapi.png" },
+    { name: "Github", percent: "", icon: "/stack/github.png" },
+    { name: "Java", percent: "", icon: "/stack/java.png" },
+    { name: "Docker", percent: "", icon: "/stack/docker.png" },
+    { name: "OpenCV", percent: "", icon: "/stack/opencv.png" },
+    { name: "AWS", percent: "", icon: "/stack/aws.png" },
+    { name: "SQL", percent: "", icon: "/stack/sql.png" },
+    { name: "Slack", percent: "", icon: "/stack/slack.png" },
+    { name: "Terraform", percent: "", icon: "/stack/terraform.png" },
+    { name: "React", percent: "", icon: "/stack/react.png" },
+    { name: "Go", percent: "", icon: "/stack/go.png" },
   ];
 
   useEffect(() => {
