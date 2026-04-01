@@ -180,7 +180,7 @@ const fsHelpText = [
   '  help       - Show this help',
   '  clear      - Clear terminal',
   '',
-  'You can also use: blog, youtube, twitch, mimiza, secret',
+  'You can also use: blog, youtube, twitch, mimiza, ...',
 ];
 
 const TerminalSection = () => {
@@ -283,13 +283,16 @@ const TerminalSection = () => {
                 newHistory.push("⠀⠀⠀⠀⠉⠉⠻⣿⣄⣴⣿⠟⠀⠀⠀ ");
                 newHistory.push("⠀⠀⠀⠀⠀⠀⠀⣿⡿⠟⠁⠀⠀⠀⠀");
                 sleep(2000).then(() => {
-                    newHistory.push("Opening Behance portfolio...");
-                    window.open('https://behance.net/milenacaldas', '_blank');
+                    newHistory.push("Opening Mimiza portfolio...");
+                    window.open('https://mimigraphicdesign.com', '_blank');
                 });
             } else if (cmd === 'secret') {
                 newHistory.push("Unlock sequence initiated...");
                 window.open('https://youtube.com/watch?v=dQw4w9WgXcQ', '_blank');
             } else if (cmd === '') {
+            } else if (cmd === 'SUPERFROG') {
+                newHistory.push("You found the easter egg! 🐸✨");
+                window.open('https://www.tramontina.com/', '_blank');
             } else {
                 newHistory.push(`'${command}' is not recognized as an internal or external command.`);
                 newHistory.push("Type 'help' for a list of commands.");
