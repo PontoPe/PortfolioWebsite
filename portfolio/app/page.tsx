@@ -217,7 +217,7 @@ const TerminalSection = () => {
                     }
                 }
             } else if (args.length === 1 && args[0].length > 0) {
-                 const commands = ['ls', 'cd', 'cat', 'help', 'clear', 'blog', 'youtube', 'twitch', 'mimiza', 'secret'];
+                 const commands = ['ls', 'cd', 'cat', 'help', 'clear', 'blog', 'youtube', 'twitch', 'mimiza', 'secret', 'SUPERFROG'];
                  const partial = args[0];
                  const candidates = commands.filter(c => c.startsWith(partial));
                  if (candidates.length === 1) {
