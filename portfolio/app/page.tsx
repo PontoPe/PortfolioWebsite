@@ -289,7 +289,7 @@ const TerminalSection = () => {
             } else if (cmd === 'secret') {
                 newHistory.push("Unlock sequence initiated...");
                 window.open('https://youtube.com/watch?v=dQw4w9WgXcQ', '_blank');
-            } else if (cmd === 'SUPERFROG') {
+            } else if (cmd === 'superfrog') {
                 newHistory.push("You found the easter egg! 🐸✨");
                 window.open('https://www.tramontina.com/', '_blank');
             } else if (cmd === '') {
