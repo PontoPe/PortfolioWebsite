@@ -289,10 +289,10 @@ const TerminalSection = () => {
             } else if (cmd === 'secret') {
                 newHistory.push("Unlock sequence initiated...");
                 window.open('https://youtube.com/watch?v=dQw4w9WgXcQ', '_blank');
-            } else if (cmd === '') {
             } else if (cmd === 'SUPERFROG') {
                 newHistory.push("You found the easter egg! 🐸✨");
                 window.open('https://www.tramontina.com/', '_blank');
+            } else if (cmd === '') {
             } else {
                 newHistory.push(`'${command}' is not recognized as an internal or external command.`);
                 newHistory.push("Type 'help' for a list of commands.");
