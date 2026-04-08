@@ -28,6 +28,20 @@ const projectsData: Record<string, Project> = {
     github: "https://github.com/PontoPe/CowRec",
     demo: "https://cowrec.com",
   },
+  "fintech": {
+    title: "BNPL Platform",
+    category: "FinTech / Microservices",
+    date: "2026",
+    description: `
+      A full-stack Buy Now, Pay Later (BNPL) microservices platform modeled after services like Sezzle. Three independently deployed Go services backed by a React/TypeScript merchant dashboard, all orchestrated with Docker Compose.
+
+      The BNPL Engine handles order creation and installment payment processing. Money is stored as integers (cents) — never floats — to avoid IEEE 754 rounding errors. Payment splitting guarantees the sum always equals the original total: remainder cents are distributed to the earliest installments. SELECT FOR UPDATE row locks prevent double-payment race conditions under concurrent load. The service ships with 24 tests across unit, integration (real Postgres), and full HTTP end-to-end layers.
+
+      The Merchant API adds JWT authentication, Elasticsearch-powered transaction search, and Postgres aggregate stats. The React dashboard surfaces these through debounced search, paginated transaction tables, an installment timeline per order, and protected routes — JWT stored in memory, never localStorage, to avoid XSS exposure.
+    `,
+    stack: ["Go", "PostgreSQL", "Elasticsearch", "Docker", "React", "TypeScript", "JWT", "Vite"],
+    image: "/projects/fintech.png",
+  },
   "docker-tracker": {
     title: "Docker Email Tracker",
     category: "Docker / Backend / FastAPI / DevOps",
@@ -89,6 +103,20 @@ const projectsData: Record<string, Project> = {
     `,
     stack: ["Java", "Swing/FX", "OOP Patterns"],
     image: "/projects/olamundo.png",
+  },
+  "zombiesweb": {
+    title: "ZombiesWeb",
+    category: "Web / Fan Project",
+    date: "2026",
+    description: `
+      A fan website for Call of Duty Zombies players, built for speed — users browse it on a phone or second monitor while actively playing, so every millisecond matters. Astro's static-first architecture keeps pages as plain HTML by default, hydrating React only where interactivity is needed.
+
+      The centerpiece is the Kronorium: a pan, drag, and zoom lore timeline built with React Flow. It maps the full CoD Zombies narrative across every map, with events rendered as custom nodes and color-coded by story thread (Aether in gold, Chaos in crimson). Directional edges let fans trace exactly how the two storylines branch and converge across decades of in-game lore.
+
+      The Map Guides section provides fast-loading, mobile-friendly references for each map — easter egg steps, buildable parts, and key locations — so players can navigate without leaving their game.
+    `,
+    stack: ["Astro", "React", "TypeScript", "React Flow", "Tailwind CSS v4", "GSAP"],
+    image: "/projects/zombiesweb.png",
   },
   "portfolio": {
     title: "Personal Portfolio",
@@ -184,10 +212,12 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
 export async function generateStaticParams() {
   return [
     { slug: 'cowrec' },
+    { slug: 'fintech' },
     { slug: 'hyundai' },
     { slug: 'jbs' },
     { slug: 'tourneysys' },
     { slug: 'olamundo' },
+    { slug: 'zombiesweb' },
     { slug: 'docker-tracker' },
     { slug: 'portfolio' },
   ];
