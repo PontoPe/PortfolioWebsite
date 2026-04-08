@@ -557,16 +557,16 @@ export default function Home() {
   const stackData = [
     { name: "Python", percent: "", icon: "/stack/python.png" },
     { name: "Go", percent: "", icon: "/stack/go.png" },
+    { name: "React", percent: "", icon: "/stack/react.png" },
+    { name: "Docker", percent: "", icon: "/stack/docker.png" },
     { name: "FastAPI", percent: "", icon: "/stack/fastapi.png" },
+    { name: "SQL", percent: "", icon: "/stack/sql.png" },
+    { name: "AWS", percent: "", icon: "/stack/aws.png" },
     { name: "Github", percent: "", icon: "/stack/github.png" },
     { name: "Java", percent: "", icon: "/stack/java.png" },
-    { name: "Docker", percent: "", icon: "/stack/docker.png" },
     { name: "OpenCV", percent: "", icon: "/stack/opencv.png" },
-    { name: "AWS", percent: "", icon: "/stack/aws.png" },
-    { name: "SQL", percent: "", icon: "/stack/sql.png" },
     { name: "Slack", percent: "", icon: "/stack/slack.png" },
     { name: "Terraform", percent: "", icon: "/stack/terraform.png" },
-    { name: "React", percent: "", icon: "/stack/react.png" },
   ];
 
   useEffect(() => {
