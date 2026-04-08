@@ -41,6 +41,7 @@ const projectsData: Record<string, Project> = {
     `,
     stack: ["Go", "PostgreSQL", "Elasticsearch", "Docker", "React", "TypeScript", "JWT", "Vite"],
     image: "/projects/fintech.png",
+    github: "https://github.com/PontoPe/FintechDemo",
   },
   "docker-tracker": {
     title: "Docker Email Tracker",
@@ -117,6 +118,8 @@ const projectsData: Record<string, Project> = {
     `,
     stack: ["Astro", "React", "TypeScript", "React Flow", "Tailwind CSS v4", "GSAP"],
     image: "/projects/zombiesweb.png",
+    github: "https://github.com/PontoPe/ZombiesWeb",
+    demo: "https://zombies-web.vercel.app/",
   },
   "portfolio": {
     title: "Personal Portfolio",
