@@ -54,6 +54,7 @@ const projectsData: Record<string, Project> = {
     `,
     stack: ["Python", "FastAPI", "uvicorn", "HTML", "PostgreSQL", "Redis"],
     image: "/projects/docker-tracker.png",
+    github: "https://github.com/PontoPe/docker-email-read-status.git",
     demo: "https://github.com/PontoPe/docker-email-read-status.git",
   },
   "hyundai": {
