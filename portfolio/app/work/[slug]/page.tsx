@@ -156,7 +156,7 @@ const projectsData: Record<string, Project> = {
     demo: "https://zombies-web.vercel.app/",
     gallery: [
       { src: "/projects/zombiesweb2.png", caption: "The Kronorium — interactive lore timeline built with React Flow", width: 1622, height: 918 },
-      { src: "/projects/zombiesweb3.png", caption: "Map guides — fast, mobile-friendly in-game references", width: 1282, height: 903 },
+      { src: "/projects/zombiesweb3.png", caption: "Richtofen's lab - an interactive 3D experience to reveal the deepest secrets zombies can offer", width: 1282, height: 903 },
     ],
   },
   "portfolio": {
