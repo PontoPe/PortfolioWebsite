@@ -932,7 +932,7 @@ export default function Home() {
                             >
                                 <input type="hidden" name="_template" value="table" />
                                 <input type="hidden" name="_captcha" value="false" />
-                                <input type="hidden" name="_next" value="https://pontope.info" />
+                                <input type="hidden" name="_next" value="https://pedromartins.tech" />
                                 <input type="hidden" name="_subject" value="Novo Contato do Portfólio!" />
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
