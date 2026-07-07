@@ -35,6 +35,19 @@ export const virtualFS = {
           
         }
       },
+      'pontosv': {
+        type: 'dir',
+        children: {
+          'motd.txt': {
+            type: 'file',
+            content: 'You are on PTP-SV, a virtual shadow of pontosv — the real Debian home server humming in Curitiba. It serves revistabrasilcon.com to the whole internet through a Cloudflare Tunnel, with zero open ports. Yes, an actual academic journal runs from a box next to my desk.'
+          },
+          'uptime.log': {
+            type: 'file',
+            content: 'Once survived 185 days of uptime. Then spent 3 months randomly dropping off the internet. Root cause: two DHCP clients fighting, a rogue DHCP server, and three firewall managers at war. All fixed on 2026-06-11. The handbook remembers.'
+          }
+        }
+      },
       'readme.txt': {
         type: 'file',
         content: 'Welcome to the hidden CLI! Try commands like ls, cd, cat, help.'

@@ -11,9 +11,42 @@ interface Project {
   image: string;
   github?: string;
   demo?: string;
+  gallery?: { src: string; caption: string; width: number; height: number }[];
 }
 
 const projectsData: Record<string, Project> = {
+  "brasilcon": {
+    title: "Revista BRASILCON — OJS",
+    category: "Academic Publishing / Self-Hosted Infrastructure",
+    date: "2026",
+    description: `
+      Volunteer migration of the editorial management system of the Revista de Direito do Consumidor — the journal of BRASILCON, the Brazilian Institute of Consumer Policy and Law — to a self-hosted Open Journal Systems (OJS) platform, now live at revistabrasilcon.com.
+
+      The stack runs as three Docker containers on my own home server (pontosv): a custom-built OJS 3.4 image with baked-in configuration and patches, MariaDB for the editorial database, and cloudflared providing ingress through an outbound Cloudflare Tunnel — the journal is served to the internet with zero open ports on the network.
+
+      The platform digitizes the full academic workflow: article submission, double-blind peer review, editorial rounds, and publication. BRASILCON formally recognized the work in an official letter (Ofício nº 13/2026) signed by its President, the journal's Director-General, and its Secretary-General.
+    `,
+    stack: ["OJS 3.4", "PHP", "MariaDB", "Docker Compose", "Cloudflare Tunnel", "Debian", "Self-Hosted"],
+    image: "/projects/brasilcon.png",
+    demo: "https://revistabrasilcon.com/",
+    gallery: [
+      { src: "/projects/brasilcon-letter.png", caption: "Official recognition letter from BRASILCON (Ofício nº 13/2026)", width: 1310, height: 1852 },
+    ],
+  },
+  "pontosv": {
+    title: "pontosv — Home Server",
+    category: "DevOps / Linux / Self-Hosted Infrastructure",
+    date: "2025 - present",
+    description: `
+      A bare-metal Debian 12 home server I built and administer solo — the machine that hosts the BRASILCON OJS journal in production. Intel i5-14400, 32 GiB RAM, 1 TB NVMe, sitting on a residential connection in Curitiba.
+
+      Public ingress is handled entirely by an outbound Cloudflare Tunnel, so the journal is reachable worldwide with no port-forwards and no exposed attack surface. The box also runs a self-hosted TeamSpeak 6 voice server (Docker) with DuckDNS dynamic DNS refreshed by a systemd timer, plus a GoDaddy SRV record for instant client connects. NFS and Samba handle LAN file sharing; nginx fronts internal admin panels.
+
+      The best engineering story: for months the server "randomly lost internet". I traced it to three stacked root causes — two DHCP clients racing on one NIC, a rogue DHCP server on the ISP modem hijacking the default route, and three firewall managers (firewalld, ufw, iptables-persistent) silently fighting each other and Docker. Fixed by reducing every layer to exactly one owner. Documented in a full server handbook with incident history and triage runbooks, maintained so any human or AI agent can operate the machine.
+    `,
+    stack: ["Debian 12", "Docker", "Cloudflare Tunnel", "systemd", "nginx", "NFS / Samba", "DuckDNS", "Networking"],
+    image: "/projects/pontosv.png",
+  },
   "cowrec": {
     title: "CowRec System",
     category: "Computer Vision / AI",
@@ -121,6 +154,10 @@ const projectsData: Record<string, Project> = {
     image: "/projects/zombiesweb.png",
     github: "https://github.com/PontoPe/ZombiesWeb",
     demo: "https://zombies-web.vercel.app/",
+    gallery: [
+      { src: "/projects/zombiesweb2.png", caption: "The Kronorium — interactive lore timeline built with React Flow", width: 1622, height: 918 },
+      { src: "/projects/zombiesweb3.png", caption: "Map guides — fast, mobile-friendly in-game references", width: 1282, height: 903 },
+    ],
   },
   "portfolio": {
     title: "Personal Portfolio",
@@ -208,6 +245,25 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
                 )}
             </div>
         </div>
+
+        {project.gallery && project.gallery.length > 0 && (
+            <div className="mt-20 space-y-12">
+                {project.gallery.map((item) => (
+                    <figure key={item.src}>
+                        <div className="w-full bg-[#111] border border-white/10 rounded-lg overflow-hidden relative">
+                            <Image
+                                src={item.src}
+                                alt={item.caption}
+                                width={item.width}
+                                height={item.height}
+                                className="w-full h-auto"
+                            />
+                        </div>
+                        <figcaption className="text-sm text-[#666] mt-4 text-center">{item.caption}</figcaption>
+                    </figure>
+                ))}
+            </div>
+        )}
       </div>
     </div>
   );
@@ -215,6 +271,8 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
 
 export async function generateStaticParams() {
   return [
+    { slug: 'brasilcon' },
+    { slug: 'pontosv' },
     { slug: 'cowrec' },
     { slug: 'fintech' },
     { slug: 'hyundai' },
