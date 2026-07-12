@@ -760,33 +760,27 @@ export default function Home() {
                             <ProjectCard title="CowRec" slug="cowrec" status="Live" subtitle="Computer Vision backend for livestock tracking">
                                 <Image src="/projects/cow1.jpeg" alt="CowRec Project" fill className="object-cover" />
                             </ProjectCard>
-                          <ProjectCard title="Hyundai Backend" slug="hyundai" subtitle="Enterprise scalable API architecture">
-                            <Image src="/projects/hyundai.png" alt="Hyundai Project" fill className="object-cover" />
-                          </ProjectCard>
                             <ProjectCard title="Revista BRASILCON" slug="brasilcon" status="Live" subtitle="Self-hosted OJS publishing platform for Brazil's consumer-law journal — officially recognized by BRASILCON">
                                 <Image src="/projects/brasilcon.png" alt="Revista BRASILCON OJS Platform" fill className="object-cover object-top" />
                             </ProjectCard>
+                          <ProjectCard title="Hyundai Backend" slug="hyundai" subtitle="Enterprise scalable API architecture">
+                            <Image src="/projects/hyundai.png" alt="Hyundai Project" fill className="object-cover" />
+                          </ProjectCard>
                             <ProjectCard title="JBS Backend" slug="jbs" subtitle="High-throughput data processing system">
                                 <Image src="/projects/jbs.png" alt="JBS Project" fill className="object-cover" />
                             </ProjectCard>
-                          <ProjectCard title="BNPL Platform" slug="fintech" subtitle="Full-stack Buy Now Pay Later microservices in Go">
-                            <Image src="/projects/fintech.png" alt="FinTech BNPL Platform" fill className="object-cover" />
-                          </ProjectCard>
                           <ProjectCard title="pontosv" slug="pontosv" status="Online" subtitle="Bare-metal Debian home server I built and run solo — hosts the BRASILCON journal via Cloudflare Tunnel">
                             <Image src="/projects/pontosv.png" alt="pontosv Home Server" fill className="object-cover" />
-                          </ProjectCard>
-                          <ProjectCard title="Docker Email Tracker" slug="docker-tracker" status="MIT License" subtitle="a Docker project that tracks email opens and clicks using FastAPI, Redis and PostgreSQL">
-                            <Image src="/projects/docker-tracker.png" alt="Docker Email Tracker Project" fill className="object-cover" />
                           </ProjectCard>
                           <ProjectCard title="ZombiesWeb" slug="zombiesweb" subtitle="Interactive CoD Zombies lore timeline and map guides">
                             <Image src="/projects/zombiesweb.png" alt="ZombiesWeb Project" fill className="object-cover" />
                           </ProjectCard>
-                          <ProjectCard title="OlaMundo!" slug="olamundo" subtitle="Educational platform backend">
-                            <Image src="/projects/olamundo.png" alt="OlaMundo Project" fill className="object-cover" />
+                          <ProjectCard title="Docker Email Tracker" slug="docker-tracker" status="MIT License" subtitle="a Docker project that tracks email opens and clicks using FastAPI, Redis and PostgreSQL">
+                            <Image src="/projects/docker-tracker.png" alt="Docker Email Tracker Project" fill className="object-cover" />
                           </ProjectCard>
-                            <ProjectCard title="TourneySys" slug="tourneysys" subtitle="SaaS platform for e-sports tournaments">
-                                <Image src="/projects/tourneysys.png" alt="TourneySys Project" fill className="object-cover" />
-                            </ProjectCard>
+                          <ProjectCard title="BNPL Platform" slug="fintech" subtitle="Full-stack Buy Now Pay Later microservices in Go">
+                            <Image src="/projects/fintech.png" alt="FinTech BNPL Platform" fill className="object-cover" />
+                          </ProjectCard>
                         </div>
                     </section>
 
