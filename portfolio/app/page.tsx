@@ -694,7 +694,7 @@ export default function Home() {
                 </div>
             </div>
 
-            <button onClick={() => window.open("https://drive.google.com/file/d/15peACphrIc_1-NVd9ZRhiRJ9CK4rhScJ/view?usp=drive_link", "_blank")} className="flex items-center justify-between w-full px-6 py-4 border border-white/10 rounded-sm hover:bg-white/5 transition-colors group mt-2">
+            <button onClick={() => window.open("https://drive.google.com/file/d/1H1ibCIFxXwg035Y5sUt0KdAwVfotQ4kp/view?usp=drive_link", "_blank")} className="flex items-center justify-between w-full px-6 py-4 border border-white/10 rounded-sm hover:bg-white/5 transition-colors group mt-2">
                 <span className="text-sm font-bold text-white font-mono tracking-widest">Download CV</span>
                 <Download className="w-5 h-5 text-[#666] group-hover:text-white group-hover:translate-y-0.5 transition-transform" />
             </button>
