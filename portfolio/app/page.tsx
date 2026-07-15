@@ -659,18 +659,18 @@ export default function Home() {
                 </div>
                 <div>
                     <h2 className="text-white font-bold font-mono text-lg">PontoPe</h2>
-                    <p className="text-xs uppercase tracking-widest text-[#666] mt-1 font-bold"><ScrambleText text="Backend & AI Dev" /></p>
+                    <p className="text-xs uppercase tracking-widest text-[#666] mt-1 font-bold"><ScrambleText text="DevSecOps & Cloud Security" /></p>
                 </div>
             </div>
 
             <p className="text-base leading-relaxed text-[#999] font-mono">
-                I&apos;m Pedro Martins, a backend developer bringing elegant solutions to messy, complicated problems.
+                I&apos;m Pedro Martins, a DevSecOps engineer who builds, hardens, and runs production systems — from AWS pipelines to a self-hosted server publishing a national journal with zero open ports.
             </p>
 
             <div className="flex flex-col gap-5 text-sm font-medium text-[#777]">
                 <div className="flex items-center gap-4 hover:text-white transition-colors cursor-default">
                     <Clock className="w-5 h-5 shrink-0" />
-                    <span>2+ years of experience</span>
+                    <span>3+ years of experience</span>
                 </div>
                 <div className="flex items-center gap-4 hover:text-white transition-colors cursor-default">
                     <MapPin className="w-5 h-5 shrink-0" />
@@ -680,7 +680,7 @@ export default function Home() {
                 <div className="flex items-start gap-4 hover:text-white transition-colors cursor-default">
                     <Globe className="w-5 h-5 shrink-0 mt-1" />
                     <span className="text-xs leading-relaxed">
-                        English, Portuguese, Italian, French, Spanish, German, Japanese
+                        Portuguese, English, French, Italian, Spanish
                     </span>
                 </div>
 
@@ -744,11 +744,11 @@ export default function Home() {
                     <section id="hero" className="mb-48 scroll-mt-32">
                         <p className="text-sm text-[#555] mb-10 font-mono">&lt;!-- Hero section --&gt;</p>
                         <h1 className="text-7xl md:text-9xl font-bold text-white font-sans leading-[0.9] tracking-tighter mb-12">
-                            <ScrambleText text="BackEnd" /> <span className="text-[#444]">&</span><br/>
-                            <ScrambleText text="AI " /><span className="text-[#444]"><ScrambleText text="Engineer" /></span>
+                            <ScrambleText text="DevSecOps" /> <span className="text-[#444]">&</span><br/>
+                            <ScrambleText text="Cloud " /><span className="text-[#444]"><ScrambleText text="Security" /></span>
                         </h1>
                         <p className="text-2xl md:text-l text-[#999] max-w-4xl leading-relaxed font-mono font-thin">
-                            I&apos;m Pedro Martins, a passionate backend developer creating elegant, simple solutions to messy, complicated problems.
+                            I&apos;m Pedro Martins, an engineer who builds and operates production systems with security as the architecture — not the afterthought.
                         </p>
                     </section>
 
@@ -757,19 +757,16 @@ export default function Home() {
                             <p className="text-sm text-[#555] font-mono">&lt;!-- Featured work --&gt;</p>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
-                            <ProjectCard title="CowRec" slug="cowrec" status="Live" subtitle="Computer Vision backend for livestock tracking">
-                                <Image src="/projects/cow1.jpeg" alt="CowRec Project" fill className="object-cover" />
-                            </ProjectCard>
                             <ProjectCard title="Revista BRASILCON" slug="brasilcon" status="Live" subtitle="Self-hosted OJS publishing platform for Brazil's consumer-law journal — officially recognized by BRASILCON">
                                 <Image src="/projects/brasilcon.png" alt="Revista BRASILCON OJS Platform" fill className="object-cover object-top" />
                             </ProjectCard>
-                          <ProjectCard title="Hyundai Backend" slug="hyundai" subtitle="Enterprise scalable API architecture">
+                          <ProjectCard title="Hyundai Backend" slug="hyundai" subtitle="Secure PII onboarding pipeline — least-privilege IAM, data minimization, zero exposure incidents">
                             <Image src="/projects/hyundai.png" alt="Hyundai Project" fill className="object-cover" />
                           </ProjectCard>
                             <ProjectCard title="JBS Backend" slug="jbs" subtitle="High-throughput data processing system">
                                 <Image src="/projects/jbs.png" alt="JBS Project" fill className="object-cover" />
                             </ProjectCard>
-                          <ProjectCard title="pontosv" slug="pontosv" status="Online" subtitle="Bare-metal Debian home server I built and run solo — hosts the BRASILCON journal via Cloudflare Tunnel">
+                          <ProjectCard title="pontosv" slug="pontosv" status="Online" subtitle="Hardened bare-metal Debian server I run solo — zero-open-port ingress for the BRASILCON journal">
                             <Image src="/projects/pontosv.png" alt="pontosv Home Server" fill className="object-cover" />
                           </ProjectCard>
                           <ProjectCard title="ZombiesWeb" slug="zombiesweb" subtitle="Interactive CoD Zombies lore timeline and map guides">
@@ -781,6 +778,9 @@ export default function Home() {
                           <ProjectCard title="BNPL Platform" slug="fintech" subtitle="Full-stack Buy Now Pay Later microservices in Go">
                             <Image src="/projects/fintech.png" alt="FinTech BNPL Platform" fill className="object-cover" />
                           </ProjectCard>
+                            <ProjectCard title="CowRec" slug="cowrec" status="Live" subtitle="Computer Vision backend for livestock tracking">
+                                <Image src="/projects/cow1.jpeg" alt="CowRec Project" fill className="object-cover" />
+                            </ProjectCard>
                         </div>
                     </section>
 
@@ -792,12 +792,12 @@ export default function Home() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-16 text-[#B1B1B1] leading-relaxed text-lg md:text-xl">
                             <div className="space-y-8">
                                 <p>
-                                    I&apos;m an <span className="text-white bg-[#333] px-1 font-medium">Automation & AI Engineer</span> with a passion for architecting systems that are as creative as they are functional. My approach is built on a simple philosophy: <span className="text-white underline decoration-white/30 underline-offset-4">no problem is too complex if you know how to break it down.</span>
+                                    I&apos;m a <span className="text-white bg-[#333] px-1 font-medium">DevSecOps & Cloud Security Engineer</span> with 3+ years building and operating production systems across AWS, Linux, and containers. My approach starts with the adversarial questions: <span className="text-white underline decoration-white/30 underline-offset-4">how does this fail, and what leaks when it does?</span>
                                 </p>
                             </div>
                             <div className="space-y-8">
                                 <p>
-                                    I leverage an innovative mindset — sparked during a <span className="text-white bg-[#333] px-1 font-medium">2017 Game Development course at Berkeley</span> — to build robust backends and intelligent agents. Today, I use tools like <span className="text-white font-bold">Python, FastAPI, and NLP</span> to deliver scalable workflows for global clients.
+                                    I came up through backend automation — securing <span className="text-white bg-[#333] px-1 font-medium">PII pipelines for enterprises like Hyundai</span> — and discovered the part I couldn&apos;t stop thinking about was protecting the systems, not just building them. Today I practice <span className="text-white font-bold">secure-by-default engineering</span>: least privilege, secrets management, hardening, and zero-open-port ingress, on infrastructure I run myself.
                                 </p>
                             </div>
                         </div>
@@ -807,9 +807,10 @@ export default function Home() {
                         <p className="text-sm text-[#555] mb-10 font-mono">&lt;!-- Professional history --&gt;</p>
                         <div className="space-y-0 border-t border-white/5">
                             {[
-                                { year: "2025 - present", role: "Backend Developer", company: "Way-V" },
-                                { year: "2024 - 2025", role: "AI Engineer", company: "DeGOES Optimize" },
-                                { year: "2022 - 2025", role: "Freelance Developer", company: "WebNexa" }
+                                { year: "2026 - present", role: "Infrastructure Engineer (Volunteer)", company: "BRASILCON" },
+                                { year: "2024 - present", role: "Automation Engineer", company: "Way-V" },
+                                { year: "2024", role: "Conversational AI Developer", company: "DeGOES Optimize" },
+                                { year: "2023", role: "Backend Automation Engineer", company: "Fintech Client (NDA)" }
                             ].map((job, i) => (
                                 <div key={i} className="group flex flex-col md:flex-row md:items-baseline justify-between py-10 border-b border-white/5 hover:bg-white/2 transition-colors px-6 -mx-6 cursor-default">
                                     <span className="font-mono text-base text-[#555] w-64 mb-2 md:mb-0">{job.year}</span>
@@ -820,40 +821,63 @@ export default function Home() {
                         </div>
                     </section>
 
+                    <section id="certifications" className="mb-48 scroll-mt-24">
+                        <p className="text-sm text-[#555] mb-10 font-mono">&lt;!-- Certification roadmap --&gt;</p>
+                        <div className="space-y-0 border-t border-white/5">
+                            {[
+                                { year: "2026", cert: "RHCSA", full: "Red Hat Certified System Administrator", status: "In Progress" },
+                                { year: "2027", cert: "Security+", full: "CompTIA Security+", status: "Planned" },
+                                { year: "2027", cert: "AWS SAA", full: "AWS Solutions Architect Associate", status: "Planned" },
+                                { year: "2028", cert: "CKA", full: "Certified Kubernetes Administrator", status: "Planned" }
+                            ].map((item, i) => (
+                                <div key={i} className="group flex flex-col md:flex-row md:items-baseline justify-between py-10 border-b border-white/5 hover:bg-white/2 transition-colors px-6 -mx-6 cursor-default">
+                                    <span className="font-mono text-base text-[#555] w-64 mb-2 md:mb-0">{item.year}</span>
+                                    <span className="font-sans font-bold text-white text-3xl flex-1 group-hover:translate-x-4 transition-transform duration-300">
+                                        {item.cert}
+                                        <span className="block font-mono font-normal text-base text-[#666] mt-2">{item.full}</span>
+                                    </span>
+                                    <span className={`font-mono text-xs uppercase tracking-widest px-3 py-1.5 rounded-full border self-start md:self-auto ${item.status === "In Progress" ? "text-green-400 bg-green-900/10 border-green-900/20" : "text-[#888] border-white/10"}`}>
+                                        {item.status}
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+                    </section>
+
                     <section id="what-i-do" className="mb-48 scroll-mt-24">
                         <p className="text-sm text-[#555] mb-10 font-mono">&lt;!-- What I do --&gt;</p>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-16">
                             <div>
-                                <h3 className="text-white text-xl font-bold mb-8 font-sans border-l-2 border-[#333] pl-4">Backend<br/>Developer</h3>
+                                <h3 className="text-white text-xl font-bold mb-8 font-sans border-l-2 border-[#333] pl-4">Security &<br/>Infrastructure</h3>
                                 <ul className="space-y-4 text-base text-[#888]">
-                                    <li className="hover:text-white transition-colors">Scalable API Architecture</li>
-                                    <li className="hover:text-white transition-colors">Microservices & Integration</li>
-                                    <li className="hover:text-white transition-colors">Cloud Infrastructure</li>
-                                    <li className="hover:text-white transition-colors">Database Management</li>
-                                    <li className="hover:text-white transition-colors">System Reliability</li>
-                                    <li className="hover:text-white transition-colors">CI/CD & DevOps</li>
+                                    <li className="hover:text-white transition-colors">Linux Hardening (Debian/RHEL)</li>
+                                    <li className="hover:text-white transition-colors">Least-Privilege IAM</li>
+                                    <li className="hover:text-white transition-colors">Secrets Management</li>
+                                    <li className="hover:text-white transition-colors">Zero-Trust Ingress</li>
+                                    <li className="hover:text-white transition-colors">Firewall & DNS Management</li>
+                                    <li className="hover:text-white transition-colors">Incident Response & Runbooks</li>
                                 </ul>
                             </div>
                             <div>
-                                <h3 className="text-white text-xl font-bold mb-8 font-sans border-l-2 border-[#333] pl-4">AI<br/>Engineer</h3>
+                                <h3 className="text-white text-xl font-bold mb-8 font-sans border-l-2 border-[#333] pl-4">Cloud &<br/>DevOps</h3>
                                 <ul className="space-y-4 text-base text-[#888]">
-                                    <li className="hover:text-white transition-colors">Natural Language Processing</li>
-                                    <li className="hover:text-white transition-colors">Computer Vision (OpenCV)</li>
-                                    <li className="hover:text-white transition-colors">LLM Integration</li>
-                                    <li className="hover:text-white transition-colors">Predictive Modeling</li>
-                                    <li className="hover:text-white transition-colors">Process Automation</li>
-                                    <li className="hover:text-white transition-colors">Conversational AI Agents</li>
+                                    <li className="hover:text-white transition-colors">AWS (S3, IAM, EC2)</li>
+                                    <li className="hover:text-white transition-colors">Docker & Kubernetes</li>
+                                    <li className="hover:text-white transition-colors">CI/CD Pipelines</li>
+                                    <li className="hover:text-white transition-colors">Terraform (IaC)</li>
+                                    <li className="hover:text-white transition-colors">nginx & systemd</li>
+                                    <li className="hover:text-white transition-colors">Self-Hosted Production Ops</li>
                                 </ul>
                             </div>
                             <div>
-                                <h3 className="text-white text-xl font-bold mb-8 font-sans border-l-2 border-[#333] pl-4">Web<br/>Developer</h3>
+                                <h3 className="text-white text-xl font-bold mb-8 font-sans border-l-2 border-[#333] pl-4">Backend &<br/>Automation</h3>
                                 <ul className="space-y-4 text-base text-[#888]">
-                                    <li className="hover:text-white transition-colors">Next.js & React</li>
-                                    <li className="hover:text-white transition-colors">Tailwind CSS</li>
-                                    <li className="hover:text-white transition-colors">Interactive UI</li>
-                                    <li className="hover:text-white transition-colors">Full-Stack Integration</li>
-                                    <li className="hover:text-white transition-colors">Security & Auth</li>
-                                    <li className="hover:text-white transition-colors">Automated Testing</li>
+                                    <li className="hover:text-white transition-colors">Python / FastAPI & Go</li>
+                                    <li className="hover:text-white transition-colors">Secure API Architecture</li>
+                                    <li className="hover:text-white transition-colors">Input Validation (OWASP)</li>
+                                    <li className="hover:text-white transition-colors">PII Handling & Data Minimization</li>
+                                    <li className="hover:text-white transition-colors">PostgreSQL / MariaDB / Redis</li>
+                                    <li className="hover:text-white transition-colors">Audit Logging & Traceability</li>
                                 </ul>
                             </div>
                         </div>
@@ -997,6 +1021,7 @@ export default function Home() {
             <IndexLink id="work" label="Featured Work" activeSection={activeSection} onClick={setActiveSection} />
             <IndexLink id="about" label="About me" activeSection={activeSection} onClick={setActiveSection} />
             <IndexLink id="experience" label="Experience" activeSection={activeSection} onClick={setActiveSection} />
+            <IndexLink id="certifications" label="Certifications" activeSection={activeSection} onClick={setActiveSection} />
             <IndexLink id="what-i-do" label="What I Do" activeSection={activeSection} onClick={setActiveSection} />
             <IndexLink id="stack" label="Tech Stack" activeSection={activeSection} onClick={setActiveSection} />
             <IndexLink id="game" label="Mini Game" activeSection={activeSection} onClick={setActiveSection} />
