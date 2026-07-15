@@ -769,7 +769,7 @@ export default function Home() {
                           <ProjectCard title="pontosv" slug="pontosv" status="Online" subtitle="Hardened bare-metal Debian server I run solo — zero-open-port ingress for the BRASILCON journal">
                             <Image src="/projects/pontosv.png" alt="pontosv Home Server" fill className="object-cover" />
                           </ProjectCard>
-                          <ProjectCard title="ZombiesWeb" slug="zombiesweb" subtitle="Interactive CoD Zombies lore timeline and map guides">
+                          <ProjectCard title="ZombiesWeb" slug="zombiesweb" status="Live" subtitle="Interactive CoD Zombies lore timeline and map guides">
                             <Image src="/projects/zombiesweb.png" alt="ZombiesWeb Project" fill className="object-cover" />
                           </ProjectCard>
                           <ProjectCard title="Docker Email Tracker" slug="docker-tracker" status="MIT License" subtitle="a Docker project that tracks email opens and clicks using FastAPI, Redis and PostgreSQL">
