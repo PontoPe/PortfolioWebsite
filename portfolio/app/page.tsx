@@ -57,10 +57,18 @@ const ScrambleText = ({ text, className }: { text: string, className?: string })
   }, [text]);
 
   return (
-    <span
-      className={`${className} transition-opacity duration-100 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
-    >
+    // The invisible sizer reserves the FINAL text's exact box (width + line count).
+    // The animated layer is absolutely positioned inside it and clipped, so the
+    // random wide glyphs (W, M, @) during the scramble can never wrap onto an
+    // extra line or shift the layout — the line count is locked to the real text.
+    <span className={`${className} relative inline-block align-baseline whitespace-pre-wrap`}>
+      <span className="opacity-0">{text}</span>
+      <span
+        aria-hidden="true"
+        className={`absolute top-0 left-0 w-full h-full overflow-hidden whitespace-pre-wrap transition-opacity duration-100 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+      >
         {displayText}
+      </span>
     </span>
   );
 };
