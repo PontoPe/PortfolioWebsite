@@ -769,6 +769,9 @@ export default function Home() {
                           <ProjectCard title="pontosv" slug="pontosv" status="Online" subtitle="Hardened bare-metal Debian server I run solo — zero-open-port ingress for the BRASILCON journal">
                             <Image src="/projects/pontosv.png" alt="pontosv Home Server" fill className="object-cover" />
                           </ProjectCard>
+                          <ProjectCard title="Ficha Clínica" slug="ficha-clinica" status="Deployed" subtitle="Local-first dental anamnesis — AES-256-GCM at the edge, LGPD by architecture, zero server">
+                            <Image src="/projects/ficha-clinica.png" alt="Ficha Clínica Inteligente" fill className="object-cover" />
+                          </ProjectCard>
                           <ProjectCard title="ZombiesWeb" slug="zombiesweb" status="Live" subtitle="Interactive CoD Zombies lore timeline and map guides">
                             <Image src="/projects/zombiesweb.png" alt="ZombiesWeb Project" fill className="object-cover" />
                           </ProjectCard>
@@ -780,6 +783,9 @@ export default function Home() {
                           </ProjectCard>
                             <ProjectCard title="CowRec" slug="cowrec" status="Live" subtitle="Computer Vision backend for livestock tracking">
                                 <Image src="/projects/cow1.jpeg" alt="CowRec Project" fill className="object-cover" />
+                            </ProjectCard>
+                            <ProjectCard title="OWCoach" slug="owcoach" subtitle="Real-time Overwatch coaching overlay — screen-space CV only, zero memory reads, TOS-safe by design">
+                                <Image src="/projects/owcoach.png" alt="OWCoach Overlay" fill className="object-cover" />
                             </ProjectCard>
                         </div>
                     </section>

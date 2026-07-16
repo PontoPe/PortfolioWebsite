@@ -11,6 +11,7 @@ interface Project {
   image: string;
   github?: string;
   demo?: string;
+  codeSnippet?: { filename: string; caption: string; code: string };
   gallery?: { src: string; caption: string; width: number; height: number }[];
 }
 
@@ -31,6 +32,45 @@ const projectsData: Record<string, Project> = {
     stack: ["OJS 3.4", "PHP", "MariaDB", "Docker Compose", "Cloudflare Tunnel", "Zero-Trust Ingress", "Debian", "Self-Hosted"],
     image: "/projects/brasilcon.png",
     demo: "https://revistabrasilcon.com/",
+    codeSnippet: {
+      filename: "docker-compose.yml",
+      caption: "Zero published host ports — ingress is an outbound-only Cloudflare Tunnel.",
+      code: `# Zero published host ports. The journal is reachable ONLY through the tunnel.
+services:
+  ojs:
+    build: ./ojs                       # OJS 3.4 — patches baked in at build time
+    depends_on:
+      db: { condition: service_healthy }
+    networks: [internal]               # no route to the outside world
+    restart: unless-stopped
+    # NOTE: no \`ports:\` block — nothing is ever bound to the host.
+
+  db:
+    image: mariadb:11
+    environment:
+      MARIADB_PASSWORD_FILE: /run/secrets/db_pass   # secret, never inline
+    secrets: [db_pass]
+    networks: [internal]               # reachable only by the ojs container
+    volumes: [ojs_db:/var/lib/mysql]
+    restart: unless-stopped
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN_FILE: /run/secrets/cf_token
+    secrets: [cf_token]
+    networks: [edge, internal]         # dials OUT to Cloudflare's edge
+    restart: unless-stopped
+
+networks:
+  edge: {}                             # cloudflared egress only
+  internal: { internal: true }         # air-gapped from the public internet
+
+secrets:
+  db_pass:  { file: ./secrets/db_pass.txt }
+  cf_token: { file: ./secrets/cf_token.txt }`,
+    },
     gallery: [
       { src: "/projects/brasilcon-letter.png", caption: "Official recognition letter from BRASILCON (Ofício nº 13/2026)", width: 1310, height: 1852 },
     ],
@@ -52,49 +92,91 @@ const projectsData: Record<string, Project> = {
     `,
     stack: ["Debian 12", "Docker", "Cloudflare Tunnel", "systemd", "SSH Hardening", "nginx", "DuckDNS", "DNS / SRV", "Incident Response"],
     image: "/projects/pontosv.png",
-  },
-  "cowrec": {
-    title: "CowRec System",
-    category: "Computer Vision / AI",
-    date: "2024",
-    description: `
-      A computer vision system designed for precision livestock farming. It uses YOLOv8 and convolutional neural networks to process real-time video feeds, allowing for the identification, tracking, and behavioral analysis of individual animals.
+    codeSnippet: {
+      filename: "/etc/nftables.conf",
+      caption: "Default-drop ruleset. The journal has no inbound rule — it rides the tunnel.",
+      code: `#!/usr/sbin/nft -f
+# Default-drop. The journal has NO inbound rule (it rides the Cloudflare Tunnel).
+# Exactly one firewall authority owns this box — no ufw, no firewalld fighting Docker.
+flush ruleset
 
-      The architecture runs in edge computing environments, collecting health and productivity data locally to enable data-driven decisions in dairy production.
-    `,
-    stack: ["Python", "YOLOv8", "OpenCV", "FastAPI", "Docker"],
-    image: "/projects/cow1.jpeg",
-    github: "https://github.com/PontoPe/CowRec",
-    demo: "https://cowrec.com",
+table inet filter {
+  chain input {
+    type filter hook input priority 0; policy drop;
+
+    ct state invalid drop
+    ct state established,related accept
+    iif "lo" accept
+    ip protocol icmp accept
+
+    # Management surface is LAN-only by policy (SSH, Samba, Cockpit).
+    ip saddr 192.168.0.0/16 tcp dport { 22, 445, 9090 } accept
+
+    # SSH: key-only (PasswordAuthentication no in sshd_config).
+    tcp dport 22 accept
+
+    # The ONLY two WAN-forwarded services: TeamSpeak 6 voice — documented + justified.
+    udp dport 9987  accept             # TS6 voice
+    tcp dport 30033 accept             # TS6 file transfer
+
+    counter comment "dropped-inbound" drop
+  }
+
+  chain forward { type filter hook forward priority 0; policy drop; }
+  chain output  { type filter hook output  priority 0; policy accept; }
+}`,
+    },
   },
-  "fintech": {
-    title: "BNPL Platform",
-    category: "FinTech / Microservices",
+  "ficha-clinica": {
+    title: "Ficha Clínica Inteligente",
+    category: "Privacy Engineering / Health-Tech / Local-First",
     date: "2026",
     description: `
-      A full-stack Buy Now, Pay Later (BNPL) microservices platform modeled after services like Sezzle. Three independently deployed Go services backed by a React/TypeScript merchant dashboard, all orchestrated with Docker Compose.
+      A privacy-first digital pre-consultation system for small dental clinics, built and deployed as a university extension practice (100h, PUCPR) at a real partner clinic. The patient fills a guided nine-step anamnesis before the appointment; the dentist receives a structured clinical summary — automatic ASA physical-status classification, dentistry-specific drug-interaction alerts, and a local-anesthetic safety evaluation with per-carpule epinephrine math. It replaces paper forms that were incomplete, illegible, and stored with no encryption at all — out of compliance with Brazil's LGPD.
 
-      The BNPL Engine handles order creation and installment payment processing. Money is stored as integers (cents) — never floats — to avoid IEEE 754 rounding errors. Payment splitting guarantees the sum always equals the original total: remainder cents are distributed to the earliest installments. SELECT FOR UPDATE row locks prevent double-payment race conditions under concurrent load. The service ships with 24 tests across unit, integration (real Postgres), and full HTTP end-to-end layers.
+      LOCAL-FIRST BY LAW, NOT BY PREFERENCE — Health data is LGPD Article 11 "sensitive data." The architectural answer: there is no server. The app is 100% static; every byte of patient data lives and dies in the browser. Drafts persist in localStorage with automatic 12-hour expiry, so a shared reception tablet never accumulates a shadow database of patient records.
 
-      The Merchant API adds JWT authentication, Elasticsearch-powered transaction search, and Postgres aggregate stats. The React dashboard surfaces these through debounced search, paginated transaction tables, an installment timeline per order, and protected routes — JWT stored in memory, never localStorage, to avoid XSS exposure.
+      ENCRYPTION AT THE EDGE — Export is a .json file encrypted entirely client-side with AES-256-GCM, the key derived from a user PIN via PBKDF2 (SHA-256, 210,000 iterations), with a random salt and IV per file, all through the native Web Crypto API. GCM's authentication tag doubles as the wrong-PIN detector — a bad PIN fails the integrity check, so there is no decryption oracle and no silent garbage output. Any feature that touches the network sits behind an explicit consent toggle that is OFF by default.
+
+      THE MEDICATION-ANALYSIS CASCADE — Drug analysis degrades gracefully from free-and-offline to paid-and-online, escalating only with consent: local catalog (~90 drugs) → local interaction rules → on-device parsing of the ANVISA package-insert PDF (pdf.js, regex over the regulator-mandated section headers) → RxNav/RxNorm public API (opt-in) → Claude API (opt-in, last resort). Patients rarely know their drug's active compound but they have the box — so the app reads the bula PDF in-browser and cross-references it locally, never sending anything unless the scanned-image fallback forces an explicit, disclosed AI escalation.
+
+      ENGINEERING DISCIPLINE — 38 Vitest tests cover the risk surface: crypto round-trips, the ANVISA PDF parser, interaction rules, and the versioned encrypted-file envelope. CI on GitHub Actions. The clinical logic is a real rules engine, not a lookup — ASA classification emits the class, the determining factors, and a written rationale the dentist can defend.
     `,
-    stack: ["Go", "PostgreSQL", "Elasticsearch", "Docker", "React", "TypeScript", "JWT", "Vite"],
-    image: "/projects/fintech.png",
-    github: "https://github.com/PontoPe/FintechDemo",
-  },
-  "docker-tracker": {
-    title: "Docker Email Tracker",
-    category: "Docker / Backend / FastAPI / DevOps",
-    date: "2026",
-    description: `
-      An independent pixel tracking system for monitoring email engagement. It captures "email open" metrics by serving a 1x1 transparent image that triggers a backend event when loaded by a client.
+    stack: ["React 18", "TypeScript", "Vite 7", "Web Crypto API", "AES-256-GCM", "PBKDF2", "pdf.js", "Tailwind", "Vitest"],
+    image: "/projects/ficha-clinica.png",
+    codeSnippet: {
+      filename: "src/utils/fichaCrypto.ts",
+      caption: "AES-256-GCM + PBKDF2, entirely in-browser. Sensitive health data never leaves the device.",
+      code: `// Health data (LGPD art. 11) never leaves the device. All crypto runs in-browser
+// via the native Web Crypto API — the exported .json is unreadable without the PIN.
+const KDF_ITERATIONS = 210_000;   // PBKDF2 — high cost against offline brute force
 
-      The infrastructure uses Docker Compose to orchestrate three services: FastAPI for logic, Redis for high-performance counting, and PostgreSQL for persistent logging. Key features include isolated networks for security, persistent volumes for data integrity, and custom healthchecks to manage service startup order.
-    `,
-    stack: ["Python", "FastAPI", "uvicorn", "HTML", "PostgreSQL", "Redis"],
-    image: "/projects/docker-tracker.png",
-    github: "https://github.com/PontoPe/docker-email-read-status.git",
-    demo: "https://github.com/PontoPe/docker-email-read-status.git",
+export async function encryptFicha(data: unknown, pin: string): Promise<EncryptedPayload> {
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const iv   = crypto.getRandomValues(new Uint8Array(12));   // per-file, never reused
+
+  const baseKey = await crypto.subtle.importKey(
+    "raw", new TextEncoder().encode(pin), "PBKDF2", false, ["deriveKey"],
+  );
+  const key = await crypto.subtle.deriveKey(
+    { name: "PBKDF2", hash: "SHA-256", salt, iterations: KDF_ITERATIONS },
+    baseKey, { name: "AES-GCM", length: 256 }, false, ["encrypt"],
+  );
+
+  const plaintext = new TextEncoder().encode(JSON.stringify(data));
+  const cipher = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, plaintext);
+
+  // GCM's auth tag doubles as the wrong-PIN detector: a bad PIN fails the
+  // integrity check and decrypt() throws — no oracle, no silent garbage output.
+  return {
+    _type: "ficha-clinica", _version: 1, encrypted: true,
+    savedAt: new Date().toISOString(),
+    kdf: { name: "PBKDF2", hash: "SHA-256", iterations: KDF_ITERATIONS, salt: b64(salt) },
+    iv: b64(iv),
+    ciphertext: b64(new Uint8Array(cipher)),
+  };
+}`,
+    },
   },
   "hyundai": {
     title: "Hyundai Onboarding Pipeline",
@@ -111,6 +193,105 @@ const projectsData: Record<string, Project> = {
     `,
     stack: ["Python", "FastAPI", "AWS S3", "IAM", "Docker", "PostgreSQL"],
     image: "/projects/hyundai.png",
+    codeSnippet: {
+      filename: "onboarding/ingest.py",
+      caption: "Validate at the edge, assume a short-lived least-privilege role, mask PII in logs.",
+      code: `# Every external input is hostile until proven otherwise.
+import structlog, boto3
+from pydantic import BaseModel, field_validator
+
+log = structlog.get_logger()
+sts = boto3.client("sts")
+
+class NewHire(BaseModel):
+    """Edge schema — validation runs BEFORE anything touches business logic."""
+    full_name: str
+    cpf: str                 # Brazilian national ID — never logged in clear
+    bank_account: str
+
+    @field_validator("cpf")
+    @classmethod
+    def valid_cpf(cls, v: str) -> str:
+        if not _cpf_check_digits(v):
+            raise ValueError("invalid_cpf")     # generic — no reconnaissance leak
+        return v
+
+def _mask(cpf: str) -> str:
+    return f"***.***.***-{cpf[-2:]}"            # PII-masked structured logging
+
+def onboard(raw: dict) -> None:
+    hire = NewHire.model_validate(raw)          # rejects malformed input at the edge
+    log.info("onboarding.start", cpf=_mask(hire.cpf))
+
+    # Service-specific, least-privilege role — short-lived, never user-bound creds.
+    creds = sts.assume_role(
+        RoleArn="arn:aws:iam::****:role/onboarding-writer",
+        RoleSessionName="onboarding",
+        DurationSeconds=900,                    # auto-expiring session
+    )["Credentials"]
+
+    # Data minimization: payroll gets name + employee_id, never CPF or banking.
+    payroll.push(name=hire.full_name, employee_id=_derive_id(hire), creds=creds)`,
+    },
+  },
+  "fintech": {
+    title: "BNPL Platform",
+    category: "FinTech / Microservices",
+    date: "2026",
+    description: `
+      A full-stack Buy Now, Pay Later (BNPL) microservices platform modeled after services like Sezzle. Three independently deployed Go services backed by a React/TypeScript merchant dashboard, all orchestrated with Docker Compose.
+
+      The BNPL Engine handles order creation and installment payment processing. Money is stored as integers (cents) — never floats — to avoid IEEE 754 rounding errors. Payment splitting guarantees the sum always equals the original total: remainder cents are distributed to the earliest installments. SELECT FOR UPDATE row locks prevent double-payment race conditions under concurrent load. The service ships with 24 tests across unit, integration (real Postgres), and full HTTP end-to-end layers.
+
+      The Merchant API adds JWT authentication, Elasticsearch-powered transaction search, and Postgres aggregate stats. The React dashboard surfaces these through debounced search, paginated transaction tables, an installment timeline per order, and protected routes — JWT stored in memory, never localStorage, to avoid XSS exposure.
+    `,
+    stack: ["Go", "PostgreSQL", "Elasticsearch", "Docker", "React", "TypeScript", "JWT", "Vite"],
+    image: "/projects/fintech.png",
+    github: "https://github.com/PontoPe/FintechDemo",
+    codeSnippet: {
+      filename: "bnpl/engine.go",
+      caption: "Serializable tx + row lock kills double-payment; integer cents keep the split exact.",
+      code: `// Money is int64 cents, never float. The installment sum is an invariant.
+func (e *Engine) PayInstallment(ctx context.Context, id InstallmentID) error {
+    tx, err := e.db.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable})
+    if err != nil {
+        return err
+    }
+    defer tx.Rollback()
+
+    // Row lock prevents a double-payment race under concurrent load.
+    var status string
+    err = tx.QueryRowContext(ctx,
+        \`SELECT status FROM installments WHERE id = $1 FOR UPDATE\`,
+        id).Scan(&status)
+    if err != nil {
+        return err
+    }
+    if status == "paid" {
+        return ErrAlreadyPaid          // idempotent: retries are safe
+    }
+
+    if _, err = tx.ExecContext(ctx,
+        \`UPDATE installments SET status = 'paid', paid_at = now() WHERE id = $1\`,
+        id); err != nil {
+        return err
+    }
+    return tx.Commit()
+}
+
+// splitCents distributes a total so the parts ALWAYS sum back to the original.
+func splitCents(total int64, n int) []int64 {
+    base, rem := total/int64(n), total%int64(n)
+    out := make([]int64, n)
+    for i := range out {
+        out[i] = base
+        if int64(i) < rem {            // remainder to the earliest installments
+            out[i]++
+        }
+    }
+    return out                          // sum(out) == total, guaranteed
+}`,
+    },
   },
   "jbs": {
     title: "JBS Data Pipeline",
@@ -123,6 +304,145 @@ const projectsData: Record<string, Project> = {
     `,
     stack: ["Python", "Apache Kafka", "Pandas", "SQL"],
     image: "/projects/jbs.png",
+    codeSnippet: {
+      filename: "pipeline/consumer.py",
+      caption: "Encrypted + authenticated transport, manual commits, idempotent upserts.",
+      code: `# Decouple production from analysis; survive load peaks without losing events.
+from confluent_kafka import Consumer
+
+consumer = Consumer({
+    "bootstrap.servers": BROKERS,
+    "group.id": "metrics-ingest",
+    "enable.auto.commit": False,             # commit only AFTER a durable write
+    "security.protocol": "SASL_SSL",         # encrypted + authenticated transport
+    "sasl.mechanism": "SCRAM-SHA-512",
+    "ssl.ca.location": "/etc/kafka/ca.pem",
+})
+consumer.subscribe(["production.metrics"])
+
+while True:
+    msg = consumer.poll(1.0)
+    if msg is None:
+        continue
+    if msg.error():
+        log.error("kafka.error", err=str(msg.error()))
+        continue
+
+    event = decode(msg.value())
+    # Idempotent upsert keyed on event id — reprocessing never double-counts.
+    lake.upsert(key=event.id, payload=event, partition=msg.partition())
+    consumer.commit(msg, asynchronous=False)  # at-least-once, exactly-once effect`,
+    },
+  },
+  "cowrec": {
+    title: "CowRec System",
+    category: "Computer Vision / AI",
+    date: "2024",
+    description: `
+      A computer vision system designed for precision livestock farming. It uses YOLOv8 and convolutional neural networks to process real-time video feeds, allowing for the identification, tracking, and behavioral analysis of individual animals.
+
+      The architecture runs in edge computing environments, collecting health and productivity data locally to enable data-driven decisions in dairy production.
+    `,
+    stack: ["Python", "YOLOv8", "OpenCV", "FastAPI", "Docker"],
+    image: "/projects/cow1.jpeg",
+    github: "https://github.com/PontoPe/CowRec",
+    demo: "https://cowrec.com",
+    codeSnippet: {
+      filename: "edge/detect.py",
+      caption: "Real-time per-animal tracking at the edge — only aggregates leave the box, never raw video.",
+      code: `# Real-time herd inference at the edge. Raw video never leaves the farm.
+from ultralytics import YOLO
+
+model = YOLO("weights/cowrec-v8.pt")           # fine-tuned on the on-farm dataset
+
+for frame in stream.read():                     # RTSP feed from barn cameras
+    result = model.track(frame, persist=True, conf=0.6, verbose=False)[0]
+
+    for box, tid in zip(result.boxes.xyxy, result.boxes.id):
+        cow = registry.resolve(int(tid))        # stable per-animal identity
+        cow.observe(bbox=box, at=frame.ts)
+        if cow.gait_anomaly():                   # early lameness / health signal
+            alerts.enqueue(cow.id, kind="gait", severity="review")
+
+    # Only aggregated telemetry leaves the edge box — never raw frames.
+    telemetry.flush(registry.snapshot())`,
+    },
+  },
+  "docker-tracker": {
+    title: "Docker Email Tracker",
+    category: "Docker / Backend / FastAPI / DevOps",
+    date: "2026",
+    description: `
+      An independent pixel tracking system for monitoring email engagement. It captures "email open" metrics by serving a 1x1 transparent image that triggers a backend event when loaded by a client.
+
+      The infrastructure uses Docker Compose to orchestrate three services: FastAPI for logic, Redis for high-performance counting, and PostgreSQL for persistent logging. Key features include isolated networks for security, persistent volumes for data integrity, and custom healthchecks to manage service startup order.
+    `,
+    stack: ["Python", "FastAPI", "uvicorn", "HTML", "PostgreSQL", "Redis"],
+    image: "/projects/docker-tracker.png",
+    github: "https://github.com/PontoPe/docker-email-read-status.git",
+    demo: "https://github.com/PontoPe/docker-email-read-status.git",
+    codeSnippet: {
+      filename: "app/main.py",
+      caption: "Atomic Redis counting, hashed client IP, hardened response headers, no PII in the URL.",
+      code: `# 1x1 pixel beacon. Atomic counting, isolated network, no PII in the URL.
+from fastapi import FastAPI, Response, Request
+import redis.asyncio as redis
+
+app = FastAPI()
+r = redis.from_url("redis://redis:6379", decode_responses=True)  # internal net only
+
+PIXEL = bytes.fromhex("47494638396101000100800000000000ffffff21f9040100"
+                      "0000002c00000000010001000002024401003b")
+
+@app.get("/o/{token}.gif")
+async def open_pixel(token: str, request: Request) -> Response:
+    async with r.pipeline(transaction=True) as pipe:      # atomic multi-op
+        await (pipe.hincrby(f"evt:{token}", "opens", 1)
+                   .hset(f"evt:{token}", "last_ip_hash", _hash(request.client.host))
+                   .execute())
+    await audit.log(token=token, event="open")            # durable in Postgres
+    return Response(
+        content=PIXEL, media_type="image/gif",
+        headers={
+            "Cache-Control": "no-store",
+            "X-Content-Type-Options": "nosniff",
+            "Content-Security-Policy": "default-src 'none'",
+        },
+    )`,
+    },
+  },
+  "owcoach": {
+    title: "OWCoach",
+    category: "Computer Vision / Desktop App",
+    date: "2025",
+    description: `
+      A real-time Overwatch coaching overlay that reads the game screen — not its memory — to recommend hero counters as a match unfolds. A Python detection engine captures the scoreboard/killcam region, matches hero portraits with template matching, infers the enemy composition, and renders click-through suggestions through an Overwolf overlay. Packaged as a standalone Windows desktop app.
+
+      SAFE BY DESIGN — The whole thing is deliberately screen-space only. It never reads or writes game process memory, never injects into the client, and makes zero network calls during play — so it is not a cheat and stays inside the game's terms of service by construction. The counter logic is a local ruleset; nothing about the player's session is uploaded.
+
+      ENGINEERING — Auto-calibration locates the relevant HUD region across resolutions, template matching runs above a 0.87 confidence threshold to avoid false positives, and the overlay stays click-through so it never intercepts input. The build ships as a PyInstaller executable with a desktop shortcut and icon, plus a small stats-fetcher that pulls aggregate hero data offline.
+    `,
+    stack: ["Python", "OpenCV", "mss", "NumPy", "Overwolf", "PyInstaller"],
+    image: "/projects/owcoach.png",
+    codeSnippet: {
+      filename: "owlive/detect.py",
+      caption: "Screen-space only — never touches game memory, makes zero network calls. TOS-safe by construction.",
+      code: `# Reads the SCREEN locally — never game memory, never the network. TOS-safe.
+import mss, numpy as np
+
+# Screen-space template matching only: no process-memory reads, no injection.
+HERO_ICONS = load_templates("hero_names.json")
+
+with mss.mss() as sct:
+    region = calibrate(sct)                  # auto-locate the killcam / scoreboard
+    while running:
+        frame = np.asarray(sct.grab(region))
+        matches = match_templates(frame, HERO_ICONS, threshold=0.87)
+
+        enemy = [m.hero for m in matches if m.team == "enemy"]
+        counters = suggest_counters(enemy)   # local ruleset — zero API calls
+        overlay.render(counters)             # click-through Overwolf overlay`,
+    },
   },
   "zombiesweb": {
     title: "ZombiesWeb",
@@ -139,6 +459,32 @@ const projectsData: Record<string, Project> = {
     image: "/projects/zombiesweb.png",
     github: "https://github.com/PontoPe/ZombiesWeb",
     demo: "https://zombies-web.vercel.app/",
+    codeSnippet: {
+      filename: "astro.config.ts",
+      caption: "Static-first output with a locked-down CSP — React hydrates only where it must.",
+      code: `// Static-first + a locked-down CSP. React hydrates only on interactive islands.
+export default defineConfig({
+  output: "static",
+  integrations: [react(), tailwind()],
+  vite: {
+    plugins: [{
+      name: "security-headers",
+      configureServer(server) {
+        server.middlewares.use((_req, res, next) => {
+          res.setHeader(
+            "Content-Security-Policy",
+            "default-src 'self'; img-src 'self' data:; script-src 'self'; " +
+            "frame-ancestors 'none'; base-uri 'self'",
+          );
+          res.setHeader("X-Frame-Options", "DENY");
+          res.setHeader("Referrer-Policy", "no-referrer");
+          next();
+        });
+      },
+    }],
+  },
+});`,
+    },
     gallery: [
       { src: "/projects/zombiesweb2.png", caption: "The Kronorium — interactive lore timeline built with React Flow", width: 1622, height: 918 },
       { src: "/projects/zombiesweb3.png", caption: "Richtofen's lab - an interactive 3D experience to reveal the deepest secrets zombies can offer", width: 1282, height: 903 },
@@ -155,6 +501,28 @@ const projectsData: Record<string, Project> = {
     `,
     stack: ["Next.js", "Tailwind CSS", "TypeScript"],
     image: "/projects/portfolio.png",
+    codeSnippet: {
+      filename: "next.config.ts",
+      caption: "Hardened security headers — HSTS preload, strict CSP, and a locked-down permissions policy.",
+      code: `// Hardened response headers on every route.
+const securityHeaders = [
+  { key: "Content-Security-Policy",
+    value: "default-src 'self'; img-src 'self' data:; " +
+           "script-src 'self' 'unsafe-inline'; frame-ancestors 'none'" },
+  { key: "Strict-Transport-Security",
+    value: "max-age=63072000; includeSubDomains; preload" },
+  { key: "X-Content-Type-Options",  value: "nosniff" },
+  { key: "X-Frame-Options",         value: "DENY" },
+  { key: "Referrer-Policy",         value: "strict-origin-when-cross-origin" },
+  { key: "Permissions-Policy",      value: "camera=(), microphone=(), geolocation=()" },
+];
+
+export default {
+  async headers() {
+    return [{ source: "/:path*", headers: securityHeaders }];
+  },
+} satisfies NextConfig;`,
+    },
   }
 };
 
@@ -231,6 +599,30 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
             </div>
         </div>
 
+        {project.codeSnippet && (
+            <div className="mt-20">
+                <div className="flex items-baseline gap-3 mb-6">
+                    <h2 className="text-white text-xl font-bold">Implementation</h2>
+                    <span className="text-xs text-[#555] uppercase tracking-widest">// production excerpt</span>
+                </div>
+                <div className="rounded-lg border border-white/10 overflow-hidden bg-[#0d0d0d]">
+                    <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 bg-black/40">
+                        <div className="flex items-center gap-2">
+                            <span className="w-3 h-3 rounded-full bg-[#ff5f56]" />
+                            <span className="w-3 h-3 rounded-full bg-[#ffbd2e]" />
+                            <span className="w-3 h-3 rounded-full bg-[#27c93f]" />
+                        </div>
+                        <span className="text-xs text-[#888]">{project.codeSnippet.filename}</span>
+                        <span className="w-12" />
+                    </div>
+                    <pre className="p-6 overflow-x-auto text-[13px] leading-relaxed text-[#c9d1d9]">
+                        <code>{project.codeSnippet.code}</code>
+                    </pre>
+                </div>
+                <p className="text-sm text-[#666] mt-4">{project.codeSnippet.caption}</p>
+            </div>
+        )}
+
         {project.gallery && project.gallery.length > 0 && (
             <div className="mt-20 space-y-12">
                 {project.gallery.map((item) => (
@@ -258,10 +650,12 @@ export async function generateStaticParams() {
   return [
     { slug: 'brasilcon' },
     { slug: 'pontosv' },
+    { slug: 'ficha-clinica' },
     { slug: 'cowrec' },
     { slug: 'fintech' },
     { slug: 'hyundai' },
     { slug: 'jbs' },
+    { slug: 'owcoach' },
     { slug: 'zombiesweb' },
     { slug: 'docker-tracker' },
     { slug: 'portfolio' },
