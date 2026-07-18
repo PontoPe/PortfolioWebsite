@@ -763,8 +763,8 @@ export default function Home() {
                     <section id="work" className="mb-48 scroll-mt-24">
                         <div className="flex justify-between items-end mb-10">
                             <p className="text-sm text-[#555] font-mono">
-                                &lt;!-- Featured work --&gt;
-                                <br/>&lt;!-- Most of the work below was built under NDA, so the source can&apos;t be published — only selected snippets. Happy to walk through a larger portion of the code 1-on-1. --&gt;
+                                &lt;!-- Featured work 
+                                <br/>Most of the work below was built under NDA, so the source can&apos;t be published — only selected snippets. Happy to walk through a larger portion of the code 1-on-1. --&gt;
 
                             </p>
             
