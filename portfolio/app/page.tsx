@@ -65,7 +65,17 @@ const ScrambleText = ({ text, className }: { text: string, className?: string })
       <span className="opacity-0">{text}</span>
       <span
         aria-hidden="true"
-        className={`absolute top-0 left-0 w-full h-full overflow-hidden whitespace-pre-wrap transition-opacity duration-100 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+        className={`absolute overflow-hidden whitespace-pre-wrap transition-opacity duration-100 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+        // Clip window is padded out (and offset back) so bold glyph side-bearings
+        // and descenders aren't shaved at the extremities — text still aligns to sizer.
+        style={{
+          top: '-0.15em',
+          left: '-0.12em',
+          width: 'calc(100% + 0.24em)',
+          height: 'calc(100% + 0.4em)',
+          padding: '0.15em 0.12em',
+          boxSizing: 'border-box',
+        }}
       >
         {displayText}
       </span>
@@ -794,17 +804,16 @@ export default function Home() {
                             <span className="text-[#444]"><ScrambleText text="Engineer" /></span>
                         </h1>
                         <p className="text-lg sm:text-xl text-[#999] max-w-4xl leading-relaxed font-mono font-thin">
-                            I&apos;m Pedro Martins, an engineer who builds and operates production systems with security as the architecture — not the afterthought.
+                            I&apos;m Pedro Martins, an engineer who builds and operates production systems across AWS, self-hosted, and company infrastructure with security as the architecture, not the afterthought.
                         </p>
                     </section>
 
                     <section id="work" className="mb-48 scroll-mt-24">
                         <div className="flex justify-between items-end mb-10">
-                            <p className="text-sm text-[#555] font-mono">
-                                &lt;!-- Featured work 
-                                <br/>Most of the work below was built under NDA, so the source can&apos;t be published — only selected snippets. Happy to walk through a larger portion of the code 1-on-1. --&gt;
-
-                            </p>
+                            <div className="font-mono">
+                                <p className="text-lg sm:text-2xl text-[#888] mb-3">&lt;!-- Featured work --&gt;</p>
+                                <p className="text-sm text-[#555] max-w-3xl leading-relaxed">Most of the work below was built under NDA, so the source can&apos;t be published — only selected snippets. Happy to walk through a larger portion of the code 1-on-1. </p>
+                            </div>
             
                             
                         </div>
