@@ -667,12 +667,12 @@ export default function Home() {
                 </div>
                 <div>
                     <h2 className="text-white font-bold font-mono text-lg">PontoPe</h2>
-                    <p className="text-xs uppercase tracking-widest text-[#666] mt-1 font-bold"><ScrambleText text="DevSecOps & Cloud Security" /></p>
+                    <p className="text-xs uppercase tracking-widest text-[#666] mt-1 font-bold"><ScrambleText text="Cybersecurity Engineer" /></p>
                 </div>
             </div>
 
             <p className="text-base leading-relaxed text-[#999] font-mono">
-                I&apos;m Pedro Martins, a DevSecOps engineer who builds, hardens, and runs production systems — from AWS pipelines to a self-hosted server publishing a national journal with zero open ports.
+                I&apos;m Pedro Martins, a cybersecurity engineer who builds, hardens, and runs production systems — from AWS pipelines to a self-hosted server publishing a national journal with zero open ports.
             </p>
 
             <div className="flex flex-col gap-5 text-sm font-medium text-[#777]">
@@ -728,7 +728,7 @@ export default function Home() {
                 <Link href="/blog" className="flex items-center gap-3 text-[#555] hover:text-white transition-colors cursor-pointer">pontope.blog</Link>
             </div>
             <div className="flex items-center gap-8">
-                <span className="flex items-center gap-3 text-green-400 bg-green-900/10 px-3 py-1.5 rounded-full border border-green-900/20">
+                <span className="hidden sm:flex items-center gap-3 text-green-400 bg-green-900/10 px-3 py-1.5 rounded-full border border-green-900/20">
                     <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
                     Open to work
                 </span>
@@ -739,7 +739,7 @@ export default function Home() {
         <div className="flex-1 relative h-full overflow-y-auto scroll-smooth bg-[#1F1F1F]">
             <div className="min-h-full flex flex-row">
 
-                <div className="flex-none opacity-50 w-10 py-4 flex flex-col items-end pr-2 border-r border-[#f8f8f81c] select-none bg-[#1F1F1F]">
+                <div className="flex-none opacity-50 w-10 py-4 hidden sm:flex flex-col items-end pr-2 border-r border-[#f8f8f81c] select-none bg-[#1F1F1F]">
                     {lines.map((num) => (
                         <span key={num} className="text-[10px] text-white leading-6 font-mono">
                             {num}
@@ -747,15 +747,53 @@ export default function Home() {
                     ))}
                 </div>
 
-                <div className="flex-1 py-16 md:py-24 pr-8 md:pr-12 w-full max-w-[95%] mx-auto pl-8">
+                <div className="flex-1 py-12 sm:py-16 md:py-24 px-5 sm:px-8 md:pr-12 w-full max-w-[95%] mx-auto">
 
-                    <section id="hero" className="mb-48 scroll-mt-32">
+                    {/* Mobile-only identity + contact — the left sidebar is hidden on small screens */}
+                    <div className="lg:hidden mb-20 flex flex-col gap-8">
+                        <div className="flex items-center gap-4">
+                            <div className="w-14 h-14 overflow-hidden shrink-0 relative rounded-full">
+                                <Image src="/Pedro.jpg" alt="Pedro Martins" fill className="object-cover" />
+                            </div>
+                            <div>
+                                <h2 className="text-white font-bold font-mono text-lg leading-tight">PontoPe</h2>
+                                <p className="text-[11px] uppercase tracking-widest text-[#666] mt-1 font-bold">Cybersecurity Engineer</p>
+                            </div>
+                        </div>
+
+                        <div className="flex flex-col gap-4 text-sm font-medium text-[#777]">
+                            <div className="flex items-center gap-4">
+                                <MapPin className="w-5 h-5 shrink-0" />
+                                <span>Curitiba, Brazil</span>
+                            </div>
+                            <a href="mailto:pegradowski@hotmail.com" className="flex items-center gap-4 hover:text-white transition-colors break-all">
+                                <Mail className="w-5 h-5 shrink-0" />
+                                <span>pegradowski@hotmail.com</span>
+                            </a>
+                            <div className="flex items-center gap-4">
+                                <Phone className="w-5 h-5 shrink-0" />
+                                <span>+55 (41) 99986-3595</span>
+                            </div>
+                        </div>
+
+                        <div className="flex flex-col gap-3">
+                            <button onClick={() => window.open("https://calendly.com/pegradowski/30min", "_blank")} className="w-full py-4 bg-white text-black font-mono font-bold text-sm uppercase tracking-widest rounded-sm hover:bg-gray-200 transition-colors">
+                                Schedule a call
+                            </button>
+                            <button onClick={() => window.open("https://drive.google.com/file/d/1H1ibCIFxXwg035Y5sUt0KdAwVfotQ4kp/view?usp=drive_link", "_blank")} className="flex items-center justify-center gap-3 w-full py-4 border border-white/10 rounded-sm hover:bg-white/5 transition-colors group">
+                                <span className="text-sm font-bold text-white font-mono tracking-widest">Download CV</span>
+                                <Download className="w-5 h-5 text-[#666] group-hover:text-white transition-colors" />
+                            </button>
+                        </div>
+                    </div>
+
+                    <section id="hero" className="mb-32 md:mb-48 scroll-mt-32">
                         <p className="text-sm text-[#555] mb-10 font-mono">&lt;!-- Hero section --&gt;</p>
-                        <h1 className="text-7xl md:text-9xl font-bold text-white font-sans leading-[0.9] tracking-tighter mb-12">
-                            <ScrambleText text="DevSecOps" /> <span className="text-[#444]">&</span><br/>
-                            <ScrambleText text="Cloud " /><span className="text-[#444]"><ScrambleText text="Security" /></span>
+                        <h1 className="text-5xl sm:text-7xl md:text-9xl font-bold text-white font-sans leading-[0.95] md:leading-[0.9] tracking-tighter mb-12">
+                            <ScrambleText text="Cybersecurity" /><br/>
+                            <span className="text-[#444]"><ScrambleText text="Engineer" /></span>
                         </h1>
-                        <p className="text-2xl md:text-l text-[#999] max-w-4xl leading-relaxed font-mono font-thin">
+                        <p className="text-lg sm:text-xl text-[#999] max-w-4xl leading-relaxed font-mono font-thin">
                             I&apos;m Pedro Martins, an engineer who builds and operates production systems with security as the architecture — not the afterthought.
                         </p>
                     </section>
@@ -813,7 +851,7 @@ export default function Home() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-16 text-[#B1B1B1] leading-relaxed text-lg md:text-xl">
                             <div className="space-y-8">
                                 <p>
-                                    I&apos;m a <span className="text-white bg-[#333] px-1 font-medium">DevSecOps & Cloud Security Engineer</span> with 3+ years building and operating production systems across AWS, Linux, and containers. My approach starts with the adversarial questions: <span className="text-white underline decoration-white/30 underline-offset-4">how does this fail, and what leaks when it does?</span>
+                                    I&apos;m a <span className="text-white bg-[#333] px-1 font-medium">Cybersecurity Engineer</span> with 3+ years building and operating production systems across AWS, Linux, and containers. My approach starts with the adversarial questions: <span className="text-white underline decoration-white/30 underline-offset-4">how does this fail, and what leaks when it does?</span>
                                 </p>
                             </div>
                             <div className="space-y-8">

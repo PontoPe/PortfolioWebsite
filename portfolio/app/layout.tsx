@@ -18,7 +18,7 @@ const mono = IBM_Plex_Mono({
 
 export const metadata: Metadata = {
   title: "Pedro Martins | Portfolio",
-  description: "AI & Automation Engineer Portfolio",
+  description: "Cybersecurity Engineer Portfolio",
 };
 
 export default function RootLayout({
