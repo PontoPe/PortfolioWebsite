@@ -8,6 +8,9 @@ on:
     types: [update_blog]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   web-deploy:
     name: 🎉 Deploy
@@ -15,23 +18,26 @@ jobs:
     steps:
       # 1. Baixa o SITE
       - name: 🚚 Get latest code (Website)
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       # 2. Baixa o BLOG (Privado)
       # Importante: path relativo à raiz do runner
       - name: 🔐 Get private content (Obsidian)
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: PontoPe/ObsidianGit
           token: ${{ secrets.GH_PAT }}
           path: portfolio/_content
           fetch-depth: 1
+          persist-credentials: false
 
       # 3. Setup Node
-      - name: ⚙️ Setup Node.js 20
-        uses: actions/setup-node@v4
+      - name: ⚙️ Setup Node.js 24
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: '20'
+          node-version: '24'
           cache: 'npm'
           cache-dependency-path: portfolio/package-lock.json
 
@@ -73,7 +79,7 @@ jobs:
 
       # 7. FTP Deploy
       - name: 🚀 FTP Deploy
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        uses: SamKirkland/FTP-Deploy-Action@3a9c65ae0fc12ac924ccef8afc26941cc43aad0b # v4.4.0
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}

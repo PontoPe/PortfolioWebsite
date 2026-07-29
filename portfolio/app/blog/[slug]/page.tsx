@@ -5,6 +5,7 @@ import { getPostFiles, getPostContent } from "@/lib/github";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
+import LineNumberGutter from "@/components/LineNumberGutter";
 
 export async function generateStaticParams() {
   const files = await getPostFiles();
@@ -22,8 +23,6 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
   const decodedSlug = decodeURIComponent(slug);
   const { meta, content } = await getPostContent(`${decodedSlug}.md`);
   
-  const lines = Array.from({ length: 200 }, (_, i) => i + 1);
-
   return (
     <div className="h-screen w-full bg-[#181818] text-[#B1B1B1] font-mono overflow-hidden flex">
       {/* Sidebar Esquerda */}
@@ -40,16 +39,15 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
         </header>
 
         <div className="flex-1 relative h-full overflow-y-auto scroll-smooth bg-[#1F1F1F] custom-scrollbar">
-          <div className="min-h-full flex flex-row">
+          <div data-line-number-layout className="min-h-full flex flex-row items-start">
             {/* Gutter */}
-            <div className="flex-none opacity-50 w-10 py-4 flex flex-col items-end pr-2 border-r border-[#f8f8f81c] select-none">
-              {lines.map((num) => (
-                <span key={num} className="text-[10px] text-white leading-6 font-mono">{num}</span>
-              ))}
-            </div>
+            <LineNumberGutter initialCount={200} placement="flow" />
 
             {/* Article */}
-            <div className="flex-1 py-16 md:py-24 px-8 md:px-20 max-w-4xl">
+            <div
+              data-line-number-content
+              className="flex-1 py-16 md:py-24 px-8 md:px-20 max-w-4xl"
+            >
               <h1 className="text-5xl md:text-6xl font-bold text-white tracking-tighter italic uppercase mb-4">
                 {meta.title || decodedSlug.replace(/-/g, " ")}
               </h1>

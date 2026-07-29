@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" fill="none">
+  <rect width="1600" height="900" fill="#111111"/>
+  <path d="M0 96H1600M0 804H1600" stroke="#2A2A2A"/>
+  <path d="M80 0V900M1520 0V900" stroke="#1D1D1D"/>
+
+  <text x="80" y="62" fill="#FFFFFF" font-family="IBM Plex Mono, monospace" font-size="28" font-weight="600">TRUSTSTACK</text>
+  <text x="1518" y="61" fill="#666666" font-family="IBM Plex Mono, monospace" font-size="16" text-anchor="end" letter-spacing="3">EVIDENCE-DRIVEN CLOUD SECURITY</text>
+
+  <rect x="80" y="142" width="610" height="504" rx="18" fill="#151515" stroke="#3A3A3A" stroke-width="2"/>
+  <text x="116" y="190" fill="#22C55E" font-family="IBM Plex Mono, monospace" font-size="16" font-weight="600" letter-spacing="3">AWLZ / AWS GOVERNANCE</text>
+  <text x="116" y="225" fill="#8B8B8B" font-family="IBM Plex Mono, monospace" font-size="17">ORGANIZATION BOUNDARY</text>
+
+  <rect x="116" y="264" width="164" height="116" rx="10" fill="#1E1E1E" stroke="#444444"/>
+  <text x="198" y="310" fill="#FFFFFF" font-family="IBM Plex Mono, monospace" font-size="17" text-anchor="middle">MANAGEMENT</text>
+  <text x="198" y="340" fill="#777777" font-family="IBM Plex Mono, monospace" font-size="14" text-anchor="middle">OIDC + SCPs</text>
+
+  <rect x="304" y="264" width="164" height="116" rx="10" fill="#1E1E1E" stroke="#444444"/>
+  <text x="386" y="310" fill="#FFFFFF" font-family="IBM Plex Mono, monospace" font-size="17" text-anchor="middle">SECURITY</text>
+  <text x="386" y="340" fill="#777777" font-family="IBM Plex Mono, monospace" font-size="14" text-anchor="middle">DETECTION</text>
+
+  <rect x="492" y="264" width="162" height="116" rx="10" fill="#1E1E1E" stroke="#444444"/>
+  <text x="573" y="310" fill="#FFFFFF" font-family="IBM Plex Mono, monospace" font-size="17" text-anchor="middle">WORKLOADS</text>
+  <text x="573" y="340" fill="#777777" font-family="IBM Plex Mono, monospace" font-size="14" text-anchor="middle">GUARDED</text>
+
+  <path d="M280 322H304M468 322H492" stroke="#22C55E" stroke-width="2"/>
+  <circle cx="292" cy="322" r="4" fill="#22C55E"/>
+  <circle cx="480" cy="322" r="4" fill="#22C55E"/>
+
+  <rect x="116" y="430" width="538" height="164" rx="12" fill="#181818" stroke="#22C55E" stroke-opacity=".55"/>
+  <text x="148" y="474" fill="#22C55E" font-family="IBM Plex Mono, monospace" font-size="16" font-weight="600" letter-spacing="2">PONTOANTICRACK / RESPONSE</text>
+  <text x="148" y="516" fill="#FFFFFF" font-family="IBM Plex Mono, monospace" font-size="19">PLAN → SNAPSHOT → BREAKER → APPLY</text>
+  <text x="148" y="555" fill="#777777" font-family="IBM Plex Mono, monospace" font-size="15">S3 PUBLIC  ·  IAM KEY  ·  SECURITY GROUP</text>
+
+  <path d="M690 390H770" stroke="#22C55E" stroke-width="3"/>
+  <path d="M750 374L770 390L750 406" stroke="#22C55E" stroke-width="3"/>
+  <text x="730" y="354" fill="#777777" font-family="IBM Plex Mono, monospace" font-size="13" text-anchor="middle">EVIDENCE</text>
+
+  <rect x="790" y="142" width="730" height="504" rx="18" fill="#151515" stroke="#3A3A3A" stroke-width="2"/>
+  <text x="826" y="190" fill="#22C55E" font-family="IBM Plex Mono, monospace" font-size="16" font-weight="600" letter-spacing="3">PROVENANCE + KUBERNETES</text>
+  <text x="826" y="225" fill="#8B8B8B" font-family="IBM Plex Mono, monospace" font-size="17">ARTIFACT TRUST TO RUNTIME</text>
+
+  <rect x="826" y="270" width="136" height="92" rx="10" fill="#1E1E1E" stroke="#444444"/>
+  <text x="894" y="309" fill="#FFFFFF" font-family="IBM Plex Mono, monospace" font-size="16" text-anchor="middle">SOURCE</text>
+  <text x="894" y="337" fill="#777777" font-family="IBM Plex Mono, monospace" font-size="13" text-anchor="middle">GIT</text>
+
+  <rect x="1000" y="270" width="136" height="92" rx="10" fill="#1E1E1E" stroke="#444444"/>
+  <text x="1068" y="309" fill="#FFFFFF" font-family="IBM Plex Mono, monospace" font-size="16" text-anchor="middle">BUILD</text>
+  <text x="1068" y="337" fill="#777777" font-family="IBM Plex Mono, monospace" font-size="13" text-anchor="middle">SBOM + SCAN</text>
+
+  <rect x="1174" y="270" width="136" height="92" rx="10" fill="#1E1E1E" stroke="#22C55E" stroke-opacity=".7"/>
+  <text x="1242" y="309" fill="#FFFFFF" font-family="IBM Plex Mono, monospace" font-size="16" text-anchor="middle">SIGNED</text>
+  <text x="1242" y="337" fill="#22C55E" font-family="IBM Plex Mono, monospace" font-size="13" text-anchor="middle">COSIGN</text>
+
+  <rect x="1348" y="270" width="136" height="92" rx="10" fill="#1E1E1E" stroke="#444444"/>
+  <text x="1416" y="309" fill="#FFFFFF" font-family="IBM Plex Mono, monospace" font-size="16" text-anchor="middle">ADMIT</text>
+  <text x="1416" y="337" fill="#777777" font-family="IBM Plex Mono, monospace" font-size="13" text-anchor="middle">KYVERNO</text>
+
+  <path d="M962 316H1000M1136 316H1174M1310 316H1348" stroke="#22C55E" stroke-width="2"/>
+  <path d="M987 307L1000 316L987 325M1161 307L1174 316L1161 325M1335 307L1348 316L1335 325" stroke="#22C55E" stroke-width="2"/>
+
+  <rect x="826" y="422" width="658" height="172" rx="12" fill="#181818" stroke="#22C55E" stroke-opacity=".55"/>
+  <text x="858" y="466" fill="#22C55E" font-family="IBM Plex Mono, monospace" font-size="16" font-weight="600" letter-spacing="2">KATECLUSTERS / RUNTIME</text>
+  <text x="858" y="510" fill="#FFFFFF" font-family="IBM Plex Mono, monospace" font-size="19">PSA  ·  NETWORK POLICY  ·  FALCO</text>
+  <text x="858" y="550" fill="#777777" font-family="IBM Plex Mono, monospace" font-size="15">ADMISSION  →  OBSERVE  →  ALERT  →  PRESERVE</text>
+
+  <rect x="80" y="700" width="1440" height="70" rx="10" fill="#171717" stroke="#333333"/>
+  <text x="112" y="742" fill="#777777" font-family="IBM Plex Mono, monospace" font-size="15" letter-spacing="2">EVIDENCE RAIL</text>
+  <path d="M310 735H1440" stroke="#444444" stroke-width="2"/>
+  <circle cx="420" cy="735" r="8" fill="#22C55E"/>
+  <circle cx="740" cy="735" r="8" fill="#22C55E"/>
+  <circle cx="1060" cy="735" r="8" fill="#D6A83A"/>
+  <circle cx="1380" cy="735" r="8" fill="#555555"/>
+  <text x="420" y="756" fill="#777777" font-family="IBM Plex Mono, monospace" font-size="11" text-anchor="middle">AWS LOGS</text>
+  <text x="740" y="756" fill="#777777" font-family="IBM Plex Mono, monospace" font-size="11" text-anchor="middle">CI ATTEST</text>
+  <text x="1060" y="756" fill="#777777" font-family="IBM Plex Mono, monospace" font-size="11" text-anchor="middle">K8S CAPTURE</text>
+  <text x="1380" y="756" fill="#777777" font-family="IBM Plex Mono, monospace" font-size="11" text-anchor="middle">DENY PATH</text>
+
+  <text x="80" y="852" fill="#555555" font-family="IBM Plex Mono, monospace" font-size="14">ALLOWED PATH  /  DENIED PATH  /  FAILURE BEHAVIOR  /  PRESERVED EVIDENCE</text>
+  <text x="1520" y="852" fill="#22C55E" font-family="IBM Plex Mono, monospace" font-size="14" text-anchor="end">IN DEVELOPMENT</text>
+</svg>

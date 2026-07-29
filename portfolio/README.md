@@ -25,7 +25,7 @@ The site connects Pedro's professional experience with technical evidence: proje
 
 Requirements:
 
-- Node.js 20 or newer
+- Node.js 24 or newer
 - npm
 
 ```bash

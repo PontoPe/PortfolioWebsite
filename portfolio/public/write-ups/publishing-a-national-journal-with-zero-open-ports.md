@@ -4,11 +4,11 @@ date: "2026-07-13"
 description: "How Revista BRASILCON runs on hardware I own, serves readers worldwide, and exposes not a single inbound port to the internet."
 ---
 
-*How the journal of BRASILCON — the Brazilian Institute of Consumer Policy and Law — runs in production on a self-hosted server, and why its entire public ingress is an outbound connection.*
+*How the journal of BRASILCON - the Brazilian Institute of Consumer Policy and Law - runs in production on a self-hosted server, and why its entire public ingress is an outbound connection.*
 
 ## The project
 
-In early 2026 I volunteered to migrate the editorial management of the **Revista de Direito do Consumidor** to a self-hosted **Open Journal Systems (OJS)** platform. The result is live at [revistabrasilcon.com](https://revistabrasilcon.com/): article submission, double-blind peer review, editorial rounds, and publication — the full academic workflow for a national legal institute. BRASILCON formally recognized the work in an official letter (Ofício nº 13/2026) signed by its President, the journal's Director-General, and its Secretary-General.
+In early 2026 I volunteered to migrate the editorial management of the **Revista de Direito do Consumidor** to a self-hosted **Open Journal Systems (OJS)** platform. The result is live at [revistabrasilcon.com](https://revistabrasilcon.com/): article submission, double-blind peer review, editorial rounds, and publication - the full academic workflow for a national legal institute. BRASILCON formally recognized the work in an official letter (Ofício nº 13/2026) signed by its President, the journal's Director-General, and its Secretary-General.
 
 The interesting part, though, is *where* it runs: on a Debian server I built and administer myself, sitting on a residential internet connection. That constraint forced the best security decision in the whole project.
 
@@ -33,16 +33,16 @@ What this buys, concretely:
 
 The tunnel is the outer wall; the inside is layered too. The stack is three containers on an isolated Docker bridge network:
 
-1. **OJS 3.4** — built as a custom image with configuration and patches baked in at build time. The running container is reproducible from source, not a hand-mutated snowflake. Rebuilding it is routine, not archaeology.
-2. **MariaDB** — the editorial database.
-3. **cloudflared** — the ingress.
+1. **OJS 3.4** - built as a custom image with configuration and patches baked in at build time. The running container is reproducible from source, not a hand-mutated snowflake. Rebuilding it is routine, not archaeology.
+2. **MariaDB** - the editorial database.
+3. **cloudflared** - the ingress.
 
-The compose file publishes **zero host ports**. The database is reachable only by the OJS container over the internal Docker network — not from the internet, and not even from other machines on the LAN. OJS itself is reachable only through the tunnel. Every component can talk to exactly what it needs and nothing else.
+The compose file publishes **zero host ports**. The database is reachable only by the OJS container over the internal Docker network - not from the internet, and not even from other machines on the LAN. OJS itself is reachable only through the tunnel. Every component can talk to exactly what it needs and nothing else.
 
 ## Operations
 
-All three containers restart automatically and survive reboots unattended. Day-2 operations are mine alone: image rebuilds when OJS is patched, DNS, tunnel health monitoring, and incident documentation. The whole environment is described in a living handbook with runbooks, so the system can be operated — and audited — by someone who isn't me.
+All three containers restart automatically and survive reboots unattended. Day-2 operations are mine alone: image rebuilds when OJS is patched, DNS, tunnel health monitoring, and incident documentation. The whole environment is described in a living handbook with runbooks, so the system can be operated - and audited - by someone who isn't me.
 
 ## The takeaway
 
-"Self-hosted" and "hardened" are not opposites. A home server can publish a national institution's journal with a smaller inbound attack surface than many cloud deployments — **if exposure is treated as a design decision instead of a default**. The most secure port is the one that was never opened.
+"Self-hosted" and "hardened" are not opposites. A home server can publish a national institution's journal with a smaller inbound attack surface than many cloud deployments - **if exposure is treated as a design decision instead of a default**. The most secure port is the one that was never opened.
