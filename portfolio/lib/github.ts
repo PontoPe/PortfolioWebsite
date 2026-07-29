@@ -3,6 +3,7 @@ import path from "path";
 import matter from "gray-matter";
 
 const DEFAULT_POST_DATE = "0000-00-00";
+const BLOG_TIME_ZONE = "America/Sao_Paulo";
 const ISO_DATE_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
 const BR_DATE_PATTERN = /^(\d{2})\/(\d{2})\/(\d{4})$/;
 const SAFE_MARKDOWN_FILENAME = /^[^/\\\0]+\.md$/i;
@@ -17,6 +18,10 @@ export type PostMeta = {
 type PostContent = {
   meta: PostMeta;
   content: string;
+};
+
+export type PublishedPost = PostContent & {
+  slug: string;
 };
 
 // Ajustamos para procurar dentro de _content/posts se existir, ou _content direto
@@ -97,6 +102,34 @@ function normalizePostMeta(data: Record<string, unknown>, fallbackTitle: string)
   };
 }
 
+function getDateInBlogTimeZone(referenceDate: Date) {
+  const dateParts = new Intl.DateTimeFormat("en-US", {
+    timeZone: BLOG_TIME_ZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(referenceDate);
+
+  const partsByType = Object.fromEntries(
+    dateParts.map(({ type, value }) => [type, value]),
+  );
+
+  return `${partsByType.year}-${partsByType.month}-${partsByType.day}`;
+}
+
+export function isPostPublished(meta: PostMeta, referenceDate = new Date()) {
+  if (
+    meta.date === DEFAULT_POST_DATE ||
+    Number.isNaN(referenceDate.getTime())
+  ) {
+    return false;
+  }
+
+  // TODO(blog-scheduling): If posts gain a publication time, replace this
+  // date-only comparison with an explicit zoned timestamp.
+  return meta.date <= getDateInBlogTimeZone(referenceDate);
+}
+
 function getContentDir() {
   // Se existir a pasta 'posts' (padrão do ObsidianGit), usa ela
   const postsDir = path.join(rootContent, "posts");
@@ -156,4 +189,27 @@ export async function getPostContent(slug: string): Promise<PostContent> {
     meta: normalizePostMeta(data, fallbackTitle),
     content,
   };
+}
+
+export async function getPublishedPosts(
+  referenceDate = new Date(),
+): Promise<PublishedPost[]> {
+  const files = await getPostFiles();
+  const posts = await Promise.all(
+    files.map(async (file) => {
+      const postData = await getPostContent(file.name);
+
+      return {
+        ...postData,
+        slug: file.name.replace(/\.md$/i, ""),
+      };
+    }),
+  );
+
+  return posts
+    .filter((post) => isPostPublished(post.meta, referenceDate))
+    .sort((a, b) => (
+      b.meta.dateTimestamp - a.meta.dateTimestamp ||
+      a.slug.localeCompare(b.slug)
+    ));
 }

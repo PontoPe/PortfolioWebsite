@@ -1,20 +1,24 @@
 /* eslint-disable react/jsx-no-comment-textnodes */
 import Link from "next/link";
 import Image from "next/image";
-import { getPostFiles, getPostContent } from "@/lib/github";
+import {
+  getPostContent,
+  getPublishedPosts,
+  isPostPublished,
+} from "@/lib/github";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
 import LineNumberGutter from "@/components/LineNumberGutter";
+import { notFound } from "next/navigation";
+
+export const dynamicParams = false;
 
 export async function generateStaticParams() {
-  const files = await getPostFiles();
-  
-  // Se não houver arquivos, retorna array vazio para não quebrar o build
-  if (!files) return [];
+  const posts = await getPublishedPosts();
 
-  return files.map((file) => ({
-    slug: file.name.replace(".md", ""),
+  return posts.map((post) => ({
+    slug: post.slug,
   }));
 }
 
@@ -22,7 +26,11 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const decodedSlug = decodeURIComponent(slug);
   const { meta, content } = await getPostContent(`${decodedSlug}.md`);
-  
+
+  if (!isPostPublished(meta)) {
+    notFound();
+  }
+
   return (
     <div className="h-screen w-full bg-[#181818] text-[#B1B1B1] font-mono overflow-hidden flex">
       {/* Sidebar Esquerda */}

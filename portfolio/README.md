@@ -35,6 +35,19 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
+## Scheduled blog publishing
+
+Blog post frontmatter uses an ISO publication date:
+
+```yaml
+date: "2026-09-02"
+```
+
+Future-dated posts are excluded from both the blog index and the generated
+static routes. The deployment workflow rebuilds the site every day at 00:17 in
+`America/Sao_Paulo`, so a scheduled post is published on its date even when the
+content repository receives no new commit that day.
+
 ## Quality checks
 
 ```bash

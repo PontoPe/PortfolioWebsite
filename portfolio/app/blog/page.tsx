@@ -1,23 +1,9 @@
 import Link from "next/link";
-import { getPostFiles, getPostContent } from "@/lib/github";
+import { getPublishedPosts } from "@/lib/github";
 import LineNumberGutter from "@/components/LineNumberGutter";
 
 export default async function BlogPage() {
-  const files = await getPostFiles();
-
-  const posts = await Promise.all(
-    files.map(async (file) => {
-      const postData = await getPostContent(file.name);
-      return {
-        ...postData,
-        slug: file.name.replace(".md", "")
-      };
-    })
-  );
-
-  const sortedPosts = posts.sort((a, b) => {
-    return b.meta.dateTimestamp - a.meta.dateTimestamp;
-  });
+  const sortedPosts = await getPublishedPosts();
 
   const initialLineCount = Math.max(100, sortedPosts.length * 15);
 

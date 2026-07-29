@@ -2108,7 +2108,8 @@
 }
 
 .page[data-visual="organic"] .heroVisual {
-  border-radius: 44% 4% 34% 7% / 10% 32% 9% 28%;
+  /* TODO(ficha-hero): Keep the project image frame regular if the organic theme evolves. */
+  border-radius: 0.75rem;
 }
 
 .page[data-visual="organic"] .node,
