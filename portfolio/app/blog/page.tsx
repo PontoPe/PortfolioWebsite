@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getPostFiles, getPostContent } from "@/lib/github";
+import LineNumberGutter from "@/components/LineNumberGutter";
 
 export default async function BlogPage() {
   const files = await getPostFiles();
@@ -15,11 +16,10 @@ export default async function BlogPage() {
   );
 
   const sortedPosts = posts.sort((a, b) => {
-    return new Date(b.meta.date).getTime() - new Date(a.meta.date).getTime();
+    return b.meta.dateTimestamp - a.meta.dateTimestamp;
   });
 
-  // enough lines to cover the tallest possible post list
-  const lines = Array.from({ length: Math.max(100, sortedPosts.length * 15) }, (_, i) => i + 1);
+  const initialLineCount = Math.max(100, sortedPosts.length * 15);
 
   return (
     <div className="h-screen w-full bg-[#181818] text-[#B1B1B1] font-mono overflow-hidden flex selection:bg-white/20 selection:text-black">
@@ -40,14 +40,16 @@ export default async function BlogPage() {
         </header>
 
         <div className="flex-1 relative h-full overflow-y-auto scroll-smooth bg-[#1F1F1F]">
-          <div className="min-h-full flex flex-row">
-            <div className="absolute left-0 top-0 h-full overflow-hidden opacity-50 w-10 py-4 flex flex-col items-end pr-2 border-r border-[#f8f8f81c] select-none bg-[#1F1F1F]">
-              {lines.map((num) => (
-                <span key={num} className="text-[10px] text-white leading-6 font-mono">{num}</span>
-              ))}
-            </div>
+          <div
+            data-line-number-layout
+            className="min-h-full flex flex-row relative"
+          >
+            <LineNumberGutter initialCount={initialLineCount} />
 
-            <div className="flex-1 py-16 md:py-24 pr-8 md:pr-12 w-full max-w-[95%] mx-auto pl-12">
+            <div
+              data-line-number-content
+              className="flex-1 py-16 md:py-24 pr-8 md:pr-12 w-full max-w-[95%] mx-auto pl-12"
+            >
               <section className="mb-20">
                 <p className="text-sm text-[#555] mb-10 font-mono">&lt;!-- Blog directory --&gt;</p>
                 <h1 className="text-7xl md:text-5xl font-bold text-white tracking-tighter mb-12 italic">/var/log/blog</h1>
