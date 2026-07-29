@@ -576,8 +576,8 @@ const AccessReveal = ({ children, label, hint }: { children: React.ReactNode; la
 
     // Reduced-motion users skip the whole animation.
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setPhase("revealed");
-      return;
+      const animationFrame = requestAnimationFrame(() => setPhase("revealed"));
+      return () => cancelAnimationFrame(animationFrame);
     }
 
     const obs = new IntersectionObserver(
@@ -925,6 +925,9 @@ export default function Home() {
                             </ProjectCard>
                             <ProjectCard title="OWCoach" slug="owcoach" subtitle="Real-time Overwatch coaching overlay — screen-space CV only, zero memory reads, TOS-safe by design">
                                 <Image src="/projects/owcoach.png" alt="OWCoach Overlay" fill className="object-cover" />
+                            </ProjectCard>
+                            <ProjectCard title="TrustStack" slug="truststack" status="In Development" subtitle="Evidence-driven cloud security platform spanning AWS governance, automated response, Kubernetes runtime defense, and signed-image enforcement">
+                                <Image src="/projects/truststack.svg" alt="TrustStack cloud security architecture" fill className="object-cover" />
                             </ProjectCard>
                             <ProjectCard title="Ficha Clínica" slug="ficha-clinica" status="In Development" subtitle="Local-first dental anamnesis — AES-256-GCM at the edge, LGPD by architecture, zero server">
                                 <Image src="/projects/ficha-clinica.png" alt="Ficha Clínica Inteligente" fill className="object-cover" />

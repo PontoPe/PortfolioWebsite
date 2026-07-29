@@ -1,14 +1,20 @@
 import Link from "next/link";
 import Image from "next/image";
+import type { Metadata } from "next";
 import { ArrowLeft, Github, Globe } from "lucide-react";
+import TrustStackCaseStudy from "@/components/TrustStackCaseStudy";
 
 interface Project {
   title: string;
+  subtitle?: string;
+  status?: string;
   category: string;
   date: string;
   description: string;
   stack: string[];
   image: string;
+  imageAlt?: string;
+  caseStudy?: "truststack";
   github?: string;
   demo?: string;
   codeSnippet?: { filename: string; caption: string; code: string };
@@ -126,6 +132,29 @@ table inet filter {
   chain output  { type filter hook output  priority 0; policy accept; }
 }`,
     },
+  },
+  "truststack": {
+    title: "TrustStack",
+    subtitle: "Cloud Security Engineering Platform",
+    status: "In Development",
+    category: "Cloud Security / DevSecOps / Platform Security",
+    date: "2026 - present",
+    description:
+      "Evidence-driven cloud security platform spanning AWS governance, automated response, Kubernetes runtime defense, and signed-image enforcement.",
+    stack: [
+      "AWS Organizations",
+      "Terraform",
+      "Kubernetes",
+      "Detection Engineering",
+      "GuardDuty",
+      "Falco",
+      "Cosign",
+      "SLSA",
+    ],
+    image: "/projects/truststack.svg",
+    imageAlt:
+      "TrustStack architecture connecting AWS governance and response to a signed software supply chain and Kubernetes runtime security",
+    caseStudy: "truststack",
   },
   "ficha-clinica": {
     title: "Ficha Clínica Inteligente",
@@ -555,7 +584,19 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
                 <span>•</span>
                 <span>{project.date}</span>
             </div>
-            <h1 className="text-5xl md:text-7xl font-bold text-white mb-8">{project.title}</h1>
+            <div className="mb-8 flex flex-wrap items-end justify-between gap-5">
+                <div>
+                    <h1 className="text-5xl md:text-7xl font-bold text-white">{project.title}</h1>
+                    {project.subtitle && (
+                        <p className="mt-4 text-base md:text-lg text-[#777]">{project.subtitle}</p>
+                    )}
+                </div>
+                {project.status && (
+                    <span className="border border-amber-500/40 bg-amber-500/10 px-3 py-1.5 text-xs font-bold uppercase tracking-widest text-amber-200">
+                        {project.status}
+                    </span>
+                )}
+            </div>
             <div className="flex flex-wrap gap-2">
                 {project.stack?.map((tech: string) => (
                     <span key={tech} className="px-3 py-1 bg-[#222] border border-white/5 rounded text-xs text-[#888]">
@@ -568,13 +609,17 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
         <div className="w-full aspect-video bg-[#111] border border-white/10 rounded-lg overflow-hidden mb-16 relative">
              <Image
                 src={project.image}
-                alt={project.title}
+                alt={project.imageAlt || project.title}
                 fill
                 className="object-cover"
                 priority
              />
         </div>
 
+        {project.caseStudy === "truststack" ? (
+          <TrustStackCaseStudy />
+        ) : (
+          <>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
             <div className="md:col-span-2">
                 <h2 className="text-white text-xl font-bold mb-6">Overview</h2>
@@ -603,7 +648,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
             <div className="mt-20">
                 <div className="flex items-baseline gap-3 mb-6">
                     <h2 className="text-white text-xl font-bold">Implementation</h2>
-                    <span className="text-xs text-[#555] uppercase tracking-widest">// production excerpt</span>
+                    <span className="text-xs text-[#555] uppercase tracking-widest">{"// production excerpt"}</span>
                 </div>
                 <div className="rounded-lg border border-white/10 overflow-hidden bg-[#0d0d0d]">
                     <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 bg-black/40">
@@ -641,6 +686,8 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
                 ))}
             </div>
         )}
+          </>
+        )}
       </div>
     </div>
   );
@@ -650,6 +697,7 @@ export async function generateStaticParams() {
   return [
     { slug: 'brasilcon' },
     { slug: 'pontosv' },
+    { slug: 'truststack' },
     { slug: 'ficha-clinica' },
     { slug: 'cowrec' },
     { slug: 'fintech' },
@@ -660,4 +708,42 @@ export async function generateStaticParams() {
     { slug: 'docker-tracker' },
     { slug: 'portfolio' },
   ];
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+
+  if (slug !== "truststack") {
+    return {};
+  }
+
+  const title = "TrustStack | Cloud Security Engineering Platform | Pedro Martins";
+  const description =
+    "TrustStack is Pedro Martins' evidence-driven platform for AWS governance, automated response, Kubernetes security, and signed software delivery.";
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: "https://pedromartins.tech/work/truststack/",
+    },
+    openGraph: {
+      title,
+      description,
+      type: "website",
+      url: "https://pedromartins.tech/work/truststack/",
+      images: [
+        {
+          url: "https://pedromartins.tech/projects/truststack.svg",
+          width: 1600,
+          height: 900,
+          alt: "TrustStack cloud security architecture",
+        },
+      ],
+    },
+  };
 }
