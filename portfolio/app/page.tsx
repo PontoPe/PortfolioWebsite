@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import {
   Github, Linkedin, Mail, MapPin, Phone,
   Download, Clock, ArrowRight, Instagram,
-  Globe,
+  Globe, Lock, LockOpen,
 } from "lucide-react";
 
 export const sleep = async (ms: number): Promise<void> => {
@@ -59,13 +59,14 @@ const ScrambleText = ({ text, className }: { text: string, className?: string })
   return (
     // The invisible sizer reserves the FINAL text's exact box (width + line count).
     // The animated layer is absolutely positioned inside it and clipped, so the
-    // random wide glyphs (W, M, @) during the scramble can never wrap onto an
-    // extra line or shift the layout — the line count is locked to the real text.
-    <span className={`${className} relative inline-block align-baseline whitespace-pre-wrap`}>
+    // random glyphs cannot shift the layout.
+    // TODO: Split intentionally multi-line values into separate ScrambleText
+    // instances so each animated line keeps an independent clipping boundary.
+    <span className={`${className} relative inline-block align-baseline whitespace-pre`}>
       <span className="opacity-0">{text}</span>
       <span
         aria-hidden="true"
-        className={`absolute overflow-hidden whitespace-pre-wrap transition-opacity duration-100 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+        className={`absolute overflow-hidden whitespace-nowrap transition-opacity duration-100 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
         // Clip window is padded out (and offset back) so bold glyph side-bearings
         // and descenders aren't shaved at the extremities — text still aligns to sizer.
         style={{
@@ -561,6 +562,84 @@ const TechQuiz = () => {
   );
 };
 
+// Scroll-triggered "access gate": each section starts sealed behind a red
+// ACCESS DENIED padlock, then unlocks to a green ACCESS GRANTED lock and fades
+// away as the real content fades in. Plays once per section.
+const AccessReveal = ({ children, label, hint }: { children: React.ReactNode; label?: string; hint?: string }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const played = useRef(false);
+  const [phase, setPhase] = useState<"locked" | "granted" | "revealed">("locked");
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    // Reduced-motion users skip the whole animation.
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setPhase("revealed");
+      return;
+    }
+
+    const obs = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting && !played.current) {
+            played.current = true;
+            setTimeout(() => setPhase("granted"), 350);
+            setTimeout(() => setPhase("revealed"), 900);
+            obs.disconnect();
+          }
+        });
+      },
+      { rootMargin: "-20% 0px -30% 0px", threshold: 0 }
+    );
+
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  const granted = phase === "granted" || phase === "revealed";
+
+  return (
+    <div ref={ref} className="relative">
+      {/* Real content — hidden until access is granted, then fades in */}
+      <div className={`transition-opacity duration-500 ease-out ${phase === "revealed" ? "opacity-100" : "opacity-0"}`}>
+        {children}
+      </div>
+
+      {/* Access gate overlay — opaque so content behind is fully sealed */}
+      {phase !== "revealed" && (
+        <div
+          aria-hidden="true"
+          className={`absolute inset-0 z-30 pointer-events-none bg-[#1F1F1F] transition-opacity duration-500 ease-out ${granted ? "opacity-0" : "opacity-100"}`}
+        >
+          <div className="sticky top-1/2 -translate-y-1/2 flex flex-col items-center justify-center gap-5 px-6">
+            <div className={`relative transition-transform duration-500 ${granted ? "scale-110" : "scale-100"}`}>
+              <div className={`absolute inset-0 -m-6 rounded-full blur-2xl transition-colors duration-500 ${granted ? "bg-green-500/20" : "bg-red-500/15"}`} />
+              {granted ? (
+                <LockOpen className="relative w-16 h-16 md:w-20 md:h-20 text-green-400" strokeWidth={1.5} />
+              ) : (
+                <Lock className="relative w-16 h-16 md:w-20 md:h-20 text-red-500 animate-pulse" strokeWidth={1.5} />
+              )}
+            </div>
+            <div className="flex flex-col items-center gap-1.5 font-mono">
+              <span className={`text-sm md:text-base font-bold uppercase tracking-[0.35em] transition-colors duration-300 ${granted ? "text-green-400" : "text-red-500"}`}>
+                {granted ? "Access Granted" : "Access Denied"}
+              </span>
+              {label && <span className="text-[10px] uppercase tracking-[0.3em] text-[#555]">{label}</span>}
+              {hint && (
+                <span className={`mt-3 text-[11px] uppercase tracking-[0.25em] text-[#777] animate-pulse transition-opacity duration-300 ${granted ? "opacity-0" : "opacity-100"}`}>
+                  {hint}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 export default function Home() {
   const [time, setTime] = useState("");
   const [activeSection, setActiveSection] = useState("hero");
@@ -801,7 +880,7 @@ export default function Home() {
                         <p className="text-sm text-[#555] mb-10 font-mono">&lt;!-- Hero section --&gt;</p>
                         <h1 className="text-5xl sm:text-7xl md:text-9xl font-bold text-white font-sans leading-[0.95] md:leading-[0.9] tracking-tighter mb-12">
                             <ScrambleText text="Cybersecurity" /><br/>
-                            <span className="text-[#444]"><ScrambleText text="Engineer" /></span>
+                            <span className="text-[#5c5c5c]"><ScrambleText text="Engineer" /></span>
                         </h1>
                         <p className="text-lg sm:text-xl text-[#999] max-w-4xl leading-relaxed font-mono font-thin">
                             I&apos;m Pedro Martins, an engineer who builds and operates production systems across AWS, self-hosted, and company infrastructure with security as the architecture, not the afterthought.
@@ -809,9 +888,10 @@ export default function Home() {
                     </section>
 
                     <section id="work" className="mb-48 scroll-mt-24">
+                        <AccessReveal label="Featured Work" hint="↓ Scroll to unlock">
                         <div className="flex justify-between items-end mb-10">
                             <div className="font-mono">
-                                <p className="text-lg sm:text-2xl text-[#888] mb-3">&lt;!-- Featured work --&gt;</p>
+                                <p className="text-lg sm:text-xl text-[#888] mb-3">&lt;!-- Featured work --&gt;</p>
                                 <p className="text-sm text-[#555] max-w-3xl leading-relaxed">Most of the work below was built under NDA, so the source can&apos;t be published — only selected snippets. Happy to walk through a larger portion of the code 1-on-1. </p>
                             </div>
             
@@ -831,9 +911,6 @@ export default function Home() {
                           <ProjectCard title="pontosv" slug="pontosv" status="Online" subtitle="Hardened bare-metal Debian server I run solo — zero-open-port ingress for the BRASILCON journal">
                             <Image src="/projects/pontosv.png" alt="pontosv Home Server" fill className="object-cover" />
                           </ProjectCard>
-                          <ProjectCard title="Ficha Clínica" slug="ficha-clinica" status="Deployed" subtitle="Local-first dental anamnesis — AES-256-GCM at the edge, LGPD by architecture, zero server">
-                            <Image src="/projects/ficha-clinica.png" alt="Ficha Clínica Inteligente" fill className="object-cover" />
-                          </ProjectCard>
                           <ProjectCard title="ZombiesWeb" slug="zombiesweb" status="Live" subtitle="Interactive CoD Zombies lore timeline and map guides">
                             <Image src="/projects/zombiesweb.png" alt="ZombiesWeb Project" fill className="object-cover" />
                           </ProjectCard>
@@ -849,10 +926,15 @@ export default function Home() {
                             <ProjectCard title="OWCoach" slug="owcoach" subtitle="Real-time Overwatch coaching overlay — screen-space CV only, zero memory reads, TOS-safe by design">
                                 <Image src="/projects/owcoach.png" alt="OWCoach Overlay" fill className="object-cover" />
                             </ProjectCard>
+                            <ProjectCard title="Ficha Clínica" slug="ficha-clinica" status="In Development" subtitle="Local-first dental anamnesis — AES-256-GCM at the edge, LGPD by architecture, zero server">
+                                <Image src="/projects/ficha-clinica.png" alt="Ficha Clínica Inteligente" fill className="object-cover" />
+                            </ProjectCard>
                         </div>
+                        </AccessReveal>
                     </section>
 
                     <section id="about" className="mb-48 scroll-mt-24">
+                        <AccessReveal label="About">
                         <p className="text-sm text-[#555] mb-10 font-mono">&lt;!-- About me --&gt;</p>
                         <h2 className="text-5xl md:text-7xl font-bold text-white font-sans mb-16 tracking-tight">
                             Inside My <span className="text-[#444]">Creative Core</span>
@@ -869,9 +951,11 @@ export default function Home() {
                                 </p>
                             </div>
                         </div>
+                        </AccessReveal>
                     </section>
 
                     <section id="experience" className="mb-48 scroll-mt-24">
+                        <AccessReveal label="Experience">
                         <p className="text-sm text-[#555] mb-10 font-mono">&lt;!-- Professional history --&gt;</p>
                         <div className="space-y-0 border-t border-white/5">
                             {[
@@ -887,16 +971,18 @@ export default function Home() {
                                 </div>
                             ))}
                         </div>
+                        </AccessReveal>
                     </section>
 
                     <section id="certifications" className="mb-48 scroll-mt-24">
+                        <AccessReveal label="Certifications">
                         <p className="text-sm text-[#555] mb-10 font-mono">&lt;!-- Certification roadmap --&gt;</p>
                         <div className="space-y-0 border-t border-white/5">
                             {[
                                 { year: "2026", cert: "RHCSA", full: "Red Hat Certified System Administrator", status: "In Progress" },
-                                { year: "2027", cert: "Security+", full: "CompTIA Security+", status: "Planned" },
+                                { year: "2026", cert: "Security+", full: "CompTIA Security+", status: "Planned" },
                                 { year: "2027", cert: "AWS SAA", full: "AWS Solutions Architect Associate", status: "Planned" },
-                                { year: "2028", cert: "CKA", full: "Certified Kubernetes Administrator", status: "Planned" }
+                                { year: "2027", cert: "CKA", full: "Certified Kubernetes Administrator", status: "Planned" }
                             ].map((item, i) => (
                                 <div key={i} className="group flex flex-col md:flex-row md:items-baseline justify-between py-10 border-b border-white/5 hover:bg-white/2 transition-colors px-6 -mx-6 cursor-default">
                                     <span className="font-mono text-base text-[#555] w-64 mb-2 md:mb-0">{item.year}</span>
@@ -910,9 +996,11 @@ export default function Home() {
                                 </div>
                             ))}
                         </div>
+                        </AccessReveal>
                     </section>
 
                     <section id="what-i-do" className="mb-48 scroll-mt-24">
+                        <AccessReveal label="Capabilities">
                         <p className="text-sm text-[#555] mb-10 font-mono">&lt;!-- What I do --&gt;</p>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-16">
                             <div>
@@ -949,9 +1037,11 @@ export default function Home() {
                                 </ul>
                             </div>
                         </div>
+                        </AccessReveal>
                     </section>
 
                     <section id="stack" className="mb-32 scroll-mt-24">
+                        <AccessReveal label="Tech Stack">
                         <p className="text-sm text-[#555] mb-10 font-mono">&lt;!-- My tech stack --&gt;</p>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-0 border-l border-t border-white/5">
                             {stackData.map((tech) => (
@@ -963,10 +1053,12 @@ export default function Home() {
                                 />
                             ))}
                         </div>
+                        </AccessReveal>
                     </section>
 
 
                     <section id="game" className="mb-48 scroll-mt-24">
+                        <AccessReveal label="Mini Game">
                         <p className="text-sm text-[#555] mb-10 font-mono">&lt;!-- Take a break --&gt;</p>
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
                             <div>
@@ -982,9 +1074,11 @@ export default function Home() {
                                 <ColorSpotter />
                             </div>
                         </div>
+                        </AccessReveal>
                     </section>
 
                     <section id="quiz" className="mb-48 scroll-mt-24">
+                        <AccessReveal label="Quiz">
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
                             <div className="order-2 lg:order-1 flex justify-center lg:justify-start">
                                 <TechQuiz />
@@ -999,9 +1093,11 @@ export default function Home() {
                                 </p>
                             </div>
                         </div>
+                        </AccessReveal>
                     </section>
 
                     <section id="contact" className="mb-24 scroll-mt-24">
+                        <AccessReveal label="Contact">
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
                             <div>
                                 <p className="text-sm text-[#555] mb-10 font-mono">&lt;!-- Get in Touch --&gt;</p>
@@ -1052,6 +1148,7 @@ export default function Home() {
                                 </button>
                             </form>
                         </div>
+                        </AccessReveal>
                     </section>
 
                     <TerminalSection />
