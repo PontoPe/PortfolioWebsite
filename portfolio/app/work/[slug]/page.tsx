@@ -1,27 +1,12 @@
 import Link from "next/link";
-import Image from "next/image";
 import type { Metadata } from "next";
-import { ArrowLeft, Github, Globe } from "lucide-react";
-import TrustStackCaseStudy from "@/components/TrustStackCaseStudy";
+import ProjectCaseStudyExperience from "@/components/ProjectCaseStudyExperience";
+import {
+  projectCaseStudyProfiles,
+  type ProjectSource,
+} from "@/lib/projectCaseStudyProfiles";
 
-interface Project {
-  title: string;
-  subtitle?: string;
-  status?: string;
-  category: string;
-  date: string;
-  description: string;
-  stack: string[];
-  image: string;
-  imageAlt?: string;
-  caseStudy?: "truststack";
-  github?: string;
-  demo?: string;
-  codeSnippet?: { filename: string; caption: string; code: string };
-  gallery?: { src: string; caption: string; width: number; height: number }[];
-}
-
-const projectsData: Record<string, Project> = {
+const projectsData: Record<string, ProjectSource> = {
   "brasilcon": {
     title: "Revista BRASILCON — OJS",
     category: "Secure Self-Hosted Infrastructure / Academic Publishing",
@@ -558,8 +543,9 @@ export default {
 export default async function ProjectPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const project = projectsData[slug];
+  const profile = projectCaseStudyProfiles[slug];
 
-  if (!project) {
+  if (!project || !profile) {
     return (
       <div className="h-screen w-full bg-[#181818] flex flex-col items-center justify-center text-white font-mono">
         <h1 className="text-4xl mb-4">404 - Project Not Found</h1>
@@ -568,146 +554,11 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
     );
   }
 
-  return (
-    <div className="min-h-screen w-full bg-[#181818] text-[#B1B1B1] font-mono selection:bg-white/20 selection:text-black">
-      <div className="fixed top-8 left-8 z-50">
-        <Link href="/" className="flex items-center gap-2 px-4 py-2 bg-black/50 border border-white/10 rounded text-sm hover:bg-white hover:text-black transition-colors backdrop-blur">
-            <ArrowLeft className="w-4 h-4" />
-            <span>Back</span>
-        </Link>
-      </div>
-
-      <div className="max-w-4xl mx-auto pt-32 pb-20 px-6">
-        <div className="mb-12">
-            <div className="flex items-center gap-4 text-xs font-bold uppercase tracking-widest text-[#555] mb-4">
-                <span>{project.category}</span>
-                <span>•</span>
-                <span>{project.date}</span>
-            </div>
-            <div className="mb-8 flex flex-wrap items-end justify-between gap-5">
-                <div>
-                    <h1 className="text-5xl md:text-7xl font-bold text-white">{project.title}</h1>
-                    {project.subtitle && (
-                        <p className="mt-4 text-base md:text-lg text-[#777]">{project.subtitle}</p>
-                    )}
-                </div>
-                {project.status && (
-                    <span className="border border-amber-500/40 bg-amber-500/10 px-3 py-1.5 text-xs font-bold uppercase tracking-widest text-amber-200">
-                        {project.status}
-                    </span>
-                )}
-            </div>
-            <div className="flex flex-wrap gap-2">
-                {project.stack?.map((tech: string) => (
-                    <span key={tech} className="px-3 py-1 bg-[#222] border border-white/5 rounded text-xs text-[#888]">
-                        {tech}
-                    </span>
-                ))}
-            </div>
-        </div>
-
-        <div className="w-full aspect-video bg-[#111] border border-white/10 rounded-lg overflow-hidden mb-16 relative">
-             <Image
-                src={project.image}
-                alt={project.imageAlt || project.title}
-                fill
-                className="object-cover"
-                priority
-             />
-        </div>
-
-        {project.caseStudy === "truststack" ? (
-          <TrustStackCaseStudy />
-        ) : (
-          <>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            <div className="md:col-span-2">
-                <h2 className="text-white text-xl font-bold mb-6">Overview</h2>
-                <p className="text-lg leading-relaxed text-[#999] whitespace-pre-line">
-                    {project.description}
-                </p>
-            </div>
-            <div className="space-y-6">
-                <h2 className="text-white text-xl font-bold mb-6">Links</h2>
-                {project.github && (
-                    <a href={project.github} target="_blank" className="flex items-center justify-between w-full p-4 border border-white/10 rounded hover:bg-white hover:text-black transition-colors group">
-                        <span>Source Code</span>
-                        <Github className="w-4 h-4" />
-                    </a>
-                )}
-                {project.demo && (
-                    <a href={project.demo} target="_blank" className="flex items-center justify-between w-full p-4 border border-white/10 rounded hover:bg-white hover:text-black transition-colors group">
-                        <span>Live Demo</span>
-                        <Globe className="w-4 h-4" />
-                    </a>
-                )}
-            </div>
-        </div>
-
-        {project.codeSnippet && (
-            <div className="mt-20">
-                <div className="flex items-baseline gap-3 mb-6">
-                    <h2 className="text-white text-xl font-bold">Implementation</h2>
-                    <span className="text-xs text-[#555] uppercase tracking-widest">{"// production excerpt"}</span>
-                </div>
-                <div className="rounded-lg border border-white/10 overflow-hidden bg-[#0d0d0d]">
-                    <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 bg-black/40">
-                        <div className="flex items-center gap-2">
-                            <span className="w-3 h-3 rounded-full bg-[#ff5f56]" />
-                            <span className="w-3 h-3 rounded-full bg-[#ffbd2e]" />
-                            <span className="w-3 h-3 rounded-full bg-[#27c93f]" />
-                        </div>
-                        <span className="text-xs text-[#888]">{project.codeSnippet.filename}</span>
-                        <span className="w-12" />
-                    </div>
-                    <pre className="p-6 overflow-x-auto text-[13px] leading-relaxed text-[#c9d1d9]">
-                        <code>{project.codeSnippet.code}</code>
-                    </pre>
-                </div>
-                <p className="text-sm text-[#666] mt-4">{project.codeSnippet.caption}</p>
-            </div>
-        )}
-
-        {project.gallery && project.gallery.length > 0 && (
-            <div className="mt-20 space-y-12">
-                {project.gallery.map((item) => (
-                    <figure key={item.src}>
-                        <div className="w-full bg-[#111] border border-white/10 rounded-lg overflow-hidden relative">
-                            <Image
-                                src={item.src}
-                                alt={item.caption}
-                                width={item.width}
-                                height={item.height}
-                                className="w-full h-auto"
-                            />
-                        </div>
-                        <figcaption className="text-sm text-[#666] mt-4 text-center">{item.caption}</figcaption>
-                    </figure>
-                ))}
-            </div>
-        )}
-          </>
-        )}
-      </div>
-    </div>
-  );
+  return <ProjectCaseStudyExperience project={project} profile={profile} />;
 }
 
 export async function generateStaticParams() {
-  return [
-    { slug: 'brasilcon' },
-    { slug: 'pontosv' },
-    { slug: 'truststack' },
-    { slug: 'ficha-clinica' },
-    { slug: 'cowrec' },
-    { slug: 'fintech' },
-    { slug: 'hyundai' },
-    { slug: 'jbs' },
-    { slug: 'owcoach' },
-    { slug: 'zombiesweb' },
-    { slug: 'docker-tracker' },
-    { slug: 'portfolio' },
-  ];
+  return Object.keys(projectsData).map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({
@@ -716,32 +567,32 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
+  const project = projectsData[slug];
+  const profile = projectCaseStudyProfiles[slug];
 
-  if (slug !== "truststack") {
+  if (!project || !profile) {
     return {};
   }
 
-  const title = "TrustStack | Cloud Security Engineering Platform | Pedro Martins";
-  const description =
-    "TrustStack is Pedro Martins' evidence-driven platform for AWS governance, automated response, Kubernetes security, and signed software delivery.";
+  const title = `${project.title} | ${project.category} | Pedro Martins`;
+  const description = profile.outcome;
+  const canonical = `https://pedromartins.tech/work/${slug}/`;
 
   return {
     title,
     description,
     alternates: {
-      canonical: "https://pedromartins.tech/work/truststack/",
+      canonical,
     },
     openGraph: {
       title,
       description,
       type: "website",
-      url: "https://pedromartins.tech/work/truststack/",
+      url: canonical,
       images: [
         {
-          url: "https://pedromartins.tech/projects/truststack.svg",
-          width: 1600,
-          height: 900,
-          alt: "TrustStack cloud security architecture",
+          url: `https://pedromartins.tech${project.image}`,
+          alt: project.imageAlt || `${project.title} project visual`,
         },
       ],
     },
