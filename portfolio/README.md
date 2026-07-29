@@ -1,36 +1,70 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Pedro Martins - DevSecOps & Cloud Security Portfolio
 
-## Getting Started
+Source code for [pedromartins.tech](https://pedromartins.tech), an interactive portfolio focused on secure automation, cloud infrastructure, production operations, and security engineering.
 
-First, run the development server:
+The site connects Pedro's professional experience with technical evidence: project case studies, architecture decisions, security write-ups, an interactive terminal, and small browser experiments.
+
+## Highlights
+
+- Production case studies covering BRASILCON, Hyundai, JBS, and a confidential fintech engagement
+- Security and infrastructure work spanning AWS, Linux, Docker, Kubernetes, Terraform, Cloudflare Tunnel, and CI/CD
+- Project pages for the BNPL platform, Docker Email Tracker, CowRec, TourneySys, and other selected work
+- Technical write-ups on secure onboarding automation, zero-open-port publishing infrastructure, and home-server hardening
+- Markdown-powered blog and project routes
+- Responsive, accessible interface with an optional terminal experience
+
+## Stack
+
+- Next.js 16 with the App Router
+- React 19 and TypeScript
+- Tailwind CSS 4
+- `gray-matter`, `react-markdown`, and GitHub Flavored Markdown
+- Lucide icons
+
+## Local development
+
+Requirements:
+
+- Node.js 20 or newer
+- npm
 
 ```bash
+npm ci
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Quality checks
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run lint
+npm run build
+```
 
-## Learn More
+## Project structure
 
-To learn more about Next.js, take a look at the following resources:
+```text
+app/                 Next.js routes and page metadata
+components/          Shared interactive components
+lib/                 Content and virtual filesystem helpers
+public/projects/     Project imagery
+public/stack/        Technology icons
+public/write-ups/    Long-form case studies
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Security notes
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- No secrets or API keys are stored in the repository.
+- External links opened in a new tab use `noopener noreferrer`.
+- Contact form data is submitted over HTTPS to the configured form service.
+- Content paths should be treated as untrusted input and validated before any future dynamic file lookup is added.
 
-## Deploy on Vercel
+## Roadmap
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- [ ] Move professional content into typed data files so CV, project pages, and profile summaries remain synchronized.
+- [ ] Add automated checks for broken links and Markdown content.
+- [ ] Add end-to-end tests for navigation, forms, and interactive terminal commands.
+- [ ] Add a dedicated page for cloud security and software supply-chain projects.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+<!-- TODO: Update this README when the deployment, content model, or security controls change. -->
