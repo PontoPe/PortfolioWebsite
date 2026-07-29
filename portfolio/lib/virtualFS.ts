@@ -40,7 +40,7 @@ export const virtualFS = {
         children: {
           'motd.txt': {
             type: 'file',
-            content: 'You are on PTP-SV, a virtual shadow of pontosv — the real Debian home server humming in Curitiba. It serves revistabrasilcon.com to the whole internet through a Cloudflare Tunnel, with zero open ports. Yes, an actual academic journal runs from a box next to my desk.'
+            content: 'You are on PTP-SV, a virtual shadow of pontosv - the real Debian home server humming in Curitiba. It serves revistabrasilcon.com to the whole internet through a Cloudflare Tunnel, with zero open ports. Yes, an actual academic journal runs from a box next to my desk.'
           },
           'uptime.log': {
             type: 'file',

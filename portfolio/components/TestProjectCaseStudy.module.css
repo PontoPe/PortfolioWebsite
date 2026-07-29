@@ -555,11 +555,9 @@
 .vmFrame {
   overflow: hidden;
   border: 1px solid rgba(223, 230, 226, 0.22);
-  border-radius: 0.8rem;
+  border-radius: 0.9rem;
   background: #121514;
-  box-shadow:
-    0 3rem 8rem rgba(0, 0, 0, 0.48),
-    inset 0 1px rgba(255, 255, 255, 0.045);
+  box-shadow: none;
 }
 
 .vmExpanded {
@@ -592,11 +590,10 @@
   grid-template-columns: minmax(5rem, 1fr) auto minmax(5rem, 1fr);
   align-items: center;
   gap: 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.48);
   color: #c7ceca;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.055), transparent),
-    #202321;
+  background: #303338;
+  box-shadow: none;
 }
 
 .windowDots {
@@ -698,13 +695,13 @@
 }
 
 .viewerSurface {
-  min-height: 51rem;
+  min-height: 42rem;
   overflow: hidden;
   background: #0b0f0d;
 }
 
 .vmApplication {
-  height: 51rem;
+  height: 42rem;
   display: grid;
   grid-template-rows: minmax(0, 1fr) auto;
   overflow: hidden;
@@ -2578,7 +2575,7 @@
 
   .vmApplication {
     height: auto;
-    min-height: 48rem;
+    min-height: 40rem;
   }
 
   .appBody {

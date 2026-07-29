@@ -454,22 +454,24 @@
   display: flex;
   width: min(90vw, 92rem);
   margin: 0 auto;
-  overflow-x: auto;
+  overflow: hidden;
 }
 
 .caseNavDesktop button {
   position: relative;
-  flex: 1 0 auto;
+  min-width: 0;
+  flex: 1 1 0;
   min-height: 3.2rem;
   border: 0;
   border-right: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 0 1rem;
+  padding: 0 0.55rem;
   background: transparent;
   color: #707985;
   cursor: pointer;
   font-size: 0.6rem;
   font-weight: 600;
   letter-spacing: 0.08em;
+  white-space: nowrap;
   text-transform: uppercase;
   transition: color 160ms ease, background 160ms ease;
 }
@@ -559,8 +561,9 @@
   position: relative;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.17);
+  border-radius: 0.9rem;
   background: #080b0e;
-  box-shadow: 0 2.5rem 8rem rgba(0, 0, 0, 0.42);
+  box-shadow: none;
 }
 
 .viewerExpanded {
@@ -570,6 +573,7 @@
   display: flex;
   flex-direction: column;
   border: 0;
+  border-radius: 0;
 }
 
 .viewerHeader {
@@ -578,9 +582,10 @@
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.48);
   padding: 0.65rem 0.9rem;
-  background: color-mix(in srgb, var(--case-surface) 90%, #06080a);
+  background: #303338;
+  box-shadow: none;
 }
 
 .windowDots {
@@ -685,7 +690,7 @@
 
 .viewerBody {
   display: grid;
-  min-height: 39rem;
+  min-height: 32rem;
   grid-template-columns: 6.25rem minmax(0, 1fr);
 }
 
@@ -766,6 +771,7 @@
   color: var(--case-accent);
 }
 
+.experienceTool,
 .systemTool,
 .flowTool,
 .threatTool,
@@ -2287,7 +2293,7 @@
   }
 
   .viewerViewport {
-    min-height: 36rem;
+    min-height: 30rem;
   }
 
   .systemSplit {
@@ -2487,9 +2493,10 @@
   }
 
   .viewerViewport {
-    min-height: 32rem;
+    min-height: 28rem;
   }
 
+  .experienceTool,
   .systemTool,
   .flowTool,
   .threatTool,

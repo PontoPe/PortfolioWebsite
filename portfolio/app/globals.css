@@ -5,6 +5,19 @@ body {
   color: #fff;
 }
 
+/* Size the hero from its real center column, after both desktop rails are
+   accounted for, instead of from the full monitor width. */
+.portfolio-content {
+  container-type: inline-size;
+}
+
+.portfolio-hero-title {
+  font-size: clamp(2.25rem, 14cqi, 8rem);
+}
+
+/* TODO(responsive): Keep large hero typography container-relative if either
+   desktop rail width changes; viewport breakpoints caused the original clip. */
+
 /* app/globals.css */
 
 @layer utilities {
@@ -47,7 +60,7 @@ body {
 }
 
 /* ═══════════════════════════════════════════
-   KONAMI CODE — BSOD & MATRIX THEME
+   KONAMI CODE - BSOD & MATRIX THEME
    ═══════════════════════════════════════════ */
 
 /* BSOD Glitch Animation */
@@ -111,7 +124,7 @@ body {
 .matrix-theme footer                  { background-color: #050505 !important; }
 .matrix-theme main                    { background-color: #0a0a0a !important; }
 
-/* Headings — bright green with glow */
+/* Headings - bright green with glow */
 .matrix-theme h1,
 .matrix-theme h2,
 .matrix-theme h3 {
@@ -119,7 +132,7 @@ body {
   text-shadow: 0 0 10px rgba(0, 255, 65, 0.4), 0 0 40px rgba(0, 255, 65, 0.1);
 }
 
-/* Body text — muted green */
+/* Body text - muted green */
 .matrix-theme p,
 .matrix-theme span,
 .matrix-theme li,
@@ -139,7 +152,7 @@ body {
   text-shadow: 0 0 10px rgba(0, 255, 65, 0.6);
 }
 
-/* Borders — subtle green */
+/* Borders - subtle green */
 .matrix-theme * {
   border-color: rgba(0, 255, 65, 0.1) !important;
 }
@@ -179,7 +192,7 @@ body {
   color: #003a00 !important;
 }
 
-/* Images — green tint */
+/* Images - green tint */
 .matrix-theme img {
   filter: grayscale(1) brightness(0.7) sepia(1) hue-rotate(70deg) saturate(2);
 }

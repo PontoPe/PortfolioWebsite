@@ -68,7 +68,7 @@ const ScrambleText = ({ text, className }: { text: string, className?: string })
         aria-hidden="true"
         className={`absolute overflow-hidden whitespace-nowrap transition-opacity duration-100 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
         // Clip window is padded out (and offset back) so bold glyph side-bearings
-        // and descenders aren't shaved at the extremities — text still aligns to sizer.
+        // and descenders aren't shaved at the extremities - text still aligns to sizer.
         style={{
           top: '-0.15em',
           left: '-0.12em',
@@ -356,7 +356,7 @@ const TerminalSection = () => {
 
 const ColorSpotter = () => {
   const [score, setScore] = useState(0);
-  // default values prevent hydration mismatch — real colors set in useEffect
+  // default values prevent hydration mismatch - real colors set in useEffect
   const [colors, setColors] = useState({ main: "#222", diff: "#222" });
   const [diffIndex, setDiffIndex] = useState(0);
   const [shake, setShake] = useState(false);
@@ -602,12 +602,12 @@ const AccessReveal = ({ children, label, hint }: { children: React.ReactNode; la
 
   return (
     <div ref={ref} className="relative">
-      {/* Real content — hidden until access is granted, then fades in */}
+      {/* Real content - hidden until access is granted, then fades in */}
       <div className={`transition-opacity duration-500 ease-out ${phase === "revealed" ? "opacity-100" : "opacity-0"}`}>
         {children}
       </div>
 
-      {/* Access gate overlay — opaque so content behind is fully sealed */}
+      {/* Access gate overlay - opaque so content behind is fully sealed */}
       {phase !== "revealed" && (
         <div
           aria-hidden="true"
@@ -761,7 +761,7 @@ export default function Home() {
             </div>
 
             <p className="text-base leading-relaxed text-[#999] font-mono">
-                I&apos;m Pedro Martins, a cybersecurity engineer who builds, hardens, and runs production systems — from AWS pipelines to a self-hosted server publishing a national journal with zero open ports.
+                I&apos;m Pedro Martins, a cybersecurity engineer who builds, hardens, and runs production systems - from AWS pipelines to a self-hosted server publishing a national journal with zero open ports.
             </p>
 
             <div className="flex flex-col gap-5 text-sm font-medium text-[#777]">
@@ -825,7 +825,7 @@ export default function Home() {
             </div>
         </header>
 
-        <div className="flex-1 relative h-full overflow-y-auto scroll-smooth bg-[#1F1F1F]">
+        <div className="flex-1 relative h-full overflow-y-auto overflow-x-clip scroll-smooth bg-[#1F1F1F]">
             <div className="min-h-full flex flex-row">
 
                 <div className="flex-none opacity-50 w-10 py-4 hidden sm:flex flex-col items-end pr-2 border-r border-[#f8f8f81c] select-none bg-[#1F1F1F]">
@@ -836,9 +836,9 @@ export default function Home() {
                     ))}
                 </div>
 
-                <div className="flex-1 py-12 sm:py-16 md:py-24 px-5 sm:px-8 md:pr-12 w-full max-w-[95%] mx-auto">
+                <div className="portfolio-content flex-1 min-w-0 py-12 sm:py-16 md:py-24 px-5 sm:px-8 md:pr-12 w-full max-w-[95%] mx-auto">
 
-                    {/* Mobile-only identity + contact — the left sidebar is hidden on small screens */}
+                    {/* Mobile-only identity + contact - the left sidebar is hidden on small screens */}
                     <div className="lg:hidden mb-20 flex flex-col gap-8">
                         <div className="flex items-center gap-4">
                             <div className="w-14 h-14 overflow-hidden shrink-0 relative rounded-full">
@@ -878,7 +878,7 @@ export default function Home() {
 
                     <section id="hero" className="mb-32 md:mb-48 scroll-mt-32">
                         <p className="text-sm text-[#555] mb-10 font-mono">&lt;!-- Hero section --&gt;</p>
-                        <h1 className="text-5xl sm:text-7xl md:text-9xl font-bold text-white font-sans leading-[0.95] md:leading-[0.9] tracking-tighter mb-12">
+                        <h1 className="portfolio-hero-title font-bold text-white font-sans leading-[0.95] md:leading-[0.9] tracking-tighter mb-12">
                             <ScrambleText text="Cybersecurity" /><br/>
                             <span className="text-[#5c5c5c]"><ScrambleText text="Engineer" /></span>
                         </h1>
@@ -892,23 +892,23 @@ export default function Home() {
                         <div className="flex justify-between items-end mb-10">
                             <div className="font-mono">
                                 <p className="text-lg sm:text-xl text-[#888] mb-3">&lt;!-- Featured work --&gt;</p>
-                                <p className="text-sm text-[#555] max-w-3xl leading-relaxed">Most of the work below was built under NDA, so the source can&apos;t be published — only selected snippets. Happy to walk through a larger portion of the code 1-on-1. </p>
+                                <p className="text-sm text-[#555] max-w-3xl leading-relaxed">Most of the work below was built under NDA, so the source can&apos;t be published - only selected snippets. Happy to walk through a larger portion of the code 1-on-1. </p>
                             </div>
             
                             
                         </div>
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
-                            <ProjectCard title="Revista BRASILCON" slug="brasilcon" status="Live" subtitle="Self-hosted OJS publishing platform for Brazil's consumer-law journal — officially recognized by BRASILCON">
+                            <ProjectCard title="Revista BRASILCON" slug="brasilcon" status="Live" subtitle="Self-hosted OJS publishing platform for Brazil's consumer-law journal - officially recognized by BRASILCON">
                                 <Image src="/projects/brasilcon.png" alt="Revista BRASILCON OJS Platform" fill className="object-cover object-top" />
                             </ProjectCard>
-                          <ProjectCard title="Hyundai Backend" slug="hyundai" subtitle="Secure PII onboarding pipeline — least-privilege IAM, data minimization, zero exposure incidents">
+                          <ProjectCard title="Hyundai Backend" slug="hyundai" subtitle="Secure PII onboarding pipeline - least-privilege IAM, data minimization, zero exposure incidents">
                             <Image src="/projects/hyundai.png" alt="Hyundai Project" fill className="object-cover" />
                           </ProjectCard>
                             <ProjectCard title="JBS Backend" slug="jbs" subtitle="High-throughput data processing system">
                                 <Image src="/projects/jbs.png" alt="JBS Project" fill className="object-cover" />
                             </ProjectCard>
-                          <ProjectCard title="pontosv" slug="pontosv" status="Online" subtitle="Hardened bare-metal Debian server I run solo — zero-open-port ingress for the BRASILCON journal">
+                          <ProjectCard title="pontosv" slug="pontosv" status="Online" subtitle="Hardened bare-metal Debian server I run solo - zero-open-port ingress for the BRASILCON journal">
                             <Image src="/projects/pontosv.png" alt="pontosv Home Server" fill className="object-cover" />
                           </ProjectCard>
                           <ProjectCard title="ZombiesWeb" slug="zombiesweb" status="Live" subtitle="Interactive CoD Zombies lore timeline and map guides">
@@ -923,13 +923,13 @@ export default function Home() {
                             <ProjectCard title="CowRec" slug="cowrec" status="Live" subtitle="Computer Vision backend for livestock tracking">
                                 <Image src="/projects/cow1.jpeg" alt="CowRec Project" fill className="object-cover" />
                             </ProjectCard>
-                            <ProjectCard title="OWCoach" slug="owcoach" subtitle="Real-time Overwatch coaching overlay — screen-space CV only, zero memory reads, TOS-safe by design">
+                            <ProjectCard title="OWCoach" slug="owcoach" subtitle="Real-time Overwatch coaching overlay - screen-space CV only, zero memory reads, TOS-safe by design">
                                 <Image src="/projects/owcoach.png" alt="OWCoach Overlay" fill className="object-cover" />
                             </ProjectCard>
                             <ProjectCard title="TrustStack" slug="truststack" status="In Development" subtitle="Evidence-driven cloud security platform spanning AWS governance, automated response, Kubernetes runtime defense, and signed-image enforcement">
                                 <Image src="/projects/truststack.svg" alt="TrustStack cloud security architecture" fill className="object-cover" />
                             </ProjectCard>
-                            <ProjectCard title="Ficha Clínica" slug="ficha-clinica" status="In Development" subtitle="Local-first dental anamnesis — AES-256-GCM at the edge, LGPD by architecture, zero server">
+                            <ProjectCard title="Ficha Clínica" slug="ficha-clinica" status="In Development" subtitle="Local-first dental anamnesis - AES-256-GCM at the edge, LGPD by architecture, zero server">
                                 <Image src="/projects/ficha-clinica.png" alt="Ficha Clínica Inteligente" fill className="object-cover" />
                             </ProjectCard>
                         </div>
@@ -950,7 +950,7 @@ export default function Home() {
                             </div>
                             <div className="space-y-8">
                                 <p>
-                                    I came up through backend automation — securing <span className="text-white bg-[#333] px-1 font-medium">PII pipelines for enterprises like Hyundai</span> — and discovered the part I couldn&apos;t stop thinking about was protecting the systems, not just building them. Today I practice <span className="text-white font-bold">secure-by-default engineering</span>: least privilege, secrets management, hardening, and zero-open-port ingress, on infrastructure I run myself.
+                                    I came up through backend automation - securing <span className="text-white bg-[#333] px-1 font-medium">PII pipelines for enterprises like Hyundai</span> - and discovered the part I couldn&apos;t stop thinking about was protecting the systems, not just building them. Today I practice <span className="text-white font-bold">secure-by-default engineering</span>: least privilege, secrets management, hardening, and zero-open-port ingress, on infrastructure I run myself.
                                 </p>
                             </div>
                         </div>
@@ -1200,7 +1200,7 @@ export default function Home() {
         </nav>
       </aside>
 
-      {/* BSOD Overlay — Konami Code Easter Egg */}
+      {/* BSOD Overlay - Konami Code Easter Egg */}
       {bsodPhase !== 'idle' && (
         <div className="fixed inset-0 z-99999 bg-black">
           {(bsodPhase === 'bsod' || bsodPhase === 'glitch') && (

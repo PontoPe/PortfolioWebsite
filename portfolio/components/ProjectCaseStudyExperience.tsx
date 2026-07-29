@@ -14,6 +14,7 @@ import {
   Database,
   ExternalLink,
   FileText,
+  Gamepad2,
   Globe2,
   LockKeyhole,
   Maximize2,
@@ -34,9 +35,17 @@ import type {
   ProjectSource,
   ProjectThreat,
 } from "@/lib/projectCaseStudyProfiles";
+import ZombiesWebProductDemo from "./ZombiesWebProductDemo";
 import styles from "./ProjectCaseStudyExperience.module.css";
 
-type ToolId = "system" | "flow" | "threats" | "operations" | "source" | "evidence";
+type ToolId =
+  | "experience"
+  | "system"
+  | "flow"
+  | "threats"
+  | "operations"
+  | "source"
+  | "evidence";
 type SectionId =
   | "architecture"
   | "overview"
@@ -214,6 +223,9 @@ export default function ProjectCaseStudyExperience({
   profile: ProjectCaseStudyProfile;
 }) {
   const availableTools: Array<{ id: ToolId; label: string; short: string; icon: typeof Network }> = [
+    ...(profile.slug === "zombiesweb"
+      ? [{ id: "experience" as ToolId, label: "Product demo", short: "Demo", icon: Gamepad2 }]
+      : []),
     { id: "system", label: "System", short: "Map", icon: Network },
     { id: "flow", label: "Flow", short: "Flow", icon: ArrowRight },
     { id: "threats", label: "Threats", short: "Risk", icon: ShieldCheck },
@@ -229,7 +241,9 @@ export default function ProjectCaseStudyExperience({
     [profile.sectionOrder],
   );
   const [activeSection, setActiveSection] = useState<SectionId>("architecture");
-  const [activeTool, setActiveTool] = useState<ToolId>("system");
+  const [activeTool, setActiveTool] = useState<ToolId>(
+    profile.slug === "zombiesweb" ? "experience" : "system",
+  );
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(
     profile.nodes[0]?.id ?? null,
   );
@@ -473,6 +487,14 @@ export default function ProjectCaseStudyExperience({
   );
 
   const renderTool = () => {
+    if (activeTool === "experience" && profile.slug === "zombiesweb") {
+      return (
+        <div className={styles.experienceTool}>
+          <ZombiesWebProductDemo />
+        </div>
+      );
+    }
+
     if (activeTool === "system") {
       return (
         <div className={styles.systemTool}>
@@ -802,7 +824,13 @@ export default function ProjectCaseStudyExperience({
             <div><dt>Ownership</dt><dd>{profile.ownership.join(" · ")}</dd></div>
           </dl>
           <div className={styles.heroActions}>
-            <button type="button" onClick={() => openViewer("system")}>Inspect the system <ArrowRight /></button>
+            <button
+              type="button"
+              onClick={() => openViewer(profile.slug === "zombiesweb" ? "experience" : "system")}
+            >
+              {profile.slug === "zombiesweb" ? "Run the product demo" : "Inspect the system"}
+              <ArrowRight />
+            </button>
             {project.demo && <a href={project.demo} target="_blank" rel="noopener noreferrer">Open live project <ExternalLink /></a>}
             {!project.demo && project.github && <a href={project.github} target="_blank" rel="noopener noreferrer">View source <ExternalLink /></a>}
           </div>
