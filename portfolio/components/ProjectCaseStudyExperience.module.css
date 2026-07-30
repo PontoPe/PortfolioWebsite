@@ -2176,7 +2176,7 @@
 
 @media (min-width: 78rem) {
   .page {
-    padding-right: 14rem;
+    padding-right: 5rem;
   }
 
   .hero,
@@ -2185,55 +2185,80 @@
   .page[data-layout="product-first"] .hero,
   .metrics,
   .body {
-    width: min(90%, 92rem);
+    width: min(90%, 96rem);
   }
 
   .caseNav {
     position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: 14rem;
+    top: 50%;
+    right: clamp(0.75rem, 1.5vw, 1.5rem);
+    bottom: auto;
+    width: 8.75rem;
+    transform: translateY(-50%);
     border: 0;
-    border-left: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 7.5rem 2rem 2rem;
-    background: #181818;
+    padding: 0;
+    background: transparent;
     backdrop-filter: none;
   }
 
   .caseNavTitle {
-    display: block;
-    margin: 0 0 2.5rem;
-    color: #f4f4f4;
-    font-size: 0.78rem;
-    font-weight: 700;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
+    display: none;
   }
 
   .caseNavDesktop {
+    position: relative;
     display: flex;
     width: 100%;
     flex-direction: column;
-    gap: 0.35rem;
+    gap: 0.2rem;
     margin: 0;
     overflow: visible;
   }
 
+  .caseNavDesktop::before {
+    position: absolute;
+    top: 1.15rem;
+    bottom: 1.15rem;
+    left: 0.24rem;
+    width: 1px;
+    background: linear-gradient(
+      180deg,
+      transparent,
+      color-mix(in srgb, var(--case-accent) 34%, transparent) 12%,
+      color-mix(in srgb, var(--case-accent) 34%, transparent) 88%,
+      transparent
+    );
+    content: "";
+  }
+
   .caseNavDesktop button {
-    min-height: 2.5rem;
+    min-height: 2.35rem;
     flex: 0 0 auto;
     justify-content: flex-start;
     border: 0;
-    padding: 0 0 0 1rem;
-    color: #626262;
-    font-size: 0.63rem;
+    padding: 0 0 0 1.45rem;
+    color: #6e747c;
+    font-size: 0.6rem;
     letter-spacing: 0.09em;
     text-align: left;
+    transition: color 160ms ease;
   }
 
   .caseNavDesktop button:first-child {
     border-left: 0;
+  }
+
+  .caseNavDesktop button::before {
+    position: absolute;
+    top: 50%;
+    left: 0.32rem;
+    width: 0.72rem;
+    height: 1px;
+    transform: translateY(-50%);
+    background: color-mix(in srgb, var(--case-accent) 45%, transparent);
+    content: "";
+    opacity: 0.42;
+    transition: width 160ms ease, opacity 160ms ease;
   }
 
   .caseNavDesktop button > span {
@@ -2241,11 +2266,16 @@
     right: auto;
     bottom: auto;
     left: 0;
-    width: 0.34rem;
-    height: 0.34rem;
+    z-index: 1;
+    width: 0.5rem;
+    height: 0.5rem;
+    border: 1px solid color-mix(in srgb, var(--case-accent) 66%, transparent);
     border-radius: 50%;
-    transform: translateY(-50%) scale(0);
+    transform: translateY(-50%) scale(0.72);
     transform-origin: center;
+    background: var(--case-page);
+    opacity: 0.7;
+    transition: transform 160ms ease, background 160ms ease, box-shadow 160ms ease, opacity 160ms ease;
   }
 
   .caseNavDesktop button:hover,
@@ -2254,9 +2284,21 @@
     color: #f1f1f1;
   }
 
+  .caseNavDesktop button:hover::before,
+  .caseNavDesktop button[aria-current="location"]::before {
+    width: 0.92rem;
+    opacity: 1;
+  }
+
   .caseNavDesktop button[aria-current="location"] > span {
     transform: translateY(-50%) scale(1);
+    background: var(--case-accent);
+    box-shadow: 0 0 0.75rem var(--case-accent);
+    opacity: 1;
   }
+
+  /* TODO(project-index): Switch long future labels to accessible tooltips
+     if the case-study section list grows beyond the current rail height. */
 }
 
 @media (max-width: 70rem) {
