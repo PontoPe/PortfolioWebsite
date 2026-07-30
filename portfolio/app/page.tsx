@@ -1039,7 +1039,7 @@ export default function Home() {
                             <div className="space-y-0 border-t border-white/5">
                                 {[
                                     { year: "2026 - present", role: "Infrastructure Engineer (Volunteer)", company: "BRASILCON" },
-                                    { year: "2024 - present", role: "Automation Engineer", company: "Way-V" },
+                                    { year: "2025 - 2026", role: "Automation Engineer", company: "Way-V" },
                                     { year: "2024", role: "Conversational AI Developer", company: "DeGOES Optimize" },
                                     { year: "2023", role: "Backend Automation Engineer", company: "Fintech Client (NDA)" }
                                 ].map((job) => (
