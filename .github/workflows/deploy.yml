@@ -6,6 +6,9 @@ on:
       - main
   repository_dispatch:
     types: [update_blog]
+  schedule:
+    - cron: '17 0 * * *'
+      timezone: "America/Sao_Paulo"
   workflow_dispatch:
 
 permissions:
