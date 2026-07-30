@@ -588,6 +588,12 @@ const AccessReveal = ({
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   const played = useRef(false);
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const scrollPaneRef = useRef<HTMLElement | null>(null);
+  const previousScrollTopRef = useRef(0);
+  const grantTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const revealTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const revealRef = useRef<(() => void) | null>(null);
   const [phase, setPhase] = useState<"locked" | "granted" | "revealed">("locked");
 
   useEffect(() => {
@@ -595,54 +601,55 @@ const AccessReveal = ({
     if (!el) return;
 
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    let observer: IntersectionObserver | null = null;
-    let scrollPane: HTMLElement | null = null;
-    let previousScrollTop = 0;
-    let grantTimer: ReturnType<typeof setTimeout> | undefined;
-    let revealTimer: ReturnType<typeof setTimeout> | undefined;
 
     const reveal = () => {
       if (played.current) return;
       played.current = true;
-      observer?.disconnect();
+      observerRef.current?.disconnect();
+      observerRef.current = null;
 
       if (reducedMotion) {
         setPhase("revealed");
         return;
       }
 
-      grantTimer = setTimeout(() => setPhase("granted"), 350);
-      revealTimer = setTimeout(() => setPhase("revealed"), 900);
+      if (grantTimerRef.current) clearTimeout(grantTimerRef.current);
+      if (revealTimerRef.current) clearTimeout(revealTimerRef.current);
+      grantTimerRef.current = setTimeout(() => setPhase("granted"), 350);
+      revealTimerRef.current = setTimeout(() => setPhase("revealed"), 900);
     };
 
+    revealRef.current = reveal;
+
     const startObserving = () => {
-      if (observer || played.current) return;
-      observer = new IntersectionObserver(
+      if (observerRef.current || played.current) return;
+      observerRef.current = new IntersectionObserver(
         (entries) => {
           if (entries.some((entry) => entry.isIntersecting)) reveal();
         },
         { rootMargin: "-20% 0px -30% 0px", threshold: 0 }
       );
-      observer.observe(el);
+      observerRef.current.observe(el);
     };
 
     const waitForDownwardScroll = () => {
-      if (!scrollPane) return;
-      const nextScrollTop = scrollPane.scrollTop;
+      if (!scrollPaneRef.current) return;
+      const nextScrollTop = scrollPaneRef.current.scrollTop;
 
-      if (nextScrollTop > previousScrollTop) {
-        scrollPane.removeEventListener("scroll", waitForDownwardScroll);
+      if (nextScrollTop > previousScrollTopRef.current) {
+        scrollPaneRef.current.removeEventListener("scroll", waitForDownwardScroll);
+        scrollPaneRef.current = null;
         startObserving();
       }
 
-      previousScrollTop = nextScrollTop;
+      previousScrollTopRef.current = nextScrollTop;
     };
 
     if (requireScroll) {
-      scrollPane = el.closest<HTMLElement>("[data-portfolio-scroll]");
-      if (scrollPane) {
-        previousScrollTop = scrollPane.scrollTop;
-        scrollPane.addEventListener("scroll", waitForDownwardScroll, { passive: true });
+      scrollPaneRef.current = el.closest<HTMLElement>("[data-portfolio-scroll]");
+      if (scrollPaneRef.current) {
+        previousScrollTopRef.current = scrollPaneRef.current.scrollTop;
+        scrollPaneRef.current.addEventListener("scroll", waitForDownwardScroll, { passive: true });
       } else {
         startObserving();
       }
@@ -651,25 +658,50 @@ const AccessReveal = ({
     }
 
     return () => {
-      observer?.disconnect();
-      scrollPane?.removeEventListener("scroll", waitForDownwardScroll);
-      if (grantTimer) clearTimeout(grantTimer);
-      if (revealTimer) clearTimeout(revealTimer);
+      observerRef.current?.disconnect();
+      observerRef.current = null;
+      if (scrollPaneRef.current) {
+        scrollPaneRef.current.removeEventListener("scroll", waitForDownwardScroll);
+      }
+      scrollPaneRef.current = null;
+      if (grantTimerRef.current) {
+        clearTimeout(grantTimerRef.current);
+        grantTimerRef.current = undefined;
+      }
+      if (revealTimerRef.current) {
+        clearTimeout(revealTimerRef.current);
+        revealTimerRef.current = undefined;
+      }
+      revealRef.current = null;
+      previousScrollTopRef.current = 0;
     };
   }, [requireScroll]);
 
   const granted = phase === "granted" || phase === "revealed";
 
+  const handleUnlock = () => {
+    revealRef.current?.();
+  };
+
   return (
     <div ref={ref} className="relative">
-      <div className={`transition-opacity duration-500 ease-out ${phase === "revealed" ? "opacity-100" : "opacity-0"}`}>
+      <div className={`transition-opacity duration-500 ease-out ${phase === "revealed" ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}>
         {children}
       </div>
 
       {phase !== "revealed" && (
         <div
-          aria-hidden="true"
-          className={`absolute inset-0 z-30 pointer-events-none bg-[#1F1F1F] transition-opacity duration-500 ease-out ${granted ? "opacity-0" : "opacity-100"}`}
+          role="button"
+          tabIndex={0}
+          aria-label="Unlock content"
+          onClick={handleUnlock}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              handleUnlock();
+            }
+          }}
+          className={`absolute inset-0 z-30 cursor-pointer bg-[#1F1F1F] transition-opacity duration-500 ease-out ${granted ? "opacity-0" : "opacity-100"}`}
         >
           <div className="sticky top-1/2 -translate-y-1/2 flex flex-col items-center justify-center gap-5 px-6">
             <div className={`relative transition-transform duration-500 ${granted ? "scale-110" : "scale-100"}`}>
@@ -967,7 +999,7 @@ export default function Home() {
                     </div>
 
                     <section id="work" className="mb-48 scroll-mt-24">
-                        <AccessReveal label="Featured Work" hint="↓ Scroll to unlock" requireScroll>
+                        <AccessReveal label="Featured Work" hint="↓ Scroll or click to unlock" requireScroll>
                         <div className="flex justify-between items-end mb-10">
                             <div className="font-mono">
                                 <p className="text-lg sm:text-xl text-[#888] mb-3">&lt;!-- Featured work --&gt;</p>
