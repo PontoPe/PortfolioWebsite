@@ -137,7 +137,16 @@ const ProjectCard = ({
     <div className="aspect-video w-full bg-[#111] overflow-hidden relative">
         {status && (
             <div className="absolute top-6 right-6 z-20">
-                <span className="text-xs font-bold uppercase tracking-widest bg-black/60 backdrop-blur text-white border border-white/20 px-3 py-1.5 rounded-sm">
+                <span className={`inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest backdrop-blur border px-3 py-1.5 rounded-sm ${
+                  status === "Live"
+                    ? "bg-emerald-950/80 text-emerald-300 border-emerald-400/40 shadow-[0_0_20px_rgba(52,211,153,0.14)]"
+                    : status === "Online"
+                      ? "bg-cyan-950/80 text-cyan-300 border-cyan-400/40 shadow-[0_0_20px_rgba(34,211,238,0.14)]"
+                      : "bg-black/70 text-[#bbb] border-white/20"
+                }`}>
+                    {(status === "Live" || status === "Online") && (
+                      <span className={`h-1.5 w-1.5 rounded-full ${status === "Live" ? "bg-emerald-300" : "bg-cyan-300"} animate-pulse`} />
+                    )}
                     {status}
                 </span>
             </div>
@@ -450,27 +459,27 @@ const TechQuiz = () => {
 
   const questions = [
     {
-      question: "Qual estrutura de dados utiliza o conceito LIFO (Last In, First Out)?",
-      options: ["Queue (Fila)", "Stack (Pilha)", "Linked List", "Hash Map"],
+      question: "Which data structure uses the LIFO (Last In, First Out) principle?",
+      options: ["Queue", "Stack", "Linked List", "Hash Map"],
       answer: 1
     },
     {
-      question: "No contexto de APIs REST, qual método HTTP é tipicamente Idempotente?",
+      question: "In REST APIs, which HTTP method is typically idempotent?",
       options: ["POST", "PUT", "PATCH", "CONNECT"],
       answer: 1
     },
     {
-      question: "O que significa o 'A' em ACID (banco de dados)?",
+      question: "In database transactions, what does the 'A' in ACID stand for?",
       options: ["Availability", "Accuracy", "Atomicity", "Authorization"],
       answer: 2
     },
     {
-      question: "Em Machine Learning, o que ocorre quando o modelo decora o ruído em vez do padrão?",
+      question: "In machine learning, what happens when a model memorizes noise instead of learning the underlying pattern?",
       options: ["Underfitting", "Backpropagation", "Gradient Descent", "Overfitting"],
       answer: 3
     },
     {
-      question: "Qual destes NÃO é um princípio do SOLID?",
+      question: "Which of these is NOT a SOLID principle?",
       options: ["Single Responsibility", "Open/Closed", "Loop Invariance", "Dependency Inversion"],
       answer: 2
     }
@@ -565,7 +574,17 @@ const TechQuiz = () => {
 // Scroll-triggered "access gate": each section starts sealed behind a red
 // ACCESS DENIED padlock, then unlocks to a green ACCESS GRANTED lock and fades
 // away as the real content fades in. Plays once per section.
-const AccessReveal = ({ children, label, hint }: { children: React.ReactNode; label?: string; hint?: string }) => {
+const AccessReveal = ({
+  children,
+  label,
+  hint,
+  requireScroll = false,
+}: {
+  children: React.ReactNode;
+  label?: string;
+  hint?: string;
+  requireScroll?: boolean;
+}) => {
   const ref = useRef<HTMLDivElement>(null);
   const played = useRef(false);
   const [phase, setPhase] = useState<"locked" | "granted" | "revealed">("locked");
@@ -574,40 +593,78 @@ const AccessReveal = ({ children, label, hint }: { children: React.ReactNode; la
     const el = ref.current;
     if (!el) return;
 
-    // Reduced-motion users skip the whole animation.
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      const animationFrame = requestAnimationFrame(() => setPhase("revealed"));
-      return () => cancelAnimationFrame(animationFrame);
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let observer: IntersectionObserver | null = null;
+    let scrollPane: HTMLElement | null = null;
+    let previousScrollTop = 0;
+    let grantTimer: ReturnType<typeof setTimeout> | undefined;
+    let revealTimer: ReturnType<typeof setTimeout> | undefined;
+
+    const reveal = () => {
+      if (played.current) return;
+      played.current = true;
+      observer?.disconnect();
+
+      if (reducedMotion) {
+        setPhase("revealed");
+        return;
+      }
+
+      grantTimer = setTimeout(() => setPhase("granted"), 350);
+      revealTimer = setTimeout(() => setPhase("revealed"), 900);
+    };
+
+    const startObserving = () => {
+      if (observer || played.current) return;
+      observer = new IntersectionObserver(
+        (entries) => {
+          if (entries.some((entry) => entry.isIntersecting)) reveal();
+        },
+        { rootMargin: "-20% 0px -30% 0px", threshold: 0 }
+      );
+      observer.observe(el);
+    };
+
+    const waitForDownwardScroll = () => {
+      if (!scrollPane) return;
+      const nextScrollTop = scrollPane.scrollTop;
+
+      if (nextScrollTop > previousScrollTop) {
+        scrollPane.removeEventListener("scroll", waitForDownwardScroll);
+        startObserving();
+      }
+
+      previousScrollTop = nextScrollTop;
+    };
+
+    if (requireScroll) {
+      scrollPane = el.closest<HTMLElement>("[data-portfolio-scroll]");
+      if (scrollPane) {
+        previousScrollTop = scrollPane.scrollTop;
+        scrollPane.addEventListener("scroll", waitForDownwardScroll, { passive: true });
+      } else {
+        startObserving();
+      }
+    } else {
+      startObserving();
     }
 
-    const obs = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting && !played.current) {
-            played.current = true;
-            setTimeout(() => setPhase("granted"), 350);
-            setTimeout(() => setPhase("revealed"), 900);
-            obs.disconnect();
-          }
-        });
-      },
-      { rootMargin: "-20% 0px -30% 0px", threshold: 0 }
-    );
-
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, []);
+    return () => {
+      observer?.disconnect();
+      scrollPane?.removeEventListener("scroll", waitForDownwardScroll);
+      if (grantTimer) clearTimeout(grantTimer);
+      if (revealTimer) clearTimeout(revealTimer);
+    };
+  }, [requireScroll]);
 
   const granted = phase === "granted" || phase === "revealed";
 
   return (
     <div ref={ref} className="relative">
-      {/* Real content - hidden until access is granted, then fades in */}
       <div className={`transition-opacity duration-500 ease-out ${phase === "revealed" ? "opacity-100" : "opacity-0"}`}>
         {children}
       </div>
 
-      {/* Access gate overlay - opaque so content behind is fully sealed */}
       {phase !== "revealed" && (
         <div
           aria-hidden="true"
@@ -791,10 +848,21 @@ export default function Home() {
                 </div>
             </div>
 
-            <button onClick={() => window.open("https://drive.google.com/file/d/1H1ibCIFxXwg035Y5sUt0KdAwVfotQ4kp/view?usp=drive_link", "_blank")} className="flex items-center justify-between w-full px-6 py-4 border border-white/10 rounded-sm hover:bg-white/5 transition-colors group mt-2">
-                <span className="text-sm font-bold text-white font-mono tracking-widest">Download CV</span>
-                <Download className="w-5 h-5 text-[#666] group-hover:text-white group-hover:translate-y-0.5 transition-transform" />
-            </button>
+            <div className="grid grid-cols-2 gap-3 mt-2">
+                <a
+                  href="https://github.com/PontoPe"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-between px-4 py-4 border border-white/10 rounded-sm hover:bg-white/5 hover:border-white/20 transition-colors group"
+                >
+                    <span className="text-xs font-bold text-white font-mono tracking-wider">GitHub</span>
+                    <Github className="w-5 h-5 text-[#666] group-hover:text-white transition-colors" />
+                </a>
+                <button onClick={() => window.open("https://drive.google.com/file/d/1H1ibCIFxXwg035Y5sUt0KdAwVfotQ4kp/view?usp=drive_link", "_blank")} className="flex items-center justify-between px-4 py-4 border border-white/10 rounded-sm hover:bg-white/5 hover:border-white/20 transition-colors group">
+                    <span className="text-xs font-bold text-white font-mono tracking-wider">CV</span>
+                    <Download className="w-5 h-5 text-[#666] group-hover:text-white group-hover:translate-y-0.5 transition-transform" />
+                </button>
+            </div>
         </div>
 
         <div className="flex flex-col gap-3 mt-10">
@@ -825,7 +893,7 @@ export default function Home() {
             </div>
         </header>
 
-        <div className="flex-1 relative h-full overflow-y-auto overflow-x-clip scroll-smooth bg-[#1F1F1F]">
+        <div data-portfolio-scroll className="flex-1 relative h-full overflow-y-auto overflow-x-clip scroll-smooth bg-[#1F1F1F]">
             <div className="min-h-full flex flex-row">
 
                 <div className="flex-none opacity-50 w-10 py-4 hidden sm:flex flex-col items-end pr-2 border-r border-[#f8f8f81c] select-none bg-[#1F1F1F]">
@@ -836,10 +904,18 @@ export default function Home() {
                     ))}
                 </div>
 
-                <div className="portfolio-content flex-1 min-w-0 py-12 sm:py-16 md:py-24 px-5 sm:px-8 md:pr-12 w-full max-w-[95%] mx-auto">
+                <div className="portfolio-content flex-1 min-w-0 pt-10 pb-16 px-5 sm:px-8 md:pr-12 w-full max-w-[95%] mx-auto">
 
-                    {/* Mobile-only identity + contact - the left sidebar is hidden on small screens */}
-                    <div className="lg:hidden mb-20 flex flex-col gap-8">
+                    <section id="hero" className="mb-32 md:mb-48 scroll-mt-32">
+                        <p className="text-sm text-[#555] mb-5 font-mono">&lt;!-- Hero section --&gt;</p>
+                        <h1 className="portfolio-hero-title font-bold text-white font-sans leading-[0.95] md:leading-[0.9] tracking-tighter">
+                            <ScrambleText text="Cybersecurity" /><br/>
+                            <span className="text-[#5c5c5c]"><ScrambleText text="Engineer" /></span>
+                        </h1>
+                    </section>
+
+                    {/* Mobile-only identity + contact - the left sidebar is hidden on small screens. */}
+                    <div className="lg:hidden mb-24 flex flex-col gap-6">
                         <div className="flex items-center gap-4">
                             <div className="w-14 h-14 overflow-hidden shrink-0 relative rounded-full">
                                 <Image src="/Pedro.jpg" alt="Pedro Martins" fill className="object-cover" />
@@ -849,6 +925,10 @@ export default function Home() {
                                 <p className="text-[11px] uppercase tracking-widest text-[#666] mt-1 font-bold">Cybersecurity Engineer</p>
                             </div>
                         </div>
+
+                        <p className="text-sm leading-relaxed text-[#999] font-mono">
+                            I&apos;m Pedro Martins, a cybersecurity engineer who builds, hardens, and runs production systems - from AWS pipelines to a self-hosted server publishing a national journal with zero open ports.
+                        </p>
 
                         <div className="flex flex-col gap-4 text-sm font-medium text-[#777]">
                             <div className="flex items-center gap-4">
@@ -865,30 +945,28 @@ export default function Home() {
                             </div>
                         </div>
 
-                        <div className="flex flex-col gap-3">
+                        <div className="grid grid-cols-2 gap-3">
+                            <a
+                              href="https://github.com/PontoPe"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center justify-center gap-3 py-4 border border-white/10 rounded-sm hover:bg-white/5 transition-colors"
+                            >
+                                <Github className="w-5 h-5" />
+                                <span className="text-xs font-bold text-white uppercase tracking-widest">GitHub</span>
+                            </a>
                             <button onClick={() => window.open("https://calendly.com/pegradowski/30min", "_blank")} className="w-full py-4 bg-white text-black font-mono font-bold text-sm uppercase tracking-widest rounded-sm hover:bg-gray-200 transition-colors">
                                 Schedule a call
                             </button>
-                            <button onClick={() => window.open("https://drive.google.com/file/d/1H1ibCIFxXwg035Y5sUt0KdAwVfotQ4kp/view?usp=drive_link", "_blank")} className="flex items-center justify-center gap-3 w-full py-4 border border-white/10 rounded-sm hover:bg-white/5 transition-colors group">
+                            <button onClick={() => window.open("https://drive.google.com/file/d/1H1ibCIFxXwg035Y5sUt0KdAwVfotQ4kp/view?usp=drive_link", "_blank")} className="col-span-2 flex items-center justify-center gap-3 w-full py-4 border border-white/10 rounded-sm hover:bg-white/5 transition-colors group">
                                 <span className="text-sm font-bold text-white font-mono tracking-widest">Download CV</span>
                                 <Download className="w-5 h-5 text-[#666] group-hover:text-white transition-colors" />
                             </button>
                         </div>
                     </div>
 
-                    <section id="hero" className="mb-32 md:mb-48 scroll-mt-32">
-                        <p className="text-sm text-[#555] mb-10 font-mono">&lt;!-- Hero section --&gt;</p>
-                        <h1 className="portfolio-hero-title font-bold text-white font-sans leading-[0.95] md:leading-[0.9] tracking-tighter mb-12">
-                            <ScrambleText text="Cybersecurity" /><br/>
-                            <span className="text-[#5c5c5c]"><ScrambleText text="Engineer" /></span>
-                        </h1>
-                        <p className="text-lg sm:text-xl text-[#999] max-w-4xl leading-relaxed font-mono font-thin">
-                            I&apos;m Pedro Martins, an engineer who builds and operates production systems across AWS, self-hosted, and company infrastructure with security as the architecture, not the afterthought.
-                        </p>
-                    </section>
-
                     <section id="work" className="mb-48 scroll-mt-24">
-                        <AccessReveal label="Featured Work" hint="↓ Scroll to unlock">
+                        <AccessReveal label="Featured Work" hint="↓ Scroll to unlock" requireScroll>
                         <div className="flex justify-between items-end mb-10">
                             <div className="font-mono">
                                 <p className="text-lg sm:text-xl text-[#888] mb-3">&lt;!-- Featured work --&gt;</p>
@@ -934,109 +1012,101 @@ export default function Home() {
                     </section>
 
                     <section id="about" className="mb-48 scroll-mt-24">
-                        <AccessReveal label="About">
-                        <p className="text-sm text-[#555] mb-10 font-mono">&lt;!-- About me --&gt;</p>
-                        <h2 className="text-5xl md:text-7xl font-bold text-white font-sans mb-16 tracking-tight">
-                            Inside My <span className="text-[#444]">Creative Core</span>
+                        <AccessReveal label="Professional Profile">
+                        <p className="text-sm text-[#555] mb-8 font-mono">&lt;!-- About, experience &amp; capabilities --&gt;</p>
+                        <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white font-sans mb-12 tracking-tight">
+                            Professional <span className="text-[#555]">Profile</span>
                         </h2>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-16 text-[#B1B1B1] leading-relaxed text-lg md:text-xl">
-                            <div className="space-y-8">
-                                <p>
-                                    I&apos;m a <span className="text-white bg-[#333] px-1 font-medium">Cybersecurity Engineer</span> with 3+ years building and operating production systems across AWS, Linux, and containers. My approach starts with the adversarial questions: <span className="text-white underline decoration-white/30 underline-offset-4">how does this fail, and what leaks when it does?</span>
-                                </p>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 text-[#B1B1B1] leading-relaxed text-lg md:text-xl">
+                            <p>
+                                I&apos;m a <span className="text-white bg-[#333] px-1 font-medium">Cybersecurity Engineer</span> with 3+ years building and operating production systems across AWS, Linux, and containers. My approach starts with the adversarial questions: <span className="text-white underline decoration-white/30 underline-offset-4">how does this fail, and what leaks when it does?</span>
+                            </p>
+                            <p>
+                                I came up through backend automation - securing <span className="text-white bg-[#333] px-1 font-medium">PII pipelines for enterprises like Hyundai</span> - and discovered the part I couldn&apos;t stop thinking about was protecting the systems, not just building them. Today I practice <span className="text-white font-bold">secure-by-default engineering</span>: least privilege, secrets management, hardening, and zero-open-port ingress.
+                            </p>
+                        </div>
+
+                        <div className="mt-20 md:mt-28">
+                            <div className="flex items-end justify-between gap-6 mb-8">
+                                <div>
+                                    <p className="text-xs text-[#555] mb-3 font-mono uppercase tracking-[0.22em]">Experience</p>
+                                    <h3 className="text-3xl md:text-4xl font-bold text-white font-sans">Systems owned in production</h3>
+                                </div>
+                                <span className="hidden md:block text-xs text-[#555] uppercase tracking-widest">2023 — present</span>
                             </div>
-                            <div className="space-y-8">
-                                <p>
-                                    I came up through backend automation - securing <span className="text-white bg-[#333] px-1 font-medium">PII pipelines for enterprises like Hyundai</span> - and discovered the part I couldn&apos;t stop thinking about was protecting the systems, not just building them. Today I practice <span className="text-white font-bold">secure-by-default engineering</span>: least privilege, secrets management, hardening, and zero-open-port ingress, on infrastructure I run myself.
-                                </p>
+                            <div className="space-y-0 border-t border-white/5">
+                                {[
+                                    { year: "2026 - present", role: "Infrastructure Engineer (Volunteer)", company: "BRASILCON" },
+                                    { year: "2024 - present", role: "Automation Engineer", company: "Way-V" },
+                                    { year: "2024", role: "Conversational AI Developer", company: "DeGOES Optimize" },
+                                    { year: "2023", role: "Backend Automation Engineer", company: "Fintech Client (NDA)" }
+                                ].map((job) => (
+                                    <div key={`${job.year}-${job.role}`} className="group grid grid-cols-1 md:grid-cols-[11rem_minmax(0,1fr)_auto] gap-2 md:gap-6 md:items-center py-8 border-b border-white/5 hover:bg-white/2 transition-colors px-4 -mx-4 cursor-default">
+                                        <span className="font-mono text-sm text-[#555]">{job.year}</span>
+                                        <span className="font-sans font-bold text-white text-2xl lg:text-3xl group-hover:translate-x-2 transition-transform duration-300">{job.role}</span>
+                                        <span className="font-mono text-sm text-[#888]">{job.company}</span>
+                                    </div>
+                                ))}
                             </div>
                         </div>
-                        </AccessReveal>
-                    </section>
 
-                    <section id="experience" className="mb-48 scroll-mt-24">
-                        <AccessReveal label="Experience">
-                        <p className="text-sm text-[#555] mb-10 font-mono">&lt;!-- Professional history --&gt;</p>
-                        <div className="space-y-0 border-t border-white/5">
-                            {[
-                                { year: "2026 - present", role: "Infrastructure Engineer (Volunteer)", company: "BRASILCON" },
-                                { year: "2024 - present", role: "Automation Engineer", company: "Way-V" },
-                                { year: "2024", role: "Conversational AI Developer", company: "DeGOES Optimize" },
-                                { year: "2023", role: "Backend Automation Engineer", company: "Fintech Client (NDA)" }
-                            ].map((job, i) => (
-                                <div key={i} className="group flex flex-col md:flex-row md:items-baseline justify-between py-10 border-b border-white/5 hover:bg-white/2 transition-colors px-6 -mx-6 cursor-default">
-                                    <span className="font-mono text-base text-[#555] w-64 mb-2 md:mb-0">{job.year}</span>
-                                    <span className="font-sans font-bold text-white text-3xl flex-1 group-hover:translate-x-4 transition-transform duration-300">{job.role}</span>
-                                    <span className="font-mono text-base text-[#888]">{job.company}</span>
+                        <div className="mt-20 md:mt-28">
+                            <p className="text-xs text-[#555] mb-3 font-mono uppercase tracking-[0.22em]">Capabilities</p>
+                            <h3 className="text-3xl md:text-4xl font-bold text-white font-sans mb-10">How I secure, ship, and operate</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-8">
+                                <div className="border-t border-white/10 pt-7">
+                                    <h4 className="text-white text-xl font-bold mb-7 font-sans">Security &amp; Infrastructure</h4>
+                                    <ul className="space-y-4 text-sm text-[#888]">
+                                        <li className="hover:text-white transition-colors">Linux Hardening (Debian/RHEL)</li>
+                                        <li className="hover:text-white transition-colors">Least-Privilege IAM</li>
+                                        <li className="hover:text-white transition-colors">Secrets Management</li>
+                                        <li className="hover:text-white transition-colors">Zero-Trust Ingress</li>
+                                        <li className="hover:text-white transition-colors">Firewall &amp; DNS Management</li>
+                                        <li className="hover:text-white transition-colors">Incident Response &amp; Runbooks</li>
+                                    </ul>
                                 </div>
-                            ))}
+                                <div className="border-t border-white/10 pt-7">
+                                    <h4 className="text-white text-xl font-bold mb-7 font-sans">Cloud &amp; DevOps</h4>
+                                    <ul className="space-y-4 text-sm text-[#888]">
+                                        <li className="hover:text-white transition-colors">AWS (S3, IAM, EC2)</li>
+                                        <li className="hover:text-white transition-colors">Docker &amp; Kubernetes</li>
+                                        <li className="hover:text-white transition-colors">CI/CD Pipelines</li>
+                                        <li className="hover:text-white transition-colors">Terraform (IaC)</li>
+                                        <li className="hover:text-white transition-colors">nginx &amp; systemd</li>
+                                        <li className="hover:text-white transition-colors">Self-Hosted Production Ops</li>
+                                    </ul>
+                                </div>
+                                <div className="border-t border-white/10 pt-7">
+                                    <h4 className="text-white text-xl font-bold mb-7 font-sans">Backend &amp; Automation</h4>
+                                    <ul className="space-y-4 text-sm text-[#888]">
+                                        <li className="hover:text-white transition-colors">Python / FastAPI &amp; Go</li>
+                                        <li className="hover:text-white transition-colors">Secure API Architecture</li>
+                                        <li className="hover:text-white transition-colors">Input Validation (OWASP)</li>
+                                        <li className="hover:text-white transition-colors">PII Handling &amp; Data Minimization</li>
+                                        <li className="hover:text-white transition-colors">PostgreSQL / MariaDB / Redis</li>
+                                        <li className="hover:text-white transition-colors">Audit Logging &amp; Traceability</li>
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
                         </AccessReveal>
                     </section>
 
                     <section id="certifications" className="mb-48 scroll-mt-24">
                         <AccessReveal label="Certifications">
-                        <p className="text-sm text-[#555] mb-10 font-mono">&lt;!-- Certification roadmap --&gt;</p>
-                        <div className="space-y-0 border-t border-white/5">
-                            {[
-                                { year: "2026", cert: "RHCSA", full: "Red Hat Certified System Administrator", status: "In Progress" },
-                                { year: "2026", cert: "Security+", full: "CompTIA Security+", status: "Planned" },
-                                { year: "2027", cert: "AWS SAA", full: "AWS Solutions Architect Associate", status: "Planned" },
-                                { year: "2027", cert: "CKA", full: "Certified Kubernetes Administrator", status: "Planned" }
-                            ].map((item, i) => (
-                                <div key={i} className="group flex flex-col md:flex-row md:items-baseline justify-between py-10 border-b border-white/5 hover:bg-white/2 transition-colors px-6 -mx-6 cursor-default">
-                                    <span className="font-mono text-base text-[#555] w-64 mb-2 md:mb-0">{item.year}</span>
-                                    <span className="font-sans font-bold text-white text-3xl flex-1 group-hover:translate-x-4 transition-transform duration-300">
-                                        {item.cert}
-                                        <span className="block font-mono font-normal text-base text-[#666] mt-2">{item.full}</span>
-                                    </span>
-                                    <span className={`font-mono text-xs uppercase tracking-widest px-3 py-1.5 rounded-full border self-start md:self-auto ${item.status === "In Progress" ? "text-green-400 bg-green-900/10 border-green-900/20" : "text-[#888] border-white/10"}`}>
-                                        {item.status}
-                                    </span>
-                                </div>
-                            ))}
+                        <p className="text-sm text-[#555] mb-8 font-mono">&lt;!-- Current certification focus --&gt;</p>
+                        <div className="border-y border-white/10 bg-black/10 px-5 sm:px-8 py-9 flex flex-col md:flex-row md:items-center gap-7 md:gap-10">
+                            <span className="font-mono text-sm text-[#555] md:w-24">2026</span>
+                            <div className="flex-1">
+                                <h2 className="font-sans font-bold text-white text-3xl md:text-4xl">RHCSA</h2>
+                                <p className="font-mono text-sm text-[#777] mt-2">Red Hat Certified System Administrator</p>
+                            </div>
+                            <span className="font-mono text-xs uppercase tracking-widest px-3 py-1.5 rounded-full border self-start md:self-auto text-green-400 bg-green-900/10 border-green-900/20">
+                                In Progress
+                            </span>
                         </div>
-                        </AccessReveal>
-                    </section>
-
-                    <section id="what-i-do" className="mb-48 scroll-mt-24">
-                        <AccessReveal label="Capabilities">
-                        <p className="text-sm text-[#555] mb-10 font-mono">&lt;!-- What I do --&gt;</p>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-16">
-                            <div>
-                                <h3 className="text-white text-xl font-bold mb-8 font-sans border-l-2 border-[#333] pl-4">Security &<br/>Infrastructure</h3>
-                                <ul className="space-y-4 text-base text-[#888]">
-                                    <li className="hover:text-white transition-colors">Linux Hardening (Debian/RHEL)</li>
-                                    <li className="hover:text-white transition-colors">Least-Privilege IAM</li>
-                                    <li className="hover:text-white transition-colors">Secrets Management</li>
-                                    <li className="hover:text-white transition-colors">Zero-Trust Ingress</li>
-                                    <li className="hover:text-white transition-colors">Firewall & DNS Management</li>
-                                    <li className="hover:text-white transition-colors">Incident Response & Runbooks</li>
-                                </ul>
-                            </div>
-                            <div>
-                                <h3 className="text-white text-xl font-bold mb-8 font-sans border-l-2 border-[#333] pl-4">Cloud &<br/>DevOps</h3>
-                                <ul className="space-y-4 text-base text-[#888]">
-                                    <li className="hover:text-white transition-colors">AWS (S3, IAM, EC2)</li>
-                                    <li className="hover:text-white transition-colors">Docker & Kubernetes</li>
-                                    <li className="hover:text-white transition-colors">CI/CD Pipelines</li>
-                                    <li className="hover:text-white transition-colors">Terraform (IaC)</li>
-                                    <li className="hover:text-white transition-colors">nginx & systemd</li>
-                                    <li className="hover:text-white transition-colors">Self-Hosted Production Ops</li>
-                                </ul>
-                            </div>
-                            <div>
-                                <h3 className="text-white text-xl font-bold mb-8 font-sans border-l-2 border-[#333] pl-4">Backend &<br/>Automation</h3>
-                                <ul className="space-y-4 text-base text-[#888]">
-                                    <li className="hover:text-white transition-colors">Python / FastAPI & Go</li>
-                                    <li className="hover:text-white transition-colors">Secure API Architecture</li>
-                                    <li className="hover:text-white transition-colors">Input Validation (OWASP)</li>
-                                    <li className="hover:text-white transition-colors">PII Handling & Data Minimization</li>
-                                    <li className="hover:text-white transition-colors">PostgreSQL / MariaDB / Redis</li>
-                                    <li className="hover:text-white transition-colors">Audit Logging & Traceability</li>
-                                </ul>
-                            </div>
-                        </div>
+                        {/* TODO(portfolio): Add certifications here only after they are earned or actively in progress. */}
                         </AccessReveal>
                     </section>
 
@@ -1184,10 +1254,8 @@ export default function Home() {
         <nav className="flex flex-col gap-6 text-xs font-mono font-bold tracking-wider">
             <IndexLink id="hero" label="PontoPe" activeSection={activeSection} onClick={setActiveSection} />
             <IndexLink id="work" label="Featured Work" activeSection={activeSection} onClick={setActiveSection} />
-            <IndexLink id="about" label="About me" activeSection={activeSection} onClick={setActiveSection} />
-            <IndexLink id="experience" label="Experience" activeSection={activeSection} onClick={setActiveSection} />
+            <IndexLink id="about" label="Professional Profile" activeSection={activeSection} onClick={setActiveSection} />
             <IndexLink id="certifications" label="Certifications" activeSection={activeSection} onClick={setActiveSection} />
-            <IndexLink id="what-i-do" label="What I Do" activeSection={activeSection} onClick={setActiveSection} />
             <IndexLink id="stack" label="Tech Stack" activeSection={activeSection} onClick={setActiveSection} />
             <IndexLink id="game" label="Mini Game" activeSection={activeSection} onClick={setActiveSection} />
             <IndexLink id="quiz" label="Quiz" activeSection={activeSection} onClick={setActiveSection} />

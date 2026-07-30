@@ -868,6 +868,7 @@ export default function ProjectCaseStudyExperience({
       </section>
 
       <nav className={styles.caseNav} aria-label="Case study sections">
+        <h2 className={styles.caseNavTitle}>Index</h2>
         <div className={styles.caseNavDesktop}>
           {sectionOrder.map((id) => (
             <button type="button" key={id} aria-current={activeSection === id ? "location" : undefined} onClick={() => navigateTo(id)}>
