@@ -2,6 +2,7 @@ import { ExternalLink, Github, LockKeyhole } from "lucide-react";
 
 type VerificationStatus =
   | "VERIFIED"
+  | "LIVE VALIDATION"
   | "TESTED LOCALLY"
   | "IMPLEMENTED"
   | "IN PROGRESS"
@@ -9,10 +10,11 @@ type VerificationStatus =
 
 const metrics = [
   { value: "4", label: "connected security projects" },
+  { value: "3/4", label: "layers meet the finish criteria" },
   { value: "6", label: "live AWS Terraform stacks" },
   { value: "3", label: "AWS detection units" },
-  { value: "167", label: "automated PAC tests" },
-  { value: "0", label: "long-lived CI credentials" },
+  { value: "172", label: "PAC automated tests" },
+  { value: "3", label: "public repositories with audited demos" },
 ];
 
 const layers: Array<{
@@ -36,12 +38,12 @@ const layers: Array<{
       "GitHub Actions OIDC with separate plan and apply roles",
     ],
     proof:
-      "All six stacks are applied to real AWS. SCP, centralized logging, and cross-account detection evidence are captured; longer-running CIS and cost evidence remains follow-up work.",
+      "All six stacks are applied to real AWS. SCP, centralized logging, cross-account detection, least-privilege CI, and a demo are verified. Cost actuals await the first closed billing window.",
   },
   {
     name: "PontoAntiCrack",
     boundary: "DETECTION AND RESPONSE",
-    status: "TESTED LOCALLY",
+    status: "LIVE VALIDATION",
     description:
       "Three least-privilege AWS detections with negative tests, dry-run, before-state snapshots, a circuit breaker, and human escalation when automation is unsafe.",
     controls: [
@@ -51,12 +53,12 @@ const layers: Array<{
       "Snapshot-before-mutation audit pipeline",
     ],
     proof:
-      "All 167 automated tests pass and Terraform validates. The system has not yet been applied to AWS, so live event capture and remediation evidence are not claimed.",
+      "B1–B3 are complete: the quota is 1000, the reviewed apply completed, EventBridge accepted all 15 fixtures, and 14 fixtures came from real lab events. B4 dry-run detonation is next; live remediation is not yet claimed.",
   },
   {
     name: "KateClusters",
     boundary: "KUBERNETES SECURITY",
-    status: "IN PROGRESS",
+    status: "VERIFIED",
     description:
       "A kubeadm environment for control-plane hardening, restricted workload identity, default-deny networking, auditability, and eBPF runtime detection.",
     controls: [
@@ -66,12 +68,12 @@ const layers: Array<{
       "Falco, Loki, Grafana, and controlled attacks",
     ],
     proof:
-      "Baseline cluster evidence and the first escape-path capture now exist locally. The remaining attacks, hardened benchmark delta, and full detection-interruption exercise are still in progress.",
+      "The hardened single-node cluster has a CIS PASS 67→86 / FAIL 12→0 delta, four attack simulations with real evidence, a deterministic demo, and a green public CI run.",
   },
   {
     name: "ProvenancePipeline",
     boundary: "SOFTWARE SUPPLY CHAIN",
-    status: "IMPLEMENTED",
+    status: "VERIFIED",
     description:
       "A release path that binds an image digest to its source, components, vulnerability result, signing identity, and build provenance.",
     controls: [
@@ -81,7 +83,7 @@ const layers: Array<{
       "SLSA Build L2 provenance and independent verification",
     ],
     proof:
-      "CI signing, attestations, and positive and negative identity verification are captured. Kyverno admission enforcement and unsigned-image denial remain planned.",
+      "CI signing and attestations are captured, and Kyverno Enforce admitted the expected signed digest while rejecting unsigned, wrong-identity, and tag-based images. The public-repository provenance dependency remains explicit.",
   },
 ];
 
@@ -133,22 +135,22 @@ const verificationRows: Array<{
     layer: "AWS response",
     control: "Bounded remediation",
     test: "Dry-run, exclusions, failures, and event storms",
-    evidence: "167 tests with preserved before-state",
-    status: "TESTED LOCALLY",
+    evidence: "172 tests with preserved before-state",
+    status: "LIVE VALIDATION",
   },
   {
     layer: "Kubernetes admission",
-    control: "Pod Security Admission",
-    test: "Privileged escape-path workload",
-    evidence: "First denial and detection capture recorded locally",
-    status: "IN PROGRESS",
+    control: "Pod Security Admission and network isolation",
+    test: "Four controlled attack simulations",
+    evidence: "CIS delta, attack evidence, and audited demo/cast",
+    status: "VERIFIED",
   },
   {
     layer: "Kubernetes runtime",
-    control: "Falco interruption alert",
-    test: "Stop the expected heartbeat",
-    evidence: "Alert and recovery capture still required",
-    status: "PLANNED",
+    control: "Falco runtime detection and heartbeat",
+    test: "Safe miner, escape, token-abuse, and Falco-kill simulations",
+    evidence: "Real Falco evidence, Grafana alert routing, and demo",
+    status: "VERIFIED",
   },
   {
     layer: "Supply chain",
@@ -159,15 +161,16 @@ const verificationRows: Array<{
   },
   {
     layer: "Supply-chain admission",
-    control: "Kyverno verifyImages",
-    test: "Submit an unsigned image",
-    evidence: "Admission denial and absent pod still required",
-    status: "PLANNED",
+    control: "Kyverno verifyImages in Enforce",
+    test: "Unsigned, wrong-identity, and tag-based images",
+    evidence: "Admission denials plus an admitted signed digest",
+    status: "VERIFIED",
   },
 ];
 
 const statusClasses: Record<VerificationStatus, string> = {
   VERIFIED: "border-green-500/40 bg-green-500/10 text-green-300",
+  "LIVE VALIDATION": "border-amber-500/40 bg-amber-500/10 text-amber-200",
   "TESTED LOCALLY": "border-cyan-500/40 bg-cyan-500/10 text-cyan-300",
   IMPLEMENTED: "border-blue-500/40 bg-blue-500/10 text-blue-300",
   "IN PROGRESS": "border-amber-500/40 bg-amber-500/10 text-amber-200",
@@ -223,9 +226,6 @@ function StatusBadge({ status }: { status: VerificationStatus }) {
 }
 
 export default function TrustStackCaseStudy() {
-  // TODO(truststack): Keep the public status "In Development" until the
-  // Kyverno unsigned-image denial, the remaining Kubernetes attack captures,
-  // and the hardened kube-bench delta are committed to the evidence set.
   return (
     <div className="space-y-24">
       <section className="grid grid-cols-1 gap-12 md:grid-cols-3">
@@ -282,10 +282,15 @@ export default function TrustStackCaseStudy() {
               <span>PontoAntiCrack · Private</span>
               <LockKeyhole className="h-4 w-4" />
             </div>
-            <div className="flex w-full items-center justify-between rounded border border-white/10 p-4 text-[#777]">
-              <span>KateClusters · Private</span>
-              <LockKeyhole className="h-4 w-4" />
-            </div>
+            <a
+              href="https://github.com/PontoPe/KateClusters"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex w-full items-center justify-between rounded border border-white/10 p-4 transition-colors hover:bg-white hover:text-black"
+            >
+              <span>KateClusters Source</span>
+              <Github className="h-4 w-4" />
+            </a>
             <a
               href="https://github.com/PontoPe/ProvenancePipeline"
               target="_blank"
@@ -410,8 +415,8 @@ export default function TrustStackCaseStudy() {
             Current verification status
           </h2>
           <p className="max-w-3xl leading-relaxed text-[#777]">
-            Status follows observed evidence. Planned controls stay visibly
-            planned until both their success and failure paths are captured.
+            Status follows observed evidence. PontoAntiCrack remains in live
+            validation until its dry-run and live remediation paths are observed.
           </p>
         </div>
 
@@ -501,14 +506,20 @@ export default function TrustStackCaseStudy() {
             TrustStack is a personal engineering lab, not a claim of production
             scale. The AWS organization is intentionally small. KateClusters is
             a single-node environment and does not prove high availability or
-            hostile multi-tenant isolation. Detection tuning has not seen
-            enterprise event volume.
+            hostile multi-tenant isolation. PontoAntiCrack has not yet exercised
+            a real remediation or measured latency under live lab detonation.
           </p>
           <p>
             ProvenancePipeline targets SLSA Build Level 2 because its builder is
             not isolated enough for a Level 3 claim. Scaling these controls would
             require production change management, recovery exercises, longer
             cost data, larger event volumes, and team-operated incident response.
+          </p>
+          <p>
+            Kyverno can currently enforce the GitHub-generated provenance bundle
+            only while the ProvenancePipeline repository remains public. That
+            dependency is documented rather than hidden; removing it is future
+            work, not a completed control.
           </p>
         </div>
       </section>
@@ -543,6 +554,34 @@ export default function TrustStackCaseStudy() {
               <p className="mb-1 text-white">Supply-chain verification</p>
               <p className="text-xs text-[#666]">
                 Signature, attestations, and negative control
+              </p>
+            </div>
+            <ExternalLink className="h-4 w-4" />
+          </a>
+          <a
+            href="https://github.com/PontoPe/KateClusters/tree/main/docs/evidence"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-between border border-white/10 bg-[#151515] p-5 transition-colors hover:border-white/30 hover:text-white"
+          >
+            <div>
+              <p className="mb-1 text-white">Kubernetes attack evidence</p>
+              <p className="text-xs text-[#666]">
+                CIS hardening, runtime detection, and attack simulations
+              </p>
+            </div>
+            <ExternalLink className="h-4 w-4" />
+          </a>
+          <a
+            href="https://github.com/PontoPe/ProvenancePipeline/blob/main/docs/evidence/admission-enforcement.md"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-between border border-white/10 bg-[#151515] p-5 transition-colors hover:border-white/30 hover:text-white"
+          >
+            <div>
+              <p className="mb-1 text-white">Admission enforcement evidence</p>
+              <p className="text-xs text-[#666]">
+                Signed admission and unsigned-image rejection
               </p>
             </div>
             <ExternalLink className="h-4 w-4" />

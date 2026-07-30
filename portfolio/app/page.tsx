@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import {
   Github, Linkedin, Mail, MapPin, Phone,
   Download, Clock, ArrowRight, Instagram,
-  Globe, Lock, LockOpen,
+  Globe, Lock, LockOpen, Scale,
 } from "lucide-react";
 
 export const sleep = async (ms: number): Promise<void> => {
@@ -147,6 +147,7 @@ const ProjectCard = ({
                     {(status === "Live" || status === "Online") && (
                       <span className={`h-1.5 w-1.5 rounded-full ${status === "Live" ? "bg-emerald-300" : "bg-cyan-300"} animate-pulse`} />
                     )}
+                    {status === "MIT License" && <Scale className="h-3.5 w-3.5" aria-hidden="true" />}
                     {status}
                 </span>
             </div>
@@ -989,7 +990,7 @@ export default function Home() {
                           <ProjectCard title="pontosv" slug="pontosv" status="Online" subtitle="Hardened bare-metal Debian server I run solo - zero-open-port ingress for the BRASILCON journal">
                             <Image src="/projects/pontosv.png" alt="pontosv Home Server" fill className="object-cover" />
                           </ProjectCard>
-                            <ProjectCard title="TrustStack" slug="truststack" status="In Development" subtitle="Evidence-driven cloud security platform spanning AWS governance, automated response, Kubernetes runtime defense, and signed-image enforcement">
+                            <ProjectCard title="TrustStack" slug="truststack" status="In Development" subtitle="Evidence-driven cloud security platform: AWS governance, Kubernetes runtime defense, and signed-image enforcement verified; AWS response is in live validation">
                                 <Image src="/projects/truststack.svg" alt="TrustStack cloud security architecture" fill className="object-cover" />
                             </ProjectCard>
                           <ProjectCard title="ZombiesWeb" slug="zombiesweb" status="Live" subtitle="Interactive CoD Zombies lore timeline and map guides">
