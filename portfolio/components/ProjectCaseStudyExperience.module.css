@@ -484,7 +484,7 @@
   border-left: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.caseNavDesktop button > span {
+.caseNavDot {
   position: absolute;
   right: 0.75rem;
   bottom: -1px;
@@ -501,7 +501,7 @@
   color: #e2e5e9;
 }
 
-.caseNavDesktop button[aria-current="location"] > span {
+.caseNavDesktop button[aria-current="location"] .caseNavDot {
   transform: scaleX(1);
 }
 
@@ -561,6 +561,46 @@
   line-height: 1.7;
 }
 
+.interactionBubble {
+  position: absolute;
+  top: -2rem;
+  left: 2rem;
+  z-index: 10;
+  background: var(--case-accent);
+  color: #07090b;
+  padding: 0.5rem 0.85rem;
+  border-radius: 1.2rem;
+  font-size: 0.68rem;
+  font-weight: 600;
+  white-space: nowrap;
+  letter-spacing: 0.03em;
+  box-shadow: 0 0.5rem 1.2rem rgba(126, 231, 135, 0.25);
+  animation: bobbingBubble 2.5s ease-in-out infinite;
+}
+
+.interactionBubble::after {
+  content: '';
+  position: absolute;
+  bottom: -0.35rem;
+  left: 1rem;
+  width: 0.6rem;
+  height: 0.6rem;
+  background: inherit;
+  border-radius: 50%;
+}
+
+@keyframes bobbingBubble {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.85;
+  }
+  50% {
+    transform: translateY(-0.5rem);
+    opacity: 1;
+  }
+}
+
 .viewerFrame {
   position: relative;
   overflow: hidden;
@@ -568,6 +608,10 @@
   border-radius: 0.9rem;
   background: #080b0e;
   box-shadow: none;
+}
+
+.viewerWrapper {
+  position: relative;
 }
 
 .viewerExpanded {
@@ -821,6 +865,7 @@
   align-items: center;
   justify-content: center;
   gap: 0.4rem;
+  padding: 0 0.6rem;
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(255, 255, 255, 0.025);
   color: #89929c;
@@ -1112,6 +1157,9 @@
   line-height: 1.55;
 }
 
+/* Every card carries a full border on all four sides, so no card is ever left
+   open at the end of a row (seams between neighbours read as one heavier rule,
+   matching how stacked rows already meet). */
 .flowSteps {
   display: grid;
   margin: 1rem 0 0;
@@ -1128,16 +1176,11 @@
   align-items: flex-start;
   gap: 0.45rem;
   border: 1px solid rgba(255, 255, 255, 0.09);
-  border-right: 0;
   padding: 0.65rem;
   background: rgba(255, 255, 255, 0.014);
   color: #686f78;
   cursor: pointer;
   text-align: left;
-}
-
-.flowSteps li:last-child button {
-  border-right: 1px solid rgba(255, 255, 255, 0.09);
 }
 
 .flowSteps button[aria-current="step"] {
@@ -1165,15 +1208,10 @@
 .threatList button {
   min-height: 10rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-right: 0;
   padding: 1rem;
   background: rgba(255, 255, 255, 0.015);
   cursor: pointer;
   text-align: left;
-}
-
-.threatList button:last-child {
-  border-right: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .threatList button[aria-pressed="true"] {
@@ -1597,14 +1635,7 @@
 .failureGrid article {
   min-width: 0;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-right: 0;
   background: color-mix(in srgb, var(--case-surface) 70%, transparent);
-}
-
-.securityMatrix article:last-child,
-.decisionGrid details:last-child,
-.failureGrid article:last-child {
-  border-right: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .securityMatrix article {
@@ -1832,13 +1863,8 @@
   align-content: start;
   gap: 0.8rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-right: 0;
   padding: 1.35rem;
   background: color-mix(in srgb, var(--case-accent) 3%, var(--case-surface));
-}
-
-.resultGrid article:last-child {
-  border-right: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .resultGrid svg {
@@ -2175,9 +2201,8 @@
 }
 
 @media (min-width: 78rem) {
-  .page {
-    padding-right: 5rem;
-  }
+  /* No page-level right gutter: the section rail is a 1.5rem overlay, so the
+     header and every full-bleed band run edge to edge on wide screens. */
 
   .hero,
   .page[data-layout="incident-first"] .hero,
@@ -2193,7 +2218,7 @@
     top: 50%;
     right: clamp(0.75rem, 1.5vw, 1.5rem);
     bottom: auto;
-    width: 8.75rem;
+    width: 1.5rem;
     transform: translateY(-50%);
     border: 0;
     padding: 0;
@@ -2219,8 +2244,9 @@
     position: absolute;
     top: 1.15rem;
     bottom: 1.15rem;
-    left: 0.24rem;
+    left: 50%;
     width: 1px;
+    transform: translateX(-50%);
     background: linear-gradient(
       180deg,
       transparent,
@@ -2234,13 +2260,13 @@
   .caseNavDesktop button {
     min-height: 2.35rem;
     flex: 0 0 auto;
-    justify-content: flex-start;
+    justify-content: center;
     border: 0;
-    padding: 0 0 0 1.45rem;
+    padding: 0;
     color: #6e747c;
     font-size: 0.6rem;
     letter-spacing: 0.09em;
-    text-align: left;
+    text-align: right;
     transition: color 160ms ease;
   }
 
@@ -2248,34 +2274,61 @@
     border-left: 0;
   }
 
+  /* Connector dash between the revealed label and its dot. */
   .caseNavDesktop button::before {
     position: absolute;
     top: 50%;
-    left: 0.32rem;
+    right: calc(100% - 0.28rem);
     width: 0.72rem;
     height: 1px;
     transform: translateY(-50%);
     background: color-mix(in srgb, var(--case-accent) 45%, transparent);
     content: "";
-    opacity: 0.42;
-    transition: width 160ms ease, opacity 160ms ease;
+    opacity: 0;
+    transition: opacity 160ms ease;
   }
 
-  .caseNavDesktop button > span {
+  .caseNavDot {
     top: 50%;
     right: auto;
     bottom: auto;
-    left: 0;
+    left: 50%;
     z-index: 1;
     width: 0.5rem;
     height: 0.5rem;
     border: 1px solid color-mix(in srgb, var(--case-accent) 66%, transparent);
     border-radius: 50%;
-    transform: translateY(-50%) scale(0.72);
+    transform: translate(-50%, -50%) scale(0.72);
     transform-origin: center;
     background: var(--case-page);
     opacity: 0.7;
     transition: transform 160ms ease, background 160ms ease, box-shadow 160ms ease, opacity 160ms ease;
+  }
+
+  .caseNavLabel {
+    position: absolute;
+    top: 50%;
+    right: calc(100% + 0.55rem);
+    padding: 0.2rem 0.45rem;
+    transform: translate(0.35rem, -50%);
+    /* Labels float over body copy on narrower desktops; plate keeps them legible. */
+    background: color-mix(in srgb, var(--case-page) 82%, transparent);
+    backdrop-filter: blur(6px);
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 160ms ease, transform 160ms ease;
+  }
+
+  .caseNav:hover .caseNavLabel,
+  .caseNav:focus-within .caseNavLabel {
+    transform: translate(0, -50%);
+    opacity: 1;
+  }
+
+  .caseNav:hover .caseNavDesktop button::before,
+  .caseNav:focus-within .caseNavDesktop button::before {
+    opacity: 0.42;
   }
 
   .caseNavDesktop button:hover,
@@ -2284,21 +2337,23 @@
     color: #f1f1f1;
   }
 
-  .caseNavDesktop button:hover::before,
-  .caseNavDesktop button[aria-current="location"]::before {
-    width: 0.92rem;
+  .caseNav:hover .caseNavDesktop button:hover::before,
+  .caseNav:hover .caseNavDesktop button[aria-current="location"]::before,
+  .caseNav:focus-within .caseNavDesktop button:focus-visible::before {
     opacity: 1;
   }
 
-  .caseNavDesktop button[aria-current="location"] > span {
-    transform: translateY(-50%) scale(1);
+  .caseNavDesktop button[aria-current="location"] .caseNavDot {
+    transform: translate(-50%, -50%) scale(1);
     background: var(--case-accent);
     box-shadow: 0 0 0.75rem var(--case-accent);
     opacity: 1;
   }
 
-  /* TODO(project-index): Switch long future labels to accessible tooltips
-     if the case-study section list grows beyond the current rail height. */
+  .caseNavDesktop button:hover .caseNavDot {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
 }
 
 @media (max-width: 70rem) {

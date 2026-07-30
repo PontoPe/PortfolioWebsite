@@ -664,6 +664,7 @@
   color: var(--z-orange);
 }
 
+/* Cards keep a full border on all four sides so none is left open at a row end. */
 .comparison {
   display: grid;
   margin-top: 0.8rem;
@@ -678,7 +679,6 @@
   align-items: center;
   gap: 0.7rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-right: 0;
   padding: 0.75rem;
   background: rgba(255, 255, 255, 0.012);
   color: #5f6670;
@@ -686,10 +686,6 @@
   font: inherit;
   text-align: left;
   transition: border-color 160ms ease, background 160ms ease, color 160ms ease;
-}
-
-.comparison button:last-child {
-  border-right: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .comparison button:hover,

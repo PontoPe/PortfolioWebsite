@@ -508,36 +508,55 @@ export default defineConfig({
   },
   "portfolio": {
     title: "Personal Portfolio",
-    category: "Web Development",
-    date: "2025",
+    category: "Web / Content Pipeline / CI-CD",
+    date: "2026",
     description: `
-      A personal portfolio website built on Next.js 14+. It utilizes Server Components for fast initial loading and Tailwind CSS for styling.
+      This site. A statically exported Next.js 16 application that doubles as the delivery surface for everything else in this portfolio: project case studies driven by typed data, long-form security write-ups, a markdown blog, and an interactive terminal with its own virtual filesystem.
 
-      Features include a simulated terminal file system and text decryption effects. The project focuses on performance optimization and responsive design across devices.
+      OBSIDIAN IS THE CMS - Posts are written as plain markdown notes in a private Obsidian vault that is itself a git repository (PontoPe/ObsidianGit). There is no admin panel, no database, and no headless CMS to keep online. Publishing is "commit the note". A push in the vault fires a repository_dispatch event at the website repository, and the deploy pipeline checks the vault out into portfolio/_content with a scoped token, copies any referenced images into public/blog-images, and builds the blog routes from frontmatter using gray-matter.
+
+      SCHEDULED WITHOUT A SERVER - Frontmatter carries an ISO date. Future-dated notes are filtered out of both the blog index and generateStaticParams, and dynamicParams is disabled, so an unpublished post is not merely hidden - the route does not exist. Because a static export cannot decide at request time that "today" has changed, the deploy workflow also runs on a nightly cron at 00:17 America/Sao_Paulo: a post scheduled for a given date goes live on that date even if nobody commits anything.
+
+      CI/CD - One GitHub Actions workflow composes two repositories into one artifact: checkout public site, checkout private vault, npm ci on Node 24, collect images, next build (output: "export"), then FTP the out/ directory to the host. Triggers are push to main, the vault's repository_dispatch, the nightly cron, and manual dispatch. Every third-party action is pinned to a full commit SHA, the job runs with permissions: contents: read, and persist-credentials is disabled so the checkout token is never left behind in the runner's git config.
+
+      THE TERMINAL - The homepage carries "PontoPe OS", a client-side shell over a virtual filesystem defined in lib/virtualFS.ts: ls (with -a), cd, cat, tab completion for both commands and paths, plus shortcuts that route to the blog and a set of easter eggs ending in a Konami-code BSOD. It has no shell, no eval, and no network calls - the filesystem is a static object shipped with the page, so the whole thing is a self-contained interaction rather than an attack surface.
+
+      DELIVERY - Static export with trailingSlash for the FTP host, unoptimized images, hardened response headers, and no server runtime at all: the published artifact is a directory of HTML, CSS, JS, and images.
     `,
-    stack: ["Next.js", "Tailwind CSS", "TypeScript"],
+    stack: ["Next.js 16", "React 19", "TypeScript", "Tailwind CSS 4", "GitHub Actions", "Obsidian + Markdown"],
     image: "/projects/portfolio.png",
+    imageAlt: "Current pedromartins.tech home page: profile sidebar, featured work grid, and section index rail",
     codeSnippet: {
-      filename: "next.config.ts",
-      caption: "Hardened security headers - HSTS preload, strict CSP, and a locked-down permissions policy.",
-      code: `// Hardened response headers on every route.
-const securityHeaders = [
-  { key: "Content-Security-Policy",
-    value: "default-src 'self'; img-src 'self' data:; " +
-           "script-src 'self' 'unsafe-inline'; frame-ancestors 'none'" },
-  { key: "Strict-Transport-Security",
-    value: "max-age=63072000; includeSubDomains; preload" },
-  { key: "X-Content-Type-Options",  value: "nosniff" },
-  { key: "X-Frame-Options",         value: "DENY" },
-  { key: "Referrer-Policy",         value: "strict-origin-when-cross-origin" },
-  { key: "Permissions-Policy",      value: "camera=(), microphone=(), geolocation=()" },
-];
+      filename: ".github/workflows/deploy.yml",
+      caption: "Two repositories, one artifact: the private Obsidian vault is checked out into the site, then the static export is shipped. Actions pinned by SHA, read-only permissions, credentials never persisted.",
+      code: `# Publishing = committing a note. The vault dispatches; this workflow builds.
+on:
+  push: { branches: [main] }
+  repository_dispatch: { types: [update_blog] }   # fired by the Obsidian vault
+  schedule:
+    - cron: '17 0 * * *'                          # future-dated posts go live
+      timezone: "America/Sao_Paulo"
+  workflow_dispatch:
 
-export default {
-  async headers() {
-    return [{ source: "/:path*", headers: securityHeaders }];
-  },
-} satisfies NextConfig;`,
+permissions:
+  contents: read                                  # least privilege for the job
+
+jobs:
+  web-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with: { persist-credentials: false }      # no token left in .git/config
+
+      - name: Get private content (Obsidian)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          repository: PontoPe/ObsidianGit         # private vault = the CMS
+          token: \${{ secrets.GH_PAT }}
+          path: portfolio/_content
+          persist-credentials: false
+
+      - run: npm ci && npm run build              # next build -> static export`,
     },
   }
 };

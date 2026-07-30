@@ -872,7 +872,8 @@ export default function ProjectCaseStudyExperience({
         <div className={styles.caseNavDesktop}>
           {sectionOrder.map((id) => (
             <button type="button" key={id} aria-current={activeSection === id ? "location" : undefined} onClick={() => navigateTo(id)}>
-              <span aria-hidden="true" />{sectionLabels[id]}
+              <span className={styles.caseNavDot} aria-hidden="true" />
+              <span className={styles.caseNavLabel}>{sectionLabels[id]}</span>
             </button>
           ))}
         </div>
@@ -886,9 +887,16 @@ export default function ProjectCaseStudyExperience({
 
       <div className={styles.body}>
         <section id="architecture" className={styles.viewerSection} ref={viewerRef} tabIndex={-1}>
-          <div className={styles.sectionHeading}><span>01 / Interactive system</span><h2>Inspect what exists, what it trusts, and how it fails</h2></div>
-          <div className={joinClasses(styles.viewerFrame, expanded && styles.viewerExpanded)}>
-            <div className={styles.viewerHeader}>
+          <div className={styles.sectionHeading}>
+            <span>01 / Interactive system</span>
+            <h2>Move through the system layer by layer</h2>
+          </div>
+          <div className={styles.viewerWrapper}>
+            <div className={styles.interactionBubble} aria-hidden="true">
+              <span>Interact with me</span>
+            </div>
+            <div className={joinClasses(styles.viewerFrame, expanded && styles.viewerExpanded)}>
+              <div className={styles.viewerHeader}>
               <div className={styles.windowDots} aria-hidden="true"><span /><span /><span /></div>
               <div className={styles.viewerIdentity}><strong>{profile.vmName}</strong><span>{profile.environment} · Read-only</span></div>
               <div className={styles.viewerActions}>
@@ -915,6 +923,7 @@ export default function ProjectCaseStudyExperience({
             <div className={styles.viewerFooter}>
               <span>READ-ONLY</span><span>{profile.environment}</span><span>tool: {activeTool}</span><span>selection: {selectedNodeId ?? "none"}</span>
             </div>
+          </div>
           </div>
           <p className={styles.srOnly} aria-live="polite">{announcement}</p>
         </section>
