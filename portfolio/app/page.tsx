@@ -1005,8 +1005,8 @@ export default function Home() {
                             <ProjectCard title="CowRec" slug="cowrec" status="Live" subtitle="Computer Vision backend for livestock tracking">
                                 <Image src="/projects/cow1.jpeg" alt="CowRec Project" fill className="object-cover" />
                             </ProjectCard>
-                            <ProjectCard title="Ficha Clínica" slug="ficha-clinica" status="In Development" subtitle="Local-first dental anamnesis - AES-256-GCM at the edge, LGPD by architecture, zero server">
-                                <Image src="/projects/ficha-clinica.png" alt="Ficha Clínica Inteligente" fill className="object-cover" />
+                            <ProjectCard title="Clinical Chart" slug="ficha-clinica" status="In Development" subtitle="Local-first dental anamnesis - AES-256-GCM at the edge, LGPD by architecture, zero server">
+                                <Image src="/projects/ficha-clinica.png" alt="Clinical Chart application" fill className="object-cover" />
                             </ProjectCard>
                         </div>
                         </AccessReveal>

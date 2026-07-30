@@ -142,7 +142,7 @@ table inet filter {
     caseStudy: "truststack",
   },
   "ficha-clinica": {
-    title: "Ficha Clínica Inteligente",
+    title: "Clinical Chart",
     category: "Privacy Engineering / Health-Tech / Local-First",
     date: "2026",
     description: `
