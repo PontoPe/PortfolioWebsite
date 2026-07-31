@@ -1021,7 +1021,7 @@ export default function Home() {
                           <ProjectCard title="pontosv" slug="pontosv" status="Online" subtitle="Hardened bare-metal Debian server I run solo - zero-open-port ingress for the BRASILCON journal">
                             <Image src="/projects/pontosv.png" alt="pontosv Home Server" fill className="object-cover" />
                           </ProjectCard>
-                            <ProjectCard title="TrustStack" slug="truststack" status="Applied" subtitle="Four repositories, one claim per layer of trust: AWS landing zone, automated response detonated at 5.97s, hardened Kubernetes, and a cluster that refuses unsigned images">
+                            <ProjectCard title="TrustStack" slug="truststack" status="Applied" subtitle="A practical reference for platform and security teams: govern AWS accounts, detect and safely remediate exposure, admit only verified images, and monitor hardened Kubernetes workloads">
                                 <Image src="/projects/truststack.svg" alt="TrustStack cloud security architecture" fill className="object-cover" />
                             </ProjectCard>
                           <ProjectCard title="ZombiesWeb" slug="zombiesweb" status="Live" subtitle="Interactive CoD Zombies lore timeline and map guides">

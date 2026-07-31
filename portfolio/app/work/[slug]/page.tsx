@@ -120,7 +120,7 @@ table inet filter {
   },
   "truststack": {
     title: "TrustStack",
-    subtitle: "Four repositories, one claim per layer of a system's trust",
+    subtitle: "Four applied security layers for cloud governance, response, runtime, and supply-chain assurance",
     status: "Applied",
     category: "Cloud Security / DevSecOps / Detection Engineering",
     date: "2026",

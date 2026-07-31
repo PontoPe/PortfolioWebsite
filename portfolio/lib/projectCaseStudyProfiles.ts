@@ -425,7 +425,7 @@ export const projectCaseStudyProfiles: Record<string, ProjectCaseStudyProfile> =
     environment: "Live 5-account AWS organization · real cluster · public repositories",
     role: "Platform architect, control author, and operator",
     outcome:
-      "Four repositories, one claim per layer of a system's trust - each applied to real infrastructure and each carrying the evidence that proves it, including the three claims the evidence forced me to correct.",
+      "A practical reference for platform and security teams: four independently reviewable layers that govern AWS accounts, prove controls work, safely remediate exposure, and prevent unverified workloads from running.",
     ownership: ["Threat models", "Terraform", "Detection logic", "Admission policy", "Attack simulations", "CI identity", "Evidence design"],
     theme: themes.truststack,
     layout: "evidence-first",
