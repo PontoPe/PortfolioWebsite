@@ -939,7 +939,7 @@ export default function Home() {
 
                 <div className="portfolio-content flex-1 min-w-0 pt-10 pb-16 px-5 sm:px-8 md:pr-12 w-full max-w-[95%] mx-auto">
 
-                    <section id="hero" className="mb-32 md:mb-48 scroll-mt-32">
+                    <section id="hero" className="mb-12 md:mb-48 scroll-mt-32">
                         <p className="text-sm text-[#555] mb-5 font-mono">&lt;!-- Hero section --&gt;</p>
                         <h1 className="portfolio-hero-title font-bold text-white font-sans leading-[0.95] md:leading-[0.9] tracking-tighter">
                             <ScrambleText text="Cybersecurity" /><br/>
@@ -955,7 +955,6 @@ export default function Home() {
                             </div>
                             <div>
                                 <h2 className="text-white font-bold font-mono text-lg leading-tight">PontoPe</h2>
-                                <p className="text-[11px] uppercase tracking-widest text-[#666] mt-1 font-bold">Cybersecurity Engineer</p>
                             </div>
                         </div>
 
