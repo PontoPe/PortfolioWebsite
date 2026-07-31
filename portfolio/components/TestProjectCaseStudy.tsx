@@ -1092,16 +1092,6 @@ export default function TestProjectCaseStudy() {
                   {expanded ? <Minimize2 aria-hidden="true" /> : <Maximize2 aria-hidden="true" />}
                   <span>{expanded ? "Restore" : "Expand"}</span>
                 </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (expanded) setExpanded(false);
-                    summaryRef.current?.scrollIntoView({ behavior: "smooth" });
-                  }}
-                  aria-label="Close workspace and return to project summary"
-                >
-                  <X aria-hidden="true" />
-                </button>
               </div>
             </div>
 

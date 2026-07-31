@@ -1062,7 +1062,6 @@ export default function ProjectCaseStudyExperience({
                 <button type="button" ref={expandRef} aria-label={expanded ? "Restore workspace" : "Expand workspace"} onClick={() => setExpanded((value) => !value)}>
                   {expanded ? <Minimize2 /> : <Maximize2 />}<span>{expanded ? "Restore" : "Expand"}</span>
                 </button>
-                <button type="button" aria-label="Close workspace and return to project summary" onClick={() => { setExpanded(false); summaryRef.current?.scrollIntoView({ behavior: "smooth" }); }}><X /></button>
               </div>
             </div>
             <div className={styles.viewerBody}>

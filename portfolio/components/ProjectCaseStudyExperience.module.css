@@ -738,7 +738,8 @@
 
 .viewerBody {
   display: grid;
-  min-height: 32rem;
+  height: 42rem;
+  min-height: 0;
   grid-template-columns: 6.25rem minmax(0, 1fr);
 }
 
@@ -749,7 +750,9 @@
 
 .toolRail {
   display: flex;
+  min-height: 0;
   flex-direction: column;
+  overflow-y: auto;
   border-right: 1px solid rgba(255, 255, 255, 0.1);
   background: #07090b;
 }
@@ -791,6 +794,7 @@
 }
 
 .viewerViewport {
+  min-height: 0;
   min-width: 0;
   overflow: auto;
   background:
@@ -2765,7 +2769,7 @@
   }
 
   .viewerBody {
-    min-height: 0;
+    height: 36rem;
     grid-template-columns: 1fr;
   }
 
