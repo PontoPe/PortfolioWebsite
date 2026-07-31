@@ -821,6 +821,7 @@
 
 .experienceTool,
 .systemTool,
+.layersTool,
 .flowTool,
 .threatTool,
 .operationsTool,
@@ -1339,6 +1340,322 @@
   color: var(--case-accent);
   cursor: pointer;
   font-size: 0.55rem;
+}
+
+/* Layer inspector: one tab per repository in a multi-repository program. */
+.layerSplit {
+  display: grid;
+  grid-template-columns: minmax(13rem, 0.32fr) minmax(0, 1fr);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.layerTabs {
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.layerTabs button {
+  display: grid;
+  min-height: 4.5rem;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.15rem 0.75rem;
+  border: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0.8rem;
+  background: rgba(255, 255, 255, 0.014);
+  cursor: pointer;
+  text-align: left;
+}
+
+.layerTabs button[aria-selected="true"] {
+  background: color-mix(in srgb, var(--layer-accent, var(--case-accent)) 11%, transparent);
+  box-shadow: inset 2px 0 var(--layer-accent, var(--case-accent));
+}
+
+.layerTabs span {
+  grid-column: 1;
+  color: var(--layer-accent, var(--case-accent));
+  font-size: 0.5rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.layerTabs strong {
+  grid-column: 1;
+  color: #d3d8de;
+  font-family: var(--font-sans), Arial, sans-serif;
+  font-size: 0.92rem;
+  letter-spacing: -0.03em;
+}
+
+.layerTabs svg {
+  grid-row: 1 / span 2;
+  grid-column: 2;
+  width: 0.8rem;
+  height: 0.8rem;
+  color: #5f6872;
+}
+
+.layerDetail {
+  display: flex;
+  min-height: 24rem;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: clamp(1.25rem, 3vw, 2.25rem);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--layer-accent, var(--case-accent)) 7%, transparent), transparent 45%),
+    #090c0f;
+}
+
+.layerDetail > p {
+  margin: 0;
+  color: #b0b7c0;
+  font-size: 0.72rem;
+  line-height: 1.7;
+}
+
+.layerDetail dl {
+  margin: 0;
+}
+
+.layerDetail dl > div {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0.9rem 0;
+}
+
+.layerDetail dt,
+.layerGrid dt,
+.findingGrid dt {
+  margin-bottom: 0.35rem;
+  color: #5d6670;
+  font-size: 0.51rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.layerDetail dd,
+.layerGrid dd,
+.findingGrid dd {
+  margin: 0;
+  color: #8f97a1;
+  font-size: 0.66rem;
+  line-height: 1.62;
+}
+
+.layerDetail > a {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 0.45rem;
+  margin-top: auto;
+  color: var(--layer-accent, var(--case-accent));
+  font-size: 0.62rem;
+}
+
+.layerDetail > a svg {
+  width: 0.8rem;
+  height: 0.8rem;
+}
+
+.layerStats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.layerStats > div {
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0.75rem 0.85rem;
+}
+
+.layerStats strong {
+  display: block;
+  color: var(--layer-accent, var(--case-accent));
+  font-family: var(--font-sans), Arial, sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+}
+
+.layerStats span {
+  display: block;
+  margin-top: 0.3rem;
+  color: #77808b;
+  font-size: 0.55rem;
+  line-height: 1.4;
+}
+
+/* Layers section: the same four repositories, read rather than clicked. */
+.layerGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.layerGrid article {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 1.1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 2px solid var(--layer-accent, var(--case-accent));
+  padding: clamp(1.25rem, 2.2vw, 1.9rem);
+  background:
+    linear-gradient(160deg, color-mix(in srgb, var(--layer-accent, var(--case-accent)) 9%, transparent), transparent 40%),
+    color-mix(in srgb, var(--case-surface) 70%, transparent);
+}
+
+.layerGrid header > span {
+  color: var(--layer-accent, var(--case-accent));
+  font-size: 0.54rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.layerGrid h3 {
+  margin: 0.7rem 0 0;
+  color: #e7e9ec;
+  font-family: var(--font-sans), Arial, sans-serif;
+  font-size: clamp(1.4rem, 2.2vw, 1.9rem);
+  letter-spacing: -0.045em;
+  line-height: 1.1;
+}
+
+.layerQuestion {
+  margin: 0.5rem 0 0;
+  color: #c6ccd4;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.72rem;
+  line-height: 1.5;
+}
+
+.layerSummary {
+  margin: 0;
+  color: #949ca6;
+  font-size: 0.68rem;
+  line-height: 1.68;
+}
+
+.layerGrid ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.layerGrid li {
+  display: grid;
+  grid-template-columns: 0.85rem minmax(0, 1fr);
+  gap: 0.55rem;
+  margin-bottom: 0.55rem;
+  color: #949ca6;
+  font-size: 0.63rem;
+  line-height: 1.5;
+}
+
+.layerGrid li svg {
+  width: 0.8rem;
+  height: 0.8rem;
+  margin-top: 0.15rem;
+  color: var(--layer-accent, var(--case-accent));
+}
+
+.layerGrid dl {
+  margin: 0;
+}
+
+.layerGrid dl > div {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0.85rem 0;
+}
+
+.layerLimit dd {
+  color: #a3a2ac;
+}
+
+.layerLimit dt {
+  color: var(--case-danger);
+}
+
+.layerActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.25rem;
+  margin-top: auto;
+}
+
+.layerActions button,
+.layerActions a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--layer-accent, var(--case-accent));
+  cursor: pointer;
+  font-size: 0.59rem;
+}
+
+.layerActions svg {
+  width: 0.8rem;
+  height: 0.8rem;
+}
+
+/* Findings: what only became visible by exercising a control for real. */
+.findingGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.findingGrid article {
+  min-width: 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: clamp(1.25rem, 2.2vw, 1.9rem);
+  background: color-mix(in srgb, var(--case-surface) 70%, transparent);
+}
+
+.findingGrid > article:first-child {
+  grid-column: 1 / -1;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--case-accent) 7%, transparent), transparent 55%),
+    color-mix(in srgb, var(--case-surface) 70%, transparent);
+}
+
+.findingGrid article > span {
+  color: var(--case-danger);
+  font-size: 0.54rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.findingGrid h3 {
+  margin: 0.8rem 0 1.1rem;
+  color: #e7e9ec;
+  font-family: var(--font-sans), Arial, sans-serif;
+  font-size: clamp(1.25rem, 2vw, 1.75rem);
+  letter-spacing: -0.045em;
+  line-height: 1.15;
+}
+
+.findingGrid dl {
+  margin: 0;
+}
+
+.findingGrid dl > div {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0.9rem 0;
+}
+
+.findingLesson dt {
+  color: var(--case-accent);
+}
+
+.findingLesson dd {
+  color: #b6bcc4;
 }
 
 .codePanel {
@@ -2525,14 +2842,19 @@
   .resultGrid,
   .retrospective,
   .evidenceGrid,
-  .evidenceGridCompact {
+  .evidenceGridCompact,
+  .layerGrid,
+  .findingGrid,
+  .layerSplit {
     grid-template-columns: 1fr;
   }
 
   .securityMatrix article,
   .decisionGrid details,
   .failureGrid article,
-  .resultGrid article {
+  .resultGrid article,
+  .layerGrid article,
+  .findingGrid article {
     min-height: auto;
     border-right: 1px solid rgba(255, 255, 255, 0.1);
     border-bottom: 0;
@@ -2541,8 +2863,31 @@
   .securityMatrix article:last-child,
   .decisionGrid details:last-child,
   .failureGrid article:last-child,
-  .resultGrid article:last-child {
+  .resultGrid article:last-child,
+  .layerGrid article:last-child,
+  .findingGrid article:last-child {
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .layerTabs {
+    flex-direction: row;
+    overflow-x: auto;
+    border-right: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .layerTabs button {
+    min-width: 9rem;
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 0;
+  }
+
+  .layerTabs button[aria-selected="true"] {
+    box-shadow: inset 0 -2px var(--layer-accent, var(--case-accent));
+  }
+
+  .layerDetail {
+    min-height: 0;
   }
 
   .securityMatrix article,
@@ -2685,12 +3030,17 @@
 
   .experienceTool,
   .systemTool,
+  .layersTool,
   .flowTool,
   .threatTool,
   .operationsTool,
   .sourceTool,
   .evidenceTool {
     padding: 1rem;
+  }
+
+  .layerStats {
+    grid-template-columns: 1fr;
   }
 
   .toolHeading {

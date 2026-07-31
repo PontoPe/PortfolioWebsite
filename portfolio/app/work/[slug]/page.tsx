@@ -120,26 +120,89 @@ table inet filter {
   },
   "truststack": {
     title: "TrustStack",
-    subtitle: "Cloud Security Engineering Platform",
-    status: "In Development",
-    category: "Cloud Security / DevSecOps / Platform Security",
-    date: "2026 - present",
-    description:
-      "Evidence-driven cloud security platform spanning AWS governance, automated response, Kubernetes runtime defense, and signed-image enforcement.",
+    subtitle: "Four repositories, one claim per layer of a system's trust",
+    status: "Applied",
+    category: "Cloud Security / DevSecOps / Detection Engineering",
+    date: "2026",
+    description: `
+      TrustStack is four public repositories that each answer one question about a system's trust: can an account do something nobody watches (AwLZ), do I know where this container came from (ProvenancePipeline), if something breaks in does anyone find out (KateClusters), and when something is found what happens automatically (PontoAntiCrack). All four are applied to real infrastructure - a live five-account AWS organization, a real kubeadm cluster, and a signed release path into GHCR - and all four meet the same definition of finished, agreed before any of the work started: code applied, evidence artifacts committed, a recorded demo, a threat model whose residual risks are stated rather than implied, and a public repository.
+
+      THE RULE, AND WHAT IT COSTS - The deliverable is not working infrastructure. Anyone can apply a Terraform module or install a Helm chart. The deliverable is reproducible infrastructure plus evidence that the controls do what the documentation claims, including where they do not. The part worth reading in each repository is docs/evidence/, and the part worth reading there is the entries recording a control failing, a claim being wrong, or a number coming back worse than promised. That rule has a price: three of the four layers had to publish a result less flattering than the one originally advertised.
+
+      AWLZ - CLOUD GOVERNANCE - Six independent Terraform stacks and ten modules build a multi-account landing zone: two organizational units, five accounts, four service control policies, an organization CloudTrail whose Object Lock archive lives in a separate log-archive account under its own key, and GuardDuty, Security Hub, Config and Access Analyzer all delegated to a security account. Root credentials are deleted from every member account, so the only interactive way in is IAM Identity Center, and there are no static AWS access keys anywhere - CI plans through GitHub OIDC with a read-only role and applies through a role gated behind a protected environment. Every SCP was probed from inside a member account while holding administrator there, because an SCP is the only mechanism that can deny an account administrator and a test as anything less privileged would prove nothing.
+
+      PONTOANTICRACK - DETECTION AND RESPONSE - Detection-as-code with automated remediation, named after the anti-cheat: the game keeps running, the cheater gets caught and kicked. Three detections - public S3 exposure, leaked IAM keys, world-open security groups - each a complete unit of EventBridge pattern, Lambda handler, scoped execution role, fixtures, and tests for both what it catches and what it must not. Every detection runs through one runtime, and the order is the security property: plan read-only, honour the exclusion tag, snapshot to the audit table, check the circuit breaker, pass the dry-run gate, apply, close the audit record, alert. Handlers implement plan() and apply() and nothing else, so they cannot get the order wrong. 185 tests, and a measured 5.97 seconds from an attacker's API call to the offending rule being revoked.
+
+      KATECLUSTERS - KUBERNETES RUNTIME - A kubeadm cluster on a dedicated Debian 13 VM, hardened against the CIS benchmark from PASS 67 / FAIL 12 to PASS 86 / FAIL 0, with each remediation linked to the manifest that fixed it. Pod Security Admission at restricted, least-privilege RBAC, Calico default-deny networking, SOPS-encrypted secrets, and Falco watching syscalls through eBPF while the API server writes an audit log - both shipped by promtail into Loki, with Grafana dashboards, alerts, and a dead-man's switch that fires when Falco stops reporting. Then attacked on purpose four times: container escape, cryptominer, service-account token abuse, and killing Falco itself, each with the raw captured output committed alongside the write-up.
+
+      PROVENANCEPIPELINE - SOFTWARE SUPPLY CHAIN - Build, syft SBOMs in two formats, grype and trivy failing at CRITICAL with no soft-fail, push to GHCR, cosign keyless signature through Fulcio recorded in the public Rekor transparency log, then SLSA provenance and SBOM attestations - and a Kyverno policy in Enforce with failurePolicy: Fail that refuses anything it cannot verify. The deliverable is the rejection, not the pipeline: four images, one policy. Ours by digest is admitted. An unsigned image is denied. A genuinely Sigstore-signed image with a genuinely public Rekor entry is denied because the identity is not ours - a policy that only asked "is this signed" would have let it in. Ours by tag instead of digest is denied.
+
+      WHAT PROVING IT ACTUALLY FOUND - AwLZ's promised CIS before-and-after was not obtainable, so a control experiment ran on the throwaway account instead: measure with the guardrails, detach them from that account only, measure again, reattach. All 35 controls were identical in both states, because no CIS v3.0.0 control reads a service control policy - the original claim was measuring the wrong thing. PontoAntiCrack was fully tested and completely blind twice: a loop guard that matched on the principal ARN could be bypassed by anyone passing --role-session-name pac-anything, and a pattern built entirely from AWS CLI fixtures had never seen the legacy encoding of the same API, so port 22 was opened to the internet and the rule did not match. ProvenancePipeline's design assumption about which attestation the cluster can enforce turned out to be exactly backwards, and the correction is recorded as ADR-009 with the original left visible.
+
+      HONESTY, MECHANISED - Rules that are only written down stop being true within a month. Every fixture carries a provenance marker and the command that would capture the real event, and a test fails if the marker is missing or contradicts the detection metadata - that gate fired three separate times in the final session and was right every time. CI fails any pattern test with no negative assertion, because a pattern tested only for what it catches matches everything, forever, silently. Every scanner suppression carries an inline justification. Third-party CI actions are pinned to commit SHAs, not tags. PontoAntiCrack's evidence directory stayed empty for the entire build, with a README saying what would land in it, because a table of realistic-looking latency numbers would have been trivial to write and would have made every other number in the portfolio worthless.
+
+      COST - A hard shared ceiling of USD 20/month across the two AWS layers, with budget alerts at 85% and 100% of actual plus 100% of forecast; the cluster and the pipeline cost nothing, running on a local VM and free-tier CI. Security Hub was the lever: CIS v3.0.0 in all five accounts projected USD 24.77/month, over the ceiling, so the five-account configuration was kept alive only long enough to capture the control experiment and then reduced to the delegated security account at USD 13.73 - and what was lost is stated: there is no longer a live per-account CIS score. One item in the whole program remains open, and it is a billing window rather than work: AWS Cost Explorer still returns Estimated: true for every day this organization has existed, so the earliest defensible cost query is 2026-08-02.
+    `,
     stack: [
-      "AWS Organizations",
       "Terraform",
-      "Kubernetes",
-      "Detection Engineering",
+      "AWS Organizations / SCP",
+      "CloudTrail + Object Lock",
       "GuardDuty",
-      "Falco",
-      "Cosign",
+      "Python / Lambda",
+      "EventBridge",
+      "DynamoDB",
+      "Kubernetes (kubeadm)",
+      "Kyverno",
+      "Falco / eBPF",
+      "Loki + Grafana",
+      "Cosign / Sigstore",
       "SLSA",
+      "GitHub OIDC",
     ],
     image: "/projects/truststack.svg",
     imageAlt:
-      "TrustStack architecture connecting AWS governance and response to a signed software supply chain and Kubernetes runtime security",
-    caseStudy: "truststack",
+      "TrustStack architecture connecting AWS governance and automated response to a signed software supply chain and Kubernetes runtime security",
+    codeSnippet: {
+      filename: "remediations/common/runtime.py",
+      caption:
+        "The pipeline every PontoAntiCrack detection runs through. Order is the security property, so it is written once, in one place - and handlers never call the audit log, the breaker, or the notifier themselves.",
+      code: `# Condensed from PontoAntiCrack. Handlers implement plan() and apply() and
+# nothing else, so a handler cannot get this order wrong.
+def execute(detection, raw_event, config, aws, notifier) -> Outcome:
+    event = event_parser.parse(raw_event)
+    audit = AuditLog(aws.table(config.table_name), config.detection_id)
+
+    # 1. Loop prevention - compared against the ROLE NAME only. An earlier
+    #    version tested \`"pac-" in arn\`, and an assumed-role ARN ends in a
+    #    session name the CALLER chooses: anyone passing
+    #    --role-session-name pac-anything was classified as our own
+    #    automation and skipped. Found by detonating a real technique.
+    if event.principal.is_pac_automation():
+        return _skip(config, "triggered by this system's own remediation role")
+
+    # 2. Plan is read-only. None means the resource state is not dangerous.
+    plan = detection.plan(event, aws)
+    if plan is None:
+        return _skip(config, "resource state is not dangerous")
+
+    # 3. Snapshot BEFORE any mutation. Everything after this line may fail
+    #    without destroying the rollback source or the incident evidence.
+    key = audit.open(event, plan, dry_run=config.dry_run)
+
+    # 4. Circuit breaker: 5 actions per 5-minute window, dry runs counted.
+    state = CircuitBreaker(...).check_and_increment()
+    if state.open:
+        return _close(audit, key, Status.BLOCKED, plan, state.reason)
+
+    # 5. Dry run is the DEFAULT. Opting out is explicit, per detection.
+    if config.dry_run:
+        return _close(audit, key, Status.DRY_RUN, plan, plan.reason)
+
+    # 6. Apply. A failure here still closes the audit record and alerts -
+    #    a failed remediation must be visible, not a crashed Lambda.
+    actions = detection.apply(plan, aws)
+    return _close(audit, key, Status.APPLIED, plan, plan.reason, actions)`,
+    },
   },
   "ficha-clinica": {
     title: "Clinical Chart",

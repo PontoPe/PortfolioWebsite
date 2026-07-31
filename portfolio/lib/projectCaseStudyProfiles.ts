@@ -8,7 +8,6 @@ export type ProjectSource = {
   stack: string[];
   image: string;
   imageAlt?: string;
-  caseStudy?: "truststack";
   github?: string;
   demo?: string;
   codeSnippet?: {
@@ -85,6 +84,33 @@ export type ProjectEvidence = {
   nodeIds: string[];
 };
 
+/** A self-contained sub-project inside a multi-repository program. */
+export type ProjectLayer = {
+  id: string;
+  name: string;
+  /** Per-layer accent; falls back to the project accent when unset. */
+  accent?: string;
+  boundary: string;
+  question: string;
+  summary: string;
+  stats: Array<{ value: string; label: string }>;
+  controls: string[];
+  proof: string;
+  limit: string;
+  href?: string;
+  nodeIds: string[];
+};
+
+/** Something that only became visible by exercising a control for real. */
+export type ProjectFinding = {
+  layer: string;
+  title: string;
+  looked: string;
+  actual: string;
+  lesson: string;
+  nodeIds: string[];
+};
+
 export type ProjectCaseStudyProfile = {
   slug: string;
   vmName: string;
@@ -102,7 +128,15 @@ export type ProjectCaseStudyProfile = {
     | "privacy-first"
     | "product-first";
   sectionOrder: Array<
-    "overview" | "security" | "decisions" | "operations" | "implementation" | "evidence" | "results"
+    | "overview"
+    | "layers"
+    | "findings"
+    | "security"
+    | "decisions"
+    | "operations"
+    | "implementation"
+    | "evidence"
+    | "results"
   >;
   metrics: Array<{ value: string; label: string; note?: string }>;
   problem: string[];
@@ -113,6 +147,10 @@ export type ProjectCaseStudyProfile = {
   decisions: ProjectDecision[];
   operations: ProjectOperation[];
   evidence: ProjectEvidence[];
+  /** Only set by multi-repository programs; drives the "layers" section and tool. */
+  layers?: ProjectLayer[];
+  /** Only set where exercising a control contradicted the documentation. */
+  findings?: ProjectFinding[];
   results: string[];
   retrospective: {
     worked: string[];
@@ -382,66 +420,280 @@ export const projectCaseStudyProfiles: Record<string, ProjectCaseStudyProfile> =
 
   truststack: {
     slug: "truststack",
-    vmName: "truststack-control-plane",
-    status: "In development",
-    environment: "Personal cloud security engineering platform",
-    role: "Platform architect and control author",
+    vmName: "truststack-program",
+    status: "Applied · 1 item open",
+    environment: "Live 5-account AWS organization · real cluster · public repositories",
+    role: "Platform architect, control author, and operator",
     outcome:
-      "Connected AWS governance, automated response, Kubernetes defense, and signed delivery into one evidence-driven security platform.",
-    ownership: ["Threat models", "Terraform", "Detection logic", "Policies", "Attack tests", "CI identity", "Evidence design"],
+      "Four repositories, one claim per layer of a system's trust - each applied to real infrastructure and each carrying the evidence that proves it, including the three claims the evidence forced me to correct.",
+    ownership: ["Threat models", "Terraform", "Detection logic", "Admission policy", "Attack simulations", "CI identity", "Evidence design"],
     theme: themes.truststack,
     layout: "evidence-first",
-    sectionOrder: ["evidence", "overview", "security", "decisions", "implementation", "operations", "results"],
+    sectionOrder: ["layers", "overview", "findings", "security", "decisions", "implementation", "operations", "evidence", "results"],
     metrics: [
-      { value: "4", label: "connected security projects" },
-      { value: "6", label: "live AWS Terraform stacks" },
-      { value: "167", label: "automated response tests" },
-      { value: "0", label: "long-lived CI credentials" },
+      { value: "4 / 4", label: "layers applied to live infrastructure", note: "One item deliberately open: AWS cost actuals" },
+      { value: "5.97s", label: "attacker API call to revoked rule", note: "Measured, not estimated - Stratus Red Team detonation" },
+      { value: "0", label: "long-lived cloud or signing credentials", note: "OIDC federation and Sigstore keyless signing" },
+      { value: "56", label: "architecture decision records", note: "Including the two that record being wrong" },
     ],
     problem: [
-      "Security controls are easy to describe and much harder to prove. TrustStack treats evidence as part of implementation: the allowed path, denied path, failure behavior, and audit trail all need an observable result.",
-      "The platform connects governance, detection, remediation, cluster policy, runtime observation, and image provenance without pretending that an unfinished control is already complete.",
+      "Anyone can apply a Terraform module or install a Helm chart. The harder question is whether the control does what its documentation says, and how anybody else would know. TrustStack answers it four times: the deliverable is not working infrastructure, it is reproducible infrastructure plus evidence - including the evidence that came back unflattering.",
+      "The four layers are the four places trust is usually asserted instead of proved: an account nobody governs, a container whose origin nobody checked, a runtime nobody watches, and a finding nobody acts on. Each layer is an independent repository with its own threat model, its own gates, and its own docs/evidence/ directory, so it can be reviewed alone.",
+      "That rule has a cost, and the cost is the point. Three of the four layers had to publish a result less flattering than the one originally advertised, and those corrections are the most useful thing here.",
     ],
-    constraints: ["Personal lab scale", "Honest status boundaries", "Least-privilege identities", "Reproducible attack tests", "Evidence before claims"],
+    constraints: [
+      "Real infrastructure only - no simulated cloud",
+      "USD 20/month shared ceiling across the AWS layers",
+      "Attack techniques confined to one throwaway account",
+      "Evidence written before the claim, never after",
+      "Limits stated in the strong form",
+      "One operator, no team to catch a mistake",
+    ],
     nodes: [
-      { id: "org", label: "AWS Landing Zone", zone: "trusted", eyebrow: "Governance", responsibility: "Defines organization guardrails, logging, and account boundaries.", data: "Policies and organization events", exposure: "Cloud control plane", failure: "Mis-scoped policy can block intended work or leave a gap." },
-      { id: "detect", label: "Detection Engine", zone: "trusted", eyebrow: "Signal", responsibility: "Turns AWS activity into bounded security findings.", data: "Cloud events and findings", exposure: "Event-driven service path", failure: "Missed or noisy signals reduce response quality." },
-      { id: "respond", label: "Response Runner", zone: "internal", eyebrow: "Bounded action", responsibility: "Plans, records, and applies guarded remediations.", data: "Finding context and before-state", exposure: "Least-privilege AWS identity", failure: "Dry-run and circuit breaker stop unsafe mutation." },
-      { id: "supply", label: "Signed Pipeline", zone: "trusted", eyebrow: "Provenance", responsibility: "Builds, signs, and attests container artifacts without long-lived CI credentials.", data: "Source identity, signatures, attestations", exposure: "Federated workflow identity", failure: "Verification blocks an untrusted artifact." },
-      { id: "cluster", label: "Kubernetes", zone: "internal", eyebrow: "Admission + runtime", responsibility: "Applies workload policy and observes runtime behavior.", data: "Workloads, admission results, runtime events", exposure: "Private lab cluster", failure: "Planned controls remain visibly planned until tested." },
+      { id: "org", label: "AwLZ", zone: "trusted", eyebrow: "Cloud governance", responsibility: "Owns the five-account AWS organization: two OUs, four service control policies, the organization CloudTrail, and detection delegated to a security account.", data: "Organization policy and every API call made in any account", exposure: "AWS control plane - member-account root credentials are deleted, so the only interactive way in is IAM Identity Center", failure: "A mis-scoped SCP blocks legitimate work: the guardrails blocked their own deployment twice before ADR-014 exempted deployment principals." },
+      { id: "detect", label: "Detections", zone: "trusted", eyebrow: "Event to finding", responsibility: "EventBridge rules match CloudTrail activity and GuardDuty findings; one Lambda function per detection reads the resource back and decides.", data: "CloudTrail records, GuardDuty findings, 17 captured fixtures", exposure: "Event-driven, inside the throwaway lab account only", failure: "A pattern that has never seen an event shape is a silent miss - which is exactly what the first detonation found." },
+      { id: "respond", label: "Response runner", zone: "internal", eyebrow: "Bounded action", responsibility: "Runs one order for every detection: plan, exclusion tag, snapshot, circuit breaker, dry-run gate, apply, audit close, alert.", data: "Before-state snapshots and outcomes in DynamoDB", exposure: "One least-privilege execution role per detection, with explicit denies on escalation primitives", failure: "Dry run and the circuit breaker stop the change - and the audit record still exists, because the snapshot is written first." },
+      { id: "supply", label: "ProvenancePipeline", zone: "trusted", eyebrow: "Artifact provenance", responsibility: "Builds, inventories, scans, signs keyless through Fulcio, and attests SLSA provenance into the public Rekor log.", data: "Image digests, SBOMs, signatures, attestations", exposure: "GitHub OIDC workflow identity - no long-lived signing key exists to steal", failure: "A CRITICAL vulnerability fails the build; the gate never soft-fails." },
+      { id: "cluster", label: "KateClusters", zone: "internal", eyebrow: "Admission and runtime", responsibility: "A kubeadm cluster hardened to CIS: Kyverno decides what may run, Falco and the audit log watch what does.", data: "Workloads, admission decisions, syscalls, API audit events", exposure: "Single-node lab cluster on a dedicated VM - no paid cloud", failure: "failurePolicy: Fail - if the policy engine is unreachable the image is rejected, not admitted." },
     ],
     flow: [
-      { title: "Governance defines the boundary", summary: "Organization policies and logging establish the control plane.", nodeIds: ["org"] },
-      { title: "Activity becomes a finding", summary: "Detection logic turns a relevant event into a structured signal.", nodeIds: ["org", "detect"] },
-      { title: "Response plans before mutation", summary: "The runner records evidence and checks safeguards before acting.", nodeIds: ["detect", "respond"] },
-      { title: "The pipeline proves artifact identity", summary: "Federated CI signs and attests the image.", nodeIds: ["supply"] },
-      { title: "The cluster decides what may run", summary: "Admission and runtime controls connect supply-chain trust to execution.", nodeIds: ["supply", "cluster"] },
+      { title: "Governance draws the boundary", summary: "Two OUs, five accounts, four SCPs, and an organization trail whose archive lives in a different account under Object Lock.", nodeIds: ["org"] },
+      { title: "Every API call lands in one audit log", summary: "The organization CloudTrail is the shared input: the response layer could not meaningfully exist before it did.", nodeIds: ["org", "detect"] },
+      { title: "A detection turns activity into a finding", summary: "The EventBridge pattern is deliberately coarse; the handler reads the resource back and decides whether it is actually dangerous.", nodeIds: ["detect"] },
+      { title: "Response snapshots before it touches anything", summary: "Prior state reaches the audit table first, so a failed remediation still leaves a complete record. Measured end to end at 5.97 seconds.", nodeIds: ["detect", "respond"] },
+      { title: "The pipeline binds an image to its build", summary: "SBOM, vulnerability gate, keyless signature, and a provenance attestation naming the source commit and the workflow that produced it.", nodeIds: ["supply"] },
+      { title: "The cluster refuses what it cannot verify", summary: "Kyverno matches signing identity and issuer, in Enforce, failing closed. The recorded rejection is the deliverable.", nodeIds: ["supply", "cluster"] },
     ],
     threats: [
-      { category: "Governance", title: "Member-account policy bypass", control: "Organization SCPs with explicit negative tests", residual: "Coverage depends on policy scope and service semantics.", nodeIds: ["org"] },
-      { category: "Response", title: "Automation causes broader damage", control: "Dry-run, exclusions, before-state, and circuit breaker", residual: "A flawed plan inside allowed bounds can still be wrong.", nodeIds: ["detect", "respond"] },
-      { category: "Supply chain", title: "Unsigned artifact reaches runtime", control: "Cosign identity verification and admission policy", residual: "Admission enforcement remains incomplete until all negative paths are captured.", nodeIds: ["supply", "cluster"] },
+      { category: "Governance", title: "An account administrator disables logging", control: "The protect-security-services SCP, split so destructive actions have no exemption at all while the actions deployment needs exempt only the deployment principals.", residual: "An SCP is the only thing that can deny an account administrator - but no CIS control can see one, so the benchmark score says nothing about it.", nodeIds: ["org"] },
+      { category: "Evidence", title: "Log tampering or deletion", control: "A separate log-archive account holding its own key, with the organization trail written into S3 Object Lock in COMPLIANCE mode - not deletable even by the account root.", residual: "Retention is time-bound; the objects become deletable again once it expires.", nodeIds: ["org"] },
+      { category: "Identity", title: "CI credential theft leads to account takeover", control: "GitHub OIDC everywhere, no static AWS access keys in any repository, role trust pinned to exact sub claims, apply gated behind a protected environment.", residual: "A compromised workflow file still runs as that workflow; branch protection and review are the control there.", nodeIds: ["org", "supply"] },
+      { category: "Response", title: "The automation becomes the incident", control: "Dry run is the default, the snapshot is written before mutation, one scoped role per detection, and a circuit breaker capped at five actions per five-minute window - dry runs counted.", residual: "A wrong plan inside allowed bounds is still wrong. Two of the three techniques were never detonated, so no latency is claimed for them.", nodeIds: ["detect", "respond"] },
+      { category: "Detection bypass", title: "A control decides from a field the attacker writes", control: "The loop guard compares the role name only. The session name segment of an assumed-role ARN is chosen freely by the caller and is now used for nothing.", residual: "Every predicate over event data needs the same question asked of it: who writes this string?", nodeIds: ["detect", "respond"] },
+      { category: "Supply chain", title: "A signed image that is not ours reaches the cluster", control: "Kyverno verifyImages matching both signing identity and issuer, in Enforce with failurePolicy: Fail, and images pinned by digest rather than tag.", residual: "SLSA Build L2, not L3: the provenance predicate is assembled by a step in the same job that builds the image. There is no Rekor monitoring.", nodeIds: ["supply", "cluster"] },
+      { category: "Runtime", title: "Container escape or a miner in a compromised workload", control: "Pod Security Admission restricted, no privileged pods or host mounts, default-deny egress in repo-owned namespaces, Falco watching syscalls through eBPF.", residual: "NetworkPolicy is namespaced, so a newly created namespace is open until it receives policy - and the mining-port rule cannot fire while egress is already blocked.", nodeIds: ["cluster"] },
     ],
     decisions: [
-      { title: "Evidence is a deliverable", summary: "A configured control is not automatically a verified control.", reason: "The platform exists to prove behavior, not count YAML files.", tradeoff: "Progress appears slower because untested work remains visibly incomplete.", revisit: "Never; only the evidence format should evolve.", nodeIds: ["org", "detect", "respond", "supply", "cluster"] },
-      { title: "Bounded remediation", summary: "Automation must know when not to act.", reason: "A security response can become an incident if scope and rate are uncontrolled.", tradeoff: "More state and tests are required around each action.", revisit: "As event volume and response ownership expand.", nodeIds: ["detect", "respond"] },
-      { title: "Federated CI identity", summary: "Remove long-lived credentials from delivery.", reason: "A pipeline should prove its workflow identity at runtime.", tradeoff: "Trust policy and workflow claims must stay synchronized.", revisit: "When moving to a different build identity or isolated builder.", nodeIds: ["supply"] },
+      { title: "Evidence is the deliverable", summary: "A configured control is not a verified control.", reason: "Applying a module proves the provider accepted it, nothing more. The entries worth reading are the ones recording a control failing or a claim being wrong.", tradeoff: "Progress looks slower, and an empty evidence directory has to stay empty until something is actually measured.", revisit: "Never - only the format should evolve.", nodeIds: ["org", "detect", "respond", "supply", "cluster"] },
+      { title: "SCPs attach to OUs, never the organization root", summary: "A bad policy must not be able to lock out the management account.", reason: "A guardrail that can strand its own author is an availability incident waiting for a typo.", tradeoff: "A new account is ungoverned until it is placed in an OU, so account creation and OU placement are one step.", revisit: "Only with a tested break-glass path that does not depend on the policy being edited.", nodeIds: ["org"] },
+      { title: "Coarse pattern, precise handler", summary: "The event router matches broadly; the handler reads the resource back.", reason: "An EventBridge pattern cannot evaluate a port range or parse a policy document, so trusting it to be exact builds a wrong remediation.", tradeoff: "More Lambda invocations that decide to do nothing.", revisit: "Only if invocation cost ever outweighs the safety it buys - it does not at this volume.", nodeIds: ["detect", "respond"] },
+      { title: "Deactivate credentials, never delete them", summary: "A leaked access key is set Inactive, and root escalates to a human.", reason: "Deleting a key destroys its last-used record, which is often the only evidence of what the attacker actually reached.", tradeoff: "The credential still exists and has to be cleaned up deliberately afterwards.", revisit: "Only if a retention system captures last-used data independently first.", nodeIds: ["respond"] },
+      { title: "Claim SLSA Build L2, not L3", summary: "Meet a level honestly instead of implying the next one.", reason: "L2 is met: hosted builder, provenance signed with the workflow's own OIDC identity, public Rekor entries, and a consumer-side check that pins identity and fails closed. L3 is not, and the gap is real.", tradeoff: "The lower number is what appears on the page, next to competitors' louder claims.", revisit: "When provenance generation moves to a context the build job cannot tamper with.", nodeIds: ["supply", "cluster"] },
+      { title: "Keep Security Hub in one account and say what was lost", summary: "The benchmark in all five accounts cost more than the ceiling allowed.", reason: "CIS v3.0.0 across five accounts projected USD 24.77/month against a USD 20 ceiling; the delegated security account alone projects USD 13.73.", tradeoff: "There is no longer a live per-account CIS score, and the page says so rather than showing a stale one.", revisit: "If the budget rises, or if per-account scoring becomes evidence for something a behavioural test cannot cover.", nodeIds: ["org"] },
     ],
     operations: [
-      { question: "What if event volume spikes?", behavior: "Circuit-breaker state can stop repeated mutation while preserving findings.", signal: "Action counts cross the configured window threshold.", response: "Investigate the event source and resume only after scope is understood.", nodeIds: ["detect", "respond"] },
-      { question: "What if runtime evidence is missing?", behavior: "The associated control remains planned or in progress.", signal: "Evidence inventory lacks the expected denial, alert, or recovery capture.", response: "Run the controlled scenario and record both positive and negative outcomes.", nodeIds: ["cluster"] },
+      { question: "What if the response automation loops on itself?", behavior: "A remediation's own API calls are CloudTrail events that match its own pattern. The runtime rejects its own remediation role, and the circuit breaker caps everything else at five actions per five-minute window.", signal: "BLOCKED records appear in the DynamoDB audit table with the breaker's reason attached.", response: "The breaker was tripped on purpose during verification: it held after five actions, wrote four BLOCKED records, and left four ports deliberately open rather than acting past its limit.", nodeIds: ["detect", "respond"] },
+      { question: "What if a guardrail blocks its own deployment?", behavior: "It did, twice. The service-protection SCP denied the very apply that manages the services it protects.", signal: "Terraform apply fails with AccessDenied naming the SCP, from a principal that holds administrator.", response: "ADR-014: the policy exempts its own deployment principals for the actions deployment needs, and keeps no exemption at all for destructive actions such as StopLogging or DeleteDetector.", nodeIds: ["org"] },
+      { question: "What if the runtime detector stops reporting?", behavior: "Silence from a detector looks identical to a quiet system, so a dead-man's switch in Grafana fires when Falco stops sending.", signal: "Measured at 24 minutes 36 seconds - not the 15 minutes originally estimated, and the document says the measured number.", response: "The cluster runs on a workstation VM, so the alert also fires on every shutdown. That is correct behaviour and is deliberately not tuned away.", nodeIds: ["cluster"] },
+      { question: "What if the admission webhook is unreachable?", behavior: "The Kyverno policy runs with failurePolicy: Fail, so an unavailable policy engine rejects images rather than admitting them.", signal: "Admission denial events on every new pod while the enforcement plane is down.", response: "Restore the policy plane before deploying. Failing open would turn one outage into an unsigned-image window.", nodeIds: ["supply", "cluster"] },
+      { question: "What if the guardrails lock everyone out?", behavior: "A documented break-glass role exists, and using it is itself an alertable event.", signal: "A CloudWatch alarm on assumption of the four exact recovery-role ARNs - observed firing, not assumed.", response: "Its SNS topic uses a dedicated customer-managed key, because the AWS-managed alternative accepts no key policy and this alert is precisely what an attacker would want to read or suppress.", nodeIds: ["org"] },
     ],
     evidence: [
-      { label: "AWS controls", title: "Landing-zone evidence set", detail: "SCP denial, organization logging, and retained audit artifacts.", href: "https://github.com/PontoPe/AwLZ/tree/main/docs/evidence", nodeIds: ["org"] },
-      { label: "Supply chain", title: "Signature and attestation proof", detail: "Positive verification plus an incorrect-identity negative control.", href: "https://github.com/PontoPe/ProvenancePipeline/blob/main/docs/evidence/supply-chain-verification.md", nodeIds: ["supply", "cluster"] },
-      { label: "Tested behavior", title: "Response test suite", detail: "Exercises dry-run, exclusions, failure handling, and event storms.", nodeIds: ["detect", "respond"] },
+      { label: "AwLZ · the negative result", title: "scp-verification.md", detail: "The control experiment where the answer was \"no effect\": all 35 CIS controls identical with and without the guardrails, plus the behavioural denials that do prove them, probed from inside a member account while holding administrator there.", href: "https://github.com/PontoPe/AwLZ/blob/main/docs/evidence/scp-verification.md", nodeIds: ["org"] },
+      { label: "AwLZ · delivery path", title: "logging and detection verification", detail: "A real object delivered under the organization prefix into the Object Lock archive, and five Config recorders reporting SUCCESS - which is what proves the cross-account, key-encrypted path actually works.", href: "https://github.com/PontoPe/AwLZ/tree/main/docs/evidence", nodeIds: ["org"] },
+      { label: "PontoAntiCrack · the detonation", title: "detonation-sg-open.md", detail: "A real attack technique executed with Stratus Red Team against a fully green test suite, and the two defects it exposed that 176 passing tests could not.", href: "https://github.com/PontoPe/PontoAntiCrack/blob/main/docs/evidence/detonation-sg-open.md", nodeIds: ["detect", "respond"] },
+      { label: "PontoAntiCrack · the measurement", title: "time-to-remediate.md", detail: "5.97 seconds from the attacker's API call to the rule being revoked, with the group's unrelated port 443 rule untouched; the dry run that changed nothing; and the circuit breaker tripped on purpose.", href: "https://github.com/PontoPe/PontoAntiCrack/blob/main/docs/evidence/time-to-remediate.md", nodeIds: ["detect", "respond"] },
+      { label: "PontoAntiCrack · the gate", title: "pattern-gate.md", detail: "All 17 fixtures replayed through aws events test-event-pattern - 17 agreements, zero disagreements - because \"our evaluator agrees with our evaluator\" is not a claim.", href: "https://github.com/PontoPe/PontoAntiCrack/blob/main/docs/evidence/pattern-gate.md", nodeIds: ["detect"] },
+      { label: "KateClusters · attacks", title: "attack-detection write-ups", detail: "Four simulations - escape attempt, cryptominer, service-account token abuse, killing Falco - each recording what was run, what fired, and the gap that remained, including the rule that cannot fire behind blocked egress.", href: "https://github.com/PontoPe/KateClusters/tree/main/docs/attack-detection", nodeIds: ["cluster"] },
+      { label: "KateClusters · hardening", title: "cis-results.md", detail: "PASS 67 to 86, FAIL 12 to 0, WARN 47 to 40, generated from two committed kube-bench runs with each remediation linked to the manifest that fixed it.", href: "https://github.com/PontoPe/KateClusters/blob/main/docs/cis-results.md", nodeIds: ["cluster"] },
+      { label: "ProvenancePipeline · the rejection", title: "admission-enforcement.md", detail: "Four images, one policy: ours by digest admitted; an unsigned image denied; a genuinely Sigstore-signed image with a real public Rekor entry denied for the wrong identity; ours by tag denied.", href: "https://github.com/PontoPe/ProvenancePipeline/blob/main/docs/evidence/admission-enforcement.md", nodeIds: ["supply", "cluster"] },
     ],
-    results: ["Four security layers share one trust narrative", "Automated response is constrained by explicit safety mechanisms", "Incomplete controls remain visibly separated from verified evidence"],
+    results: [
+      "Four layers applied to real infrastructure, each with evidence a stranger can read without running anything",
+      "5.97 seconds from a real attack technique to the offending security-group rule being revoked",
+      "CIS PASS 67 to 86 and FAIL 12 to 0 on a kubeadm cluster, every remediation linked to the manifest that fixed it",
+      "A cluster that refuses a genuinely signed image because the signature is not ours",
+      "Three advertised claims corrected in public instead of quietly dropped",
+      "One item deliberately open - AWS cost actuals, pending a closed billing window",
+    ],
     retrospective: {
-      worked: ["Evidence status prevents overclaiming.", "Shared trust boundaries connect otherwise separate projects."],
-      next: ["Complete Kubernetes negative controls", "Capture runtime interruption evidence", "Expand recovery testing"],
-      demonstrates: ["Cloud security engineering", "Detection and response design", "Software supply-chain security"],
+      worked: [
+        "Detonating a control found defects that 176 passing tests could not.",
+        "Stating the order of the response pipeline once, in one place, stopped handlers from ever getting it wrong.",
+        "Writing each limit in the strong form is what makes the remaining numbers believable.",
+      ],
+      next: [
+        "Detonate s3-public and iam-key-leak and measure their latency",
+        "Cluster-wide default-deny with a Calico GlobalNetworkPolicy",
+        "Move provenance generation to an isolated context for SLSA L3",
+        "Read the first closed AWS billing window on 2026-08-02",
+      ],
+      demonstrates: [
+        "Cloud security engineering on live AWS, not a sandbox",
+        "Detection and response written as tested code",
+        "Kubernetes hardening with runtime detection that was attacked on purpose",
+        "Supply-chain provenance enforced at admission",
+      ],
     },
+    layers: [
+      {
+        id: "org",
+        name: "AwLZ",
+        accent: "#72ddff",
+        boundary: "Cloud governance",
+        question: "Can an account do something nobody watches?",
+        summary:
+          "A multi-account AWS landing zone written as Terraform. Most \"AWS security\" portfolios harden a single account; real organizations fail at the boundary - an account nobody governs, a region nobody watches, an access key in a CI runner. This builds the boundary itself as reproducible code, and root credentials are deleted from every member account.",
+        stats: [
+          { value: "6", label: "Terraform stacks, 10 modules" },
+          { value: "5", label: "accounts in two OUs" },
+          { value: "4", label: "service control policies" },
+          { value: "477", label: "checkov checks passed, 0 failed" },
+        ],
+        controls: [
+          "Organizations, two OUs, five accounts, centralized root access",
+          "Four SCPs, each probed from inside a member account while holding administrator there",
+          "Organization CloudTrail with a customer-managed key and an Object Lock COMPLIANCE archive in a separate account",
+          "GuardDuty, Security Hub, Config and Access Analyzer delegated to the security account",
+          "GitHub OIDC: a read-only plan role, an apply role behind a protected environment, and no static keys anywhere",
+        ],
+        proof:
+          "All six stacks applied to a live five-account organization. A denied API call in a forbidden region and a denied StopLogging, captured from an account administrator - the only privilege level at which an SCP test proves anything. Five Config recorders reporting SUCCESS is what proves the cross-account delivery path works end to end.",
+        limit:
+          "Cost actuals remain open. Cost Explorer still returns Estimated: true for every day this organization has existed, so the earliest defensible query is 2026-08-02. Inventing the number would have been the cheapest possible way to discredit everything else here.",
+        href: "https://github.com/PontoPe/AwLZ",
+        nodeIds: ["org"],
+      },
+      {
+        id: "detect",
+        name: "PontoAntiCrack",
+        accent: "#ffb45f",
+        boundary: "Detection and response",
+        question: "When something is found, what happens automatically?",
+        summary:
+          "Detection-as-code with automated remediation, named after the anti-cheat: the game keeps running, the cheater gets caught and kicked. Anyone can enable GuardDuty. The difference is that the detection is code, has tests, and was proven by attacking the account it protects.",
+        stats: [
+          { value: "185", label: "automated tests" },
+          { value: "3", label: "detections, each a full unit" },
+          { value: "5.97s", label: "measured time to remediate" },
+          { value: "17 / 17", label: "fixtures agreeing with real EventBridge" },
+        ],
+        controls: [
+          "One runtime, one order: plan, exclusion tag, snapshot, circuit breaker, dry-run gate, apply, audit close, alert",
+          "Handlers implement plan() and apply() and nothing else, so they cannot get the order wrong",
+          "Dry run is the default and opting out is explicit",
+          "Circuit breaker in DynamoDB: five actions per five-minute window, dry runs counted",
+          "Leaked keys are deactivated and never deleted; root and temporary credentials escalate to a human",
+        ],
+        proof:
+          "sg-open detonated with Stratus Red Team: 5.97 seconds from the attacker's API call to the rule being revoked, with the group's unrelated port 443 rule left untouched. Every fixture replayed through aws events test-event-pattern with zero disagreements, and 15 of 17 fixtures captured from real events rather than written from documentation.",
+        limit:
+          "Two of the three techniques were never detonated, so no latency is claimed for them. The GuardDuty fixtures are service-generated samples: real type, severity and shape, but no actual compromise produced them. Slack delivery is unproven because no webhook exists - the audit table, not the chat message, is the system of record.",
+        href: "https://github.com/PontoPe/PontoAntiCrack",
+        nodeIds: ["detect", "respond"],
+      },
+      {
+        id: "cluster",
+        name: "KateClusters",
+        accent: "#86f2b2",
+        boundary: "Kubernetes runtime",
+        question: "If something breaks in, does anyone find out?",
+        summary:
+          "A kubeadm cluster on a dedicated Debian 13 VM, hardened to the CIS benchmark, with Falco watching syscalls through eBPF and the API server writing an audit log - both shipped into Loki and alerted on in Grafana. A hardened cluster with no detection is a claim; detection with no attack simulation is an unverified claim.",
+        stats: [
+          { value: "67 → 86", label: "CIS PASS" },
+          { value: "12 → 0", label: "CIS FAIL" },
+          { value: "4", label: "attack simulations with raw output" },
+          { value: "5 / 5", label: "CI jobs green on main" },
+        ],
+        controls: [
+          "Pod Security Admission restricted, least-privilege RBAC, no cluster-admin service accounts",
+          "Calico NetworkPolicy default-deny per namespace, secrets encrypted with SOPS and age",
+          "Falco with the modern eBPF driver plus custom rules, shipped by promtail into Loki",
+          "Grafana dashboards, alert rules, and a dead-man's switch that fires when Falco stops reporting",
+        ],
+        proof:
+          "The CIS delta is generated from two committed kube-bench runs, each remediation linked to the manifest that fixed it. Four attack write-ups - escape attempt, cryptominer, service-account token abuse, and killing Falco itself - record what was run, what the control did, what fired, and the gap that remained, with raw captured output committed alongside.",
+        limit:
+          "One node: hardening and detection, not high availability or multi-tenant isolation. Default-deny covers the five namespaces this repository owns; a newly created namespace is open until it receives policy. One Falco rule cannot fire while egress is already blocked, so prevention and detection are not independent there.",
+        href: "https://github.com/PontoPe/KateClusters",
+        nodeIds: ["cluster"],
+      },
+      {
+        id: "supply",
+        name: "ProvenancePipeline",
+        accent: "#a98cff",
+        boundary: "Software supply chain",
+        question: "Do I know where this container came from?",
+        summary:
+          "Build, SBOM, vulnerability scan, keyless signature, SLSA provenance attestation, and admission control that refuses anything unsigned. The deliverable is the rejection, not the pipeline - anyone can show a green CI run, so the artifact is the recorded moment a cluster refuses an image.",
+        stats: [
+          { value: "4", label: "admission cases, one policy" },
+          { value: "L2", label: "SLSA Build level, honestly" },
+          { value: "0", label: "long-lived signing keys" },
+          { value: "2", label: "SBOM formats per image" },
+        ],
+        controls: [
+          "syft SBOMs in SPDX and CycloneDX; grype and trivy failing at CRITICAL with no soft-fail",
+          "cosign keyless signing through Fulcio, with every entry recorded in the public Rekor transparency log",
+          "cosign attest for SLSA provenance and the SBOM, bound to the workflow identity that built the image",
+          "Kyverno verifyImages in Enforce with failurePolicy: Fail, matching signing identity and issuer",
+        ],
+        proof:
+          "Four images against one policy: ours by digest, signed by the release workflow, is admitted. An ordinary unsigned image is denied. A genuinely Sigstore-signed image with a genuinely public Rekor entry is denied, because the identity is not ours - a policy that only asked \"is this signed\" would have admitted it. Ours by tag instead of digest is denied.",
+        limit:
+          "SLSA Build L2, not L3, and the gap is real: the provenance predicate is assembled by a step in the same job that builds the image, so anything compromising that job could write its own provenance and have it signed. There is no automated Rekor monitoring, and enforcement currently depends on the repository staying public.",
+        href: "https://github.com/PontoPe/ProvenancePipeline",
+        nodeIds: ["supply", "cluster"],
+      },
+    ],
+    findings: [
+      {
+        layer: "AwLZ",
+        title: "The headline evidence came back negative",
+        looked:
+          "The README promised a CIS benchmark score before and after the guardrails - the obvious way to show that service control policies improve an account.",
+        actual:
+          "No before existed, so the honest replacement was a control experiment on the throwaway account: measure it with its SCPs, detach them from that account only, measure again, reattach. All 35 controls came back identical in both states. No CIS v3.0.0 control reads a service control policy at all.",
+        lesson:
+          "A benchmark score describes resource configuration; it cannot describe a preventive guardrail. What does show the SCPs working is behavioural - a denied call in a forbidden region, allowed during the experiment window, denied again afterwards. Both probes name resources that do not exist, so nothing was created or destroyed to produce the evidence.",
+        nodeIds: ["org"],
+      },
+      {
+        layer: "PontoAntiCrack",
+        title: "A loop guard the attacker gets to choose",
+        looked:
+          "174 tests green, a coverage gate rejecting any pattern without a negative assertion, every fixture replayed through EventBridge itself, and 14 of 15 fixtures captured from real CloudTrail.",
+        actual:
+          "The runtime dropped events whose principal ARN contained pac-, so a remediation could not re-trigger its own detection. But an assumed-role ARN ends in a session name the caller sets freely on every AssumeRole. Stratus happened to run under a session called pac-terraform, so the detection classified a live attack as its own automation and wrote a confident SKIPPED.",
+        lesson:
+          "A security decision made from a field the adversary sets is not a control. Ask it of any predicate: who writes this string? The guard now compares the role-name segment only, and the session name is used for nothing.",
+        nodeIds: ["detect", "respond"],
+      },
+      {
+        layer: "PontoAntiCrack",
+        title: "A pattern that knew one of two encodings",
+        looked:
+          "176 tests passing, after the first defect was already found and fixed.",
+        actual:
+          "AuthorizeSecurityGroupIngress is recorded two ways. The AWS CLI produces nested ipPermissions; a caller using the legacy top-level parameters produces an empty ipPermissions with cidrIp directly on requestParameters. Every fixture had been produced by the CLI, so the pattern had only ever seen one shape. Port 22 was opened to the internet and the rule did not match.",
+        lesson:
+          "Fixtures inherit the bias of whatever produced them - two tools calling the same API are two sources of truth. What kept it from being worse: the handler reads the resource back instead of trusting the event, so a missed encoding was a missed detection rather than a wrong remediation.",
+        nodeIds: ["detect"],
+      },
+      {
+        layer: "KateClusters",
+        title: "The posture claim was broader than the mechanism",
+        looked:
+          "The repository described default-deny networking, and the manifests genuinely implement it.",
+        actual:
+          "Kubernetes NetworkPolicy is namespaced. The five namespaces this repository owns were covered; a newly created namespace was fully open. Separately, one Falco rule cannot fire while egress is already blocked, because it needs an established socket.",
+        lesson:
+          "The documents now say exactly that, and cluster-wide default-deny is recorded as the closing condition rather than implied as done. Prevention and detection are not independent there, and pretending otherwise would have double-counted a control.",
+        nodeIds: ["cluster"],
+      },
+      {
+        layer: "ProvenancePipeline",
+        title: "The assumption was exactly backwards",
+        looked:
+          "ADR-005 stated that the cosign attestation is the copy the cluster enforces, and GitHub's is the one it cannot see.",
+        actual:
+          "On GHCR it is precisely the reverse. Only building the cluster half of the system revealed it - nothing in the pipeline half could have.",
+        lesson:
+          "The correction is recorded in place as ADR-009, with the original left visible and a warning at the top of the handoff naming the paragraph to distrust in any stale copy. A superseded decision is more useful than a rewritten one.",
+        nodeIds: ["supply", "cluster"],
+      },
+    ],
     previousSlug: "pontosv",
     nextSlug: "ficha-clinica",
   },

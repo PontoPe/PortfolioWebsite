@@ -16,6 +16,7 @@ import {
   FileText,
   Gamepad2,
   Globe2,
+  Layers3,
   LockKeyhole,
   Maximize2,
   Minimize2,
@@ -31,6 +32,7 @@ import {
 } from "lucide-react";
 import type {
   ProjectCaseStudyProfile,
+  ProjectLayer,
   ProjectNode,
   ProjectSource,
   ProjectThreat,
@@ -41,6 +43,7 @@ import styles from "./ProjectCaseStudyExperience.module.css";
 type ToolId =
   | "experience"
   | "system"
+  | "layers"
   | "flow"
   | "threats"
   | "operations"
@@ -49,6 +52,8 @@ type ToolId =
 type SectionId =
   | "architecture"
   | "overview"
+  | "layers"
+  | "findings"
   | "security"
   | "decisions"
   | "operations"
@@ -76,6 +81,8 @@ const nodeIcons = {
 const sectionLabels: Record<SectionId, string> = {
   architecture: "Architecture",
   overview: "Context",
+  layers: "Layers",
+  findings: "Findings",
   security: "Security",
   decisions: "Decisions",
   operations: "Operations",
@@ -86,6 +93,12 @@ const sectionLabels: Record<SectionId, string> = {
 
 function joinClasses(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");
+}
+
+/** Each layer paints itself; the project accent stays the fallback. */
+function layerAccentStyle(layer: ProjectLayer | undefined): CSSProperties | undefined {
+  if (!layer?.accent) return undefined;
+  return { "--layer-accent": layer.accent } as CSSProperties;
 }
 
 function ProjectTopology({
@@ -227,6 +240,9 @@ export default function ProjectCaseStudyExperience({
       ? [{ id: "experience" as ToolId, label: "Product demo", short: "Demo", icon: Gamepad2 }]
       : []),
     { id: "system", label: "System", short: "Map", icon: Network },
+    ...(profile.layers?.length
+      ? [{ id: "layers" as ToolId, label: "Layers", short: "Layers", icon: Layers3 }]
+      : []),
     { id: "flow", label: "Flow", short: "Flow", icon: ArrowRight },
     { id: "threats", label: "Threats", short: "Risk", icon: ShieldCheck },
     { id: "operations", label: "Operations", short: "Ops", icon: RotateCcw },
@@ -250,6 +266,7 @@ export default function ProjectCaseStudyExperience({
   const [flowIndex, setFlowIndex] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [threatIndex, setThreatIndex] = useState(0);
+  const [layerIndex, setLayerIndex] = useState(0);
   const [operationIndex, setOperationIndex] = useState(0);
   const [expanded, setExpanded] = useState(false);
   const [copyStatus, setCopyStatus] = useState("");
@@ -267,15 +284,18 @@ export default function ProjectCaseStudyExperience({
   const currentFlow = profile.flow[flowIndex] ?? profile.flow[0];
   const currentThreat = profile.threats[threatIndex] ?? profile.threats[0];
   const currentOperation = profile.operations[operationIndex] ?? profile.operations[0];
+  const currentLayer = profile.layers?.[layerIndex] ?? profile.layers?.[0];
 
   const highlightedNodeIds = useMemo(() => {
     if (activeTool === "flow") return [...(currentFlow?.nodeIds ?? [])];
     if (activeTool === "threats") return [...(currentThreat?.nodeIds ?? [])];
     if (activeTool === "operations") return [...(currentOperation?.nodeIds ?? [])];
+    if (activeTool === "layers") return [...(currentLayer?.nodeIds ?? [])];
     return selectedNodeId ? [selectedNodeId] : [];
   }, [
     activeTool,
     currentFlow?.nodeIds,
+    currentLayer?.nodeIds,
     currentOperation?.nodeIds,
     currentThreat?.nodeIds,
     selectedNodeId,
@@ -428,6 +448,17 @@ export default function ProjectCaseStudyExperience({
   const openThreatInViewer = (threat: ProjectThreat, index: number) => {
     inspectThreat(threat, index);
     openViewer("threats");
+  };
+
+  const selectLayer = (layer: ProjectLayer, index: number) => {
+    setLayerIndex(index);
+    setActiveTool("layers");
+    setAnnouncement(`${layer.name} selected. ${layer.question}`);
+  };
+
+  const openLayerInViewer = (layer: ProjectLayer, index: number) => {
+    selectLayer(layer, index);
+    openViewer("layers");
   };
 
   const openOperationInViewer = (index: number) => {
@@ -599,6 +630,58 @@ export default function ProjectCaseStudyExperience({
       );
     }
 
+    if (activeTool === "layers" && profile.layers && currentLayer) {
+      return (
+        <div className={styles.layersTool}>
+          <div className={styles.toolHeading}>
+            <div><span>Layer inspector</span><h2>{currentLayer.question}</h2></div>
+          </div>
+          <ProjectTopology
+            compact
+            nodes={profile.nodes}
+            selectedNodeId={null}
+            highlightedNodeIds={currentLayer.nodeIds}
+            onSelectNode={selectNode}
+          />
+          <div className={styles.layerSplit} style={layerAccentStyle(currentLayer)}>
+            <div className={styles.layerTabs} role="tablist" aria-label="Program layers">
+              {profile.layers.map((layer, index) => (
+                <button
+                  type="button"
+                  role="tab"
+                  key={layer.name}
+                  aria-selected={index === layerIndex}
+                  style={layerAccentStyle(layer)}
+                  onClick={() => selectLayer(layer, index)}
+                >
+                  <span>{layer.boundary}</span>
+                  <strong>{layer.name}</strong>
+                  <ChevronRight aria-hidden="true" />
+                </button>
+              ))}
+            </div>
+            <div className={styles.layerDetail} role="tabpanel">
+              <p>{currentLayer.summary}</p>
+              <div className={styles.layerStats}>
+                {currentLayer.stats.map((stat) => (
+                  <div key={stat.label}><strong>{stat.value}</strong><span>{stat.label}</span></div>
+                ))}
+              </div>
+              <dl>
+                <div><dt>Proved by</dt><dd>{currentLayer.proof}</dd></div>
+                <div><dt>Stated limit</dt><dd>{currentLayer.limit}</dd></div>
+              </dl>
+              {currentLayer.href && (
+                <a href={currentLayer.href} target="_blank" rel="noopener noreferrer">
+                  Open {currentLayer.name} on GitHub <ExternalLink aria-hidden="true" />
+                </a>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     if (activeTool === "operations") {
       return (
         <div className={styles.operationsTool}>
@@ -686,6 +769,81 @@ export default function ProjectCaseStudyExperience({
               <span>Constraints that shaped the design</span>
               <ul>{profile.constraints.map((constraint) => <li key={constraint}><Check aria-hidden="true" />{constraint}</li>)}</ul>
             </aside>
+          </div>
+        </section>
+      );
+    }
+
+    if (section === "layers") {
+      if (!profile.layers?.length) return null;
+      return (
+        <section id="layers" className={styles.contentSection} key={section}>
+          <div className={styles.sectionHeading}>
+            <span>{number} / Layers</span>
+            <h2>Four repositories, one claim each</h2>
+            <p>Every layer states what it proved, how, and where it stops.</p>
+          </div>
+          <div className={styles.layerGrid}>
+            {profile.layers.map((layer, layerPosition) => (
+              <article key={layer.name} style={layerAccentStyle(layer)}>
+                <header>
+                  <span>{layer.boundary}</span>
+                  <h3>{layer.name}</h3>
+                  <p className={styles.layerQuestion}>{layer.question}</p>
+                </header>
+                <p className={styles.layerSummary}>{layer.summary}</p>
+                <div className={styles.layerStats}>
+                  {layer.stats.map((stat) => (
+                    <div key={stat.label}><strong>{stat.value}</strong><span>{stat.label}</span></div>
+                  ))}
+                </div>
+                <ul>
+                  {layer.controls.map((control) => (
+                    <li key={control}><Check aria-hidden="true" />{control}</li>
+                  ))}
+                </ul>
+                <dl>
+                  <div><dt>Proved by</dt><dd>{layer.proof}</dd></div>
+                  <div className={styles.layerLimit}><dt>Stated limit</dt><dd>{layer.limit}</dd></div>
+                </dl>
+                <div className={styles.layerActions}>
+                  <button type="button" onClick={() => openLayerInViewer(layer, layerPosition)}>
+                    Locate in system <ArrowRight aria-hidden="true" />
+                  </button>
+                  {layer.href && (
+                    <a href={layer.href} target="_blank" rel="noopener noreferrer">
+                      Source <ExternalLink aria-hidden="true" />
+                    </a>
+                  )}
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      );
+    }
+
+    if (section === "findings") {
+      if (!profile.findings?.length) return null;
+      return (
+        <section id="findings" className={styles.contentSection} key={section}>
+          <div className={styles.sectionHeading}>
+            <span>{number} / Findings</span>
+            <h2>What proving each layer actually found</h2>
+            <p>Every one of these was invisible to a green test suite.</p>
+          </div>
+          <div className={styles.findingGrid}>
+            {profile.findings.map((finding) => (
+              <article key={finding.title}>
+                <span>{finding.layer}</span>
+                <h3>{finding.title}</h3>
+                <dl>
+                  <div><dt>What it looked like</dt><dd>{finding.looked}</dd></div>
+                  <div><dt>What was actually true</dt><dd>{finding.actual}</dd></div>
+                  <div className={styles.findingLesson}><dt>What it generalizes to</dt><dd>{finding.lesson}</dd></div>
+                </dl>
+              </article>
+            ))}
           </div>
         </section>
       );

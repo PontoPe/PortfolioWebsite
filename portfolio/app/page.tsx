@@ -1022,7 +1022,7 @@ export default function Home() {
                           <ProjectCard title="pontosv" slug="pontosv" status="Online" subtitle="Hardened bare-metal Debian server I run solo - zero-open-port ingress for the BRASILCON journal">
                             <Image src="/projects/pontosv.png" alt="pontosv Home Server" fill className="object-cover" />
                           </ProjectCard>
-                            <ProjectCard title="TrustStack" slug="truststack" status="In Development" subtitle="Evidence-driven cloud security platform: AWS governance, Kubernetes runtime defense, and signed-image enforcement verified; AWS response is in live validation">
+                            <ProjectCard title="TrustStack" slug="truststack" status="Applied" subtitle="Four repositories, one claim per layer of trust: AWS landing zone, automated response detonated at 5.97s, hardened Kubernetes, and a cluster that refuses unsigned images">
                                 <Image src="/projects/truststack.svg" alt="TrustStack cloud security architecture" fill className="object-cover" />
                             </ProjectCard>
                           <ProjectCard title="ZombiesWeb" slug="zombiesweb" status="Live" subtitle="Interactive CoD Zombies lore timeline and map guides">
@@ -1070,8 +1070,8 @@ export default function Home() {
                             </div>
                             <div className="space-y-0 border-t border-white/5">
                                 {[
-                                    { year: "2026 - present", role: "Infrastructure Engineer (Volunteer)", company: "BRASILCON" },
-                                    { year: "2025 - 2026", role: "Automation Engineer", company: "Way-V" },
+                                    { year: "2026 - present", role: "Infrastructure Engineer", company: "BRASILCON" },
+                                    { year: "2025 - 2026", role: "Junior Backend Engineer", company: "Way-V" },
                                     { year: "2024", role: "Conversational AI Developer", company: "DeGOES Optimize" },
                                     { year: "2023", role: "Backend Automation Engineer", company: "Fintech Client (NDA)" }
                                 ].map((job) => (
