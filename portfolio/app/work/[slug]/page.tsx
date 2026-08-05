@@ -12,7 +12,7 @@ const projectsData: Record<string, ProjectSource> = {
     category: "Secure Self-Hosted Infrastructure / Academic Publishing",
     date: "2026 - present",
     description: `
-      Volunteer migration of the editorial management system of the Revista de Direito do Consumidor - the journal of BRASILCON, the Brazilian Institute of Consumer Policy and Law - to a self-hosted Open Journal Systems (OJS) platform, now live at revistabrasilcon.com. I architected it, run it in production solo, and BRASILCON formally recognized the work in an official letter (Ofício nº 13/2026) signed by its President, the journal's Director-General, and its Secretary-General.
+      Volunteer build of the editorial management platform for the Revista de Direito do Consumidor - the journal of BRASILCON, the Brazilian Institute of Consumer Policy and Law. There was no system to migrate: the journal had no digital editorial platform, so I built one from scratch on my own server - a self-hosted Open Journal Systems (OJS) stack, now live at revistabrasilcon.com. I architected it, run it in production solo, and BRASILCON formally recognized the work in an official letter (Ofício nº 13/2026) signed by its President, the journal's Director-General, and its Secretary-General.
 
       ZERO-OPEN-PORT INGRESS - The core security decision: the journal is published to the internet without a single inbound port. Ingress is an outbound-only Cloudflare Tunnel - the cloudflared container dials out to Cloudflare's edge, and all public traffic rides back down that authenticated connection. No port-forwards, no exposed origin IP, no direct attack surface on a residential network. TLS terminates at Cloudflare's edge, which also provides DDoS absorption and traffic filtering for free.
 

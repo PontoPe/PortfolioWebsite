@@ -738,6 +738,7 @@ export default function Home() {
   const [bsodPhase, setBsodPhase] = useState<'idle' | 'bsod' | 'glitch' | 'black' | 'reboot' | 'done'>('idle');
   const konamiRef = useRef(0);
   const bsodActiveRef = useRef(false);
+  const matrixModeRef = useRef(false);
   const [enteringMatrix, setEnteringMatrix] = useState(true);
 
   const lines = Array.from({ length: 315 }, (_, i) => i + 1);
@@ -767,23 +768,21 @@ export default function Home() {
 
     // Konami Code: ↑ ↑ ↓ ↓ ← → ← → B A
     const KONAMI = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
-    const savedMatrix = localStorage.getItem('matrixMode') === 'true';
-    if (savedMatrix) setTimeout(() => setMatrixMode(true), 0);
+    // Matrix mode is session-only on purpose: every visit starts on the default
+    // theme, so the Konami reveal always lands fresh. Nothing is persisted.
+    localStorage.removeItem('matrixMode');
 
     const triggerBSOD = () => {
       if (bsodActiveRef.current) return;
       bsodActiveRef.current = true;
-      setEnteringMatrix(localStorage.getItem('matrixMode') !== 'true');
+      setEnteringMatrix(!matrixModeRef.current);
       setBsodPhase('bsod');
       setTimeout(() => setBsodPhase('glitch'), 1500);
       setTimeout(() => setBsodPhase('black'), 2500);
       setTimeout(() => {
         setBsodPhase('reboot');
-        setMatrixMode(prev => {
-          const next = !prev;
-          localStorage.setItem('matrixMode', String(next));
-          return next;
-        });
+        matrixModeRef.current = !matrixModeRef.current;
+        setMatrixMode(matrixModeRef.current);
       }, 3500);
       setTimeout(() => setBsodPhase('done'), 5000);
       setTimeout(() => { setBsodPhase('idle'); bsodActiveRef.current = false; }, 6000);
@@ -1282,7 +1281,7 @@ export default function Home() {
 
       </main>
 
-      <aside className="w-60 hidden xl:flex flex-col p-10 h-full border-l border-white/5 bg-[#181818] pt-32 z-20">
+      <aside className="w-60 hidden xl:flex flex-col p-10 h-full border-l border-white/5 bg-[#181818] pt-32 z-20 overflow-y-auto custom-scrollbar">
         <h3 className="text-white font-mono font-bold mb-10 uppercase tracking-widest">Index</h3>
         <nav className="flex flex-col gap-6 text-xs font-mono font-bold tracking-wider">
             <IndexLink id="hero" label="PontoPe" activeSection={activeSection} onClick={setActiveSection} />

@@ -8,7 +8,7 @@ description: "How Revista BRASILCON runs on hardware I own, serves readers world
 
 ## The project
 
-In early 2026 I volunteered to migrate the editorial management of the **Revista de Direito do Consumidor** to a self-hosted **Open Journal Systems (OJS)** platform. The result is live at [revistabrasilcon.com](https://revistabrasilcon.com/): article submission, double-blind peer review, editorial rounds, and publication - the full academic workflow for a national legal institute. BRASILCON formally recognized the work in an official letter (Ofício nº 13/2026) signed by its President, the journal's Director-General, and its Secretary-General.
+In early 2026 I volunteered to build the editorial management platform for the **Revista de Direito do Consumidor**. Nothing was migrated - the journal had no digital editorial system, so I stood one up from scratch on my own server: a self-hosted **Open Journal Systems (OJS)** stack. The result is live at [revistabrasilcon.com](https://revistabrasilcon.com/): article submission, double-blind peer review, editorial rounds, and publication - the full academic workflow for a national legal institute. BRASILCON formally recognized the work in an official letter (Ofício nº 13/2026) signed by its President, the journal's Director-General, and its Secretary-General.
 
 The interesting part, though, is *where* it runs: on a Debian server I built and administer myself, sitting on a residential internet connection. That constraint forced the best security decision in the whole project.
 

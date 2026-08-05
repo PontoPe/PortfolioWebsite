@@ -305,7 +305,7 @@ export const projectCaseStudyProfiles: Record<string, ProjectCaseStudyProfile> =
       { value: "Live", label: "national publishing platform" },
     ],
     problem: [
-      "BRASILCON needed a dependable digital workflow for submission, review, editorial rounds, and publication without taking on a conventional hosted-infrastructure budget.",
+      "BRASILCON had no digital editorial platform at all: submission, review, editorial rounds, and publication had to be built from zero, without taking on a conventional hosted-infrastructure budget.",
       "The security challenge was unusually concrete: serve a public institution from residential infrastructure while keeping the origin and application ports out of the normal inbound attack path.",
     ],
     constraints: ["Residential connection", "Minimal operating budget", "Sensitive editorial workflow", "Solo operation", "Unattended reboot recovery"],

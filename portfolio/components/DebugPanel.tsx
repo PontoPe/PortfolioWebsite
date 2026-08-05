@@ -5,12 +5,27 @@ import { ChevronDown, Activity } from "lucide-react";
 
 type Primitive = string | number | boolean | null | undefined;
 
+/**
+ * Most important first. Short sidebars drop rows off the tail of this list, so
+ * whatever stays visible is always the most useful readout for the space.
+ */
+const PRIORITY = ["pointer", "scroll", "clicks", "section", "viewport", "uptime", "theme", "fps"] as const;
+
+const ROW_HEIGHT = 20; // text-[10px] + leading-5
+const CONTENT_PADDING = 20; // py-2.5 on the rows container
+const BREATHING_ROOM = 8;
+
 const format = (value: Primitive): string => {
   if (value === null) return "null";
   if (value === undefined) return "undefined";
   if (typeof value === "boolean") return value ? "true" : "false";
   if (typeof value === "number") return Number.isInteger(value) ? String(value) : value.toFixed(2);
   return value;
+};
+
+const rank = (key: string) => {
+  const index = (PRIORITY as readonly string[]).indexOf(key);
+  return index === -1 ? PRIORITY.length : index; // unknown props sort to the tail
 };
 
 const Row = ({ label, children }: { label: string; children: React.ReactNode }) => (
@@ -21,10 +36,13 @@ const Row = ({ label, children }: { label: string; children: React.ReactNode }) 
 );
 
 /**
- * Live telemetry readout for the index sidebar. Built-in metrics (pointer, scroll, fps,
- * viewport, uptime) are sampled inside one rAF loop and written straight to the
- * DOM - they never re-render React. Anything passed via `...props` is plain
+ * Live telemetry readout for the index sidebar. Built-in metrics (pointer, scroll,
+ * clicks, fps, viewport, uptime) are sampled inside one rAF loop and written straight
+ * to the DOM - they never re-render React. Anything passed via `...props` is plain
  * React state and renders normally.
+ *
+ * The row count adapts to the height left over in the sidebar, so the panel never
+ * spills past the bottom on short screens.
  */
 export default function DebugPanel({
   className = "",
@@ -35,20 +53,30 @@ export default function DebugPanel({
   scrollSelector?: string;
 } & Record<string, Primitive>) {
   const [open, setOpen] = useState(true);
+  const [maxRows, setMaxRows] = useState<number>(PRIORITY.length);
 
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLButtonElement>(null);
   const mouseRef = useRef<HTMLSpanElement>(null);
   const scrollRef = useRef<HTMLSpanElement>(null);
+  const clicksRef = useRef<HTMLSpanElement>(null);
   const fpsRef = useRef<HTMLSpanElement>(null);
   const viewportRef = useRef<HTMLSpanElement>(null);
   const uptimeRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     const pointer = { x: 0, y: 0 };
+    let clicks = 0;
+
     const onMove = (e: PointerEvent) => {
       pointer.x = e.clientX;
       pointer.y = e.clientY;
     };
+    const onClick = () => {
+      clicks += 1;
+    };
     window.addEventListener("pointermove", onMove, { passive: true });
+    window.addEventListener("click", onClick, { passive: true });
 
     const mounted = performance.now();
     let frames = 0;
@@ -57,7 +85,8 @@ export default function DebugPanel({
     let raf = 0;
 
     // textContent is only touched when the rendered string actually changes,
-    // so an idle panel costs nothing beyond the rAF tick itself.
+    // so an idle panel costs nothing beyond the rAF tick itself. Rows trimmed
+    // for height have no ref attached, and write() simply skips them.
     const write = (ref: React.RefObject<HTMLSpanElement | null>, next: string) => {
       if (ref.current && ref.current.textContent !== next) ref.current.textContent = next;
     };
@@ -69,6 +98,7 @@ export default function DebugPanel({
 
       write(mouseRef, `${pointer.x}, ${pointer.y}`);
       write(scrollRef, `${progress}%`);
+      write(clicksRef, String(clicks));
       write(fpsRef, String(fps));
       write(viewportRef, `${window.innerWidth}x${window.innerHeight}`);
       write(uptimeRef, `${((now - mounted) / 1000).toFixed(1)}s`);
@@ -91,14 +121,67 @@ export default function DebugPanel({
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("click", onClick);
     };
   }, [scrollSelector]);
 
+  // Fit the row list to whatever vertical space the sidebar has left. Measured
+  // from the sibling above rather than from the panel itself, so growing or
+  // shrinking the panel can never feed back into its own measurement.
+  useEffect(() => {
+    const el = wrapRef.current;
+    const parent = el?.parentElement;
+    if (!el || !parent) return;
+
+    const measure = () => {
+      const style = getComputedStyle(parent);
+      const parentRect = parent.getBoundingClientRect();
+      const previous = el.previousElementSibling;
+
+      const bottomLimit = parentRect.bottom - parseFloat(style.paddingBottom || "0");
+      const topLimit = previous
+        ? previous.getBoundingClientRect().bottom
+        : parentRect.top + parseFloat(style.paddingTop || "0");
+
+      const header = headerRef.current?.offsetHeight ?? 30;
+      const available = bottomLimit - topLimit - header - CONTENT_PADDING - BREATHING_ROOM;
+
+      const fits = Math.floor(available / ROW_HEIGHT);
+      setMaxRows(Math.max(0, Math.min(PRIORITY.length, fits)));
+    };
+
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(parent);
+    window.addEventListener("resize", measure);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", measure);
+    };
+  }, []);
+
+  const rows: { key: string; node: React.ReactNode }[] = [
+    { key: "pointer", node: <span ref={mouseRef}>0, 0</span> },
+    { key: "scroll", node: <span ref={scrollRef}>0%</span> },
+    { key: "clicks", node: <span ref={clicksRef}>0</span> },
+    { key: "viewport", node: <span ref={viewportRef}>0x0</span> },
+    { key: "uptime", node: <span ref={uptimeRef}>0.0s</span> },
+    { key: "fps", node: <span ref={fpsRef}>0</span> },
+    ...Object.entries(props).map(([key, value]) => ({ key, node: format(value) })),
+  ]
+    .sort((a, b) => rank(a.key) - rank(b.key))
+    .slice(0, maxRows);
+
   return (
+    // Stays mounted with no room at all (display:none) - measurement reads the
+    // sidebar and the sibling above, so it can find its way back once space returns.
     <div
-      className={`mt-auto -mx-3 bg-black/20 border border-white/10 font-mono text-[10px] select-none ${className}`}
+      ref={wrapRef}
+      className={`mt-auto -mx-3 bg-black/20 border border-white/10 font-mono text-[10px] select-none ${maxRows === 0 ? "hidden" : ""} ${className}`}
     >
       <button
+        ref={headerRef}
         onClick={() => setOpen((prev) => !prev)}
         className="w-full flex items-center justify-between px-3 py-2 border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer"
         aria-expanded={open}
@@ -117,24 +200,9 @@ export default function DebugPanel({
       >
         <div className="overflow-hidden">
           <div className="px-3 py-2.5 space-y-0.5">
-            <Row label="pointer">
-              <span ref={mouseRef}>0, 0</span>
-            </Row>
-            <Row label="scroll">
-              <span ref={scrollRef}>0%</span>
-            </Row>
-            <Row label="fps">
-              <span ref={fpsRef}>0</span>
-            </Row>
-            <Row label="viewport">
-              <span ref={viewportRef}>0x0</span>
-            </Row>
-            <Row label="uptime">
-              <span ref={uptimeRef}>0.0s</span>
-            </Row>
-            {Object.entries(props).map(([key, value]) => (
+            {rows.map(({ key, node }) => (
               <Row key={key} label={key}>
-                {format(value)}
+                {node}
               </Row>
             ))}
           </div>
