@@ -431,7 +431,7 @@ export const projectCaseStudyProfiles: Record<string, ProjectCaseStudyProfile> =
     layout: "evidence-first",
     sectionOrder: ["layers", "overview", "findings", "security", "decisions", "implementation", "operations", "evidence", "results"],
     metrics: [
-      { value: "4 / 4", label: "layers applied to live infrastructure", note: "One item deliberately open: AWS cost actuals" },
+      { value: "4 / 4", label: "layers applied to live infrastructure", note: "One item open by calendar: a steady-state cost month, earliest September 2026" },
       { value: "5.97s", label: "attacker API call to revoked rule", note: "Measured, not estimated - Stratus Red Team detonation" },
       { value: "0", label: "long-lived cloud or signing credentials", note: "OIDC federation and Sigstore keyless signing" },
       { value: "56", label: "architecture decision records", note: "Including the two that record being wrong" },
@@ -479,7 +479,8 @@ export const projectCaseStudyProfiles: Record<string, ProjectCaseStudyProfile> =
       { title: "Coarse pattern, precise handler", summary: "The event router matches broadly; the handler reads the resource back.", reason: "An EventBridge pattern cannot evaluate a port range or parse a policy document, so trusting it to be exact builds a wrong remediation.", tradeoff: "More Lambda invocations that decide to do nothing.", revisit: "Only if invocation cost ever outweighs the safety it buys - it does not at this volume.", nodeIds: ["detect", "respond"] },
       { title: "Deactivate credentials, never delete them", summary: "A leaked access key is set Inactive, and root escalates to a human.", reason: "Deleting a key destroys its last-used record, which is often the only evidence of what the attacker actually reached.", tradeoff: "The credential still exists and has to be cleaned up deliberately afterwards.", revisit: "Only if a retention system captures last-used data independently first.", nodeIds: ["respond"] },
       { title: "Claim SLSA Build L2, not L3", summary: "Meet a level honestly instead of implying the next one.", reason: "L2 is met: hosted builder, provenance signed with the workflow's own OIDC identity, public Rekor entries, and a consumer-side check that pins identity and fails closed. L3 is not, and the gap is real.", tradeoff: "The lower number is what appears on the page, next to competitors' louder claims.", revisit: "When provenance generation moves to a context the build job cannot tamper with.", nodeIds: ["supply", "cluster"] },
-      { title: "Keep Security Hub in one account and say what was lost", summary: "The benchmark in all five accounts cost more than the ceiling allowed.", reason: "CIS v3.0.0 across five accounts projected USD 24.77/month against a USD 20 ceiling; the delegated security account alone projects USD 13.73.", tradeoff: "There is no longer a live per-account CIS score, and the page says so rather than showing a stale one.", revisit: "If the budget rises, or if per-account scoring becomes evidence for something a behavioural test cannot cover.", nodeIds: ["org"] },
+      { title: "Keep Security Hub in one account and say what was lost", summary: "The benchmark in all five accounts cost more than the ceiling allowed.", reason: "CIS v3.0.0 across five accounts projected USD 24.77/month against a USD 20 ceiling; the delegated security account alone projected USD 13.73. The first closed billing window later measured the reduced configuration at USD 6.38, so the decision was right for a reason the projection got partly wrong - see the cost finding.", tradeoff: "There is no longer a live per-account CIS score, and the page says so rather than showing a stale one.", revisit: "If the budget rises, or if per-account scoring becomes evidence for something a behavioural test cannot cover.", nodeIds: ["org"] },
+      { title: "Report gross cost, credit, and net - never only the invoice", summary: "The first closed billing window said USD 0. The architecture cost USD 1.48 and a credit covered it.", reason: "Grouping AWS Cost Explorer by service without filtering the record type sums credits into the same row as usage, so every service reads zero and a healthy Config recorder is indistinguishable from a broken one. The net is what was paid; the gross is the only figure that is evidence about the design.", tradeoff: "Three numbers to publish instead of one, and the honest one is the larger.", revisit: "Never - this is the reporting rule, and the wrong answer came first precisely because it was not being followed.", nodeIds: ["org"] },
     ],
     operations: [
       { question: "What if the response automation loops on itself?", behavior: "A remediation's own API calls are CloudTrail events that match its own pattern. The runtime rejects its own remediation role, and the circuit breaker caps everything else at five actions per five-minute window.", signal: "BLOCKED records appear in the DynamoDB audit table with the breaker's reason attached.", response: "The breaker was tripped on purpose during verification: it held after five actions, wrote four BLOCKED records, and left four ports deliberately open rather than acting past its limit.", nodeIds: ["detect", "respond"] },
@@ -489,6 +490,7 @@ export const projectCaseStudyProfiles: Record<string, ProjectCaseStudyProfile> =
       { question: "What if the guardrails lock everyone out?", behavior: "A documented break-glass role exists, and using it is itself an alertable event.", signal: "A CloudWatch alarm on assumption of the four exact recovery-role ARNs - observed firing, not assumed.", response: "Its SNS topic uses a dedicated customer-managed key, because the AWS-managed alternative accepts no key policy and this alert is precisely what an attacker would want to read or suppress.", nodeIds: ["org"] },
     ],
     evidence: [
+      { label: "Program · the threat model", title: "TrustStack program threat model", detail: "STRIDE applied to the seams between the four repositories rather than inside them. Eight cross-boundary threats that no component model can see from the inside - five of which have no control yet and say so - plus twelve accepted risks consolidated from all four. Published in full, including the boundary where deleting one policy disables admission control while every gate in the program stays green.", href: "/work/truststack-threat-model/", nodeIds: ["org", "detect", "respond", "supply", "cluster"] },
       { label: "AwLZ · the negative result", title: "scp-verification.md", detail: "The control experiment where the answer was \"no effect\": all 35 CIS controls identical with and without the guardrails, plus the behavioural denials that do prove them, probed from inside a member account while holding administrator there.", href: "https://github.com/PontoPe/AwLZ/blob/main/docs/evidence/scp-verification.md", nodeIds: ["org"] },
       { label: "AwLZ · delivery path", title: "logging and detection verification", detail: "A real object delivered under the organization prefix into the Object Lock archive, and five Config recorders reporting SUCCESS - which is what proves the cross-account, key-encrypted path actually works.", href: "https://github.com/PontoPe/AwLZ/tree/main/docs/evidence", nodeIds: ["org"] },
       { label: "PontoAntiCrack · the detonation", title: "detonation-sg-open.md", detail: "A real attack technique executed with Stratus Red Team against a fully green test suite, and the two defects it exposed that 176 passing tests could not.", href: "https://github.com/PontoPe/PontoAntiCrack/blob/main/docs/evidence/detonation-sg-open.md", nodeIds: ["detect", "respond"] },
@@ -504,7 +506,9 @@ export const projectCaseStudyProfiles: Record<string, ProjectCaseStudyProfile> =
       "CIS PASS 67 to 86 and FAIL 12 to 0 on a kubeadm cluster, every remediation linked to the manifest that fixed it",
       "A cluster that refuses a genuinely signed image because the signature is not ours",
       "Three advertised claims corrected in public instead of quietly dropped",
-      "One item deliberately open - AWS cost actuals, pending a closed billing window",
+      "A cost model measured against its first closed billing window and corrected in three places, with the superseded projection kept beside it",
+      "A published program-level threat model whose main output is eight threats no component model could see - and the five of them that still have no control",
+      "One item open by calendar rather than work - a month outside two service trials, earliest September 2026",
     ],
     retrospective: {
       worked: [
@@ -516,7 +520,9 @@ export const projectCaseStudyProfiles: Record<string, ProjectCaseStudyProfile> =
         "Detonate s3-public and iam-key-leak and measure their latency",
         "Cluster-wide default-deny with a Calico GlobalNetworkPolicy",
         "Move provenance generation to an isolated context for SLSA L3",
-        "Read the first closed AWS billing window on 2026-08-02",
+        "Assert the live Kyverno policy still exists, from the repository that owns the cluster",
+        "Gate image signing on the same protected environment as Terraform apply",
+        "Read a September billing window, the first outside two service trials",
       ],
       demonstrates: [
         "Cloud security engineering on live AWS, not a sandbox",
@@ -550,7 +556,7 @@ export const projectCaseStudyProfiles: Record<string, ProjectCaseStudyProfile> =
         proof:
           "All six stacks applied to a live five-account organization. A denied API call in a forbidden region and a denied StopLogging, captured from an account administrator - the only privilege level at which an SCP test proves anything. Five Config recorders reporting SUCCESS is what proves the cross-account delivery path works end to end.",
         limit:
-          "Cost actuals remain open. Cost Explorer still returns Estimated: true for every day this organization has existed, so the earliest defensible query is 2026-08-02. Inventing the number would have been the cheapest possible way to discredit everything else here.",
+          "Cost actuals closed against the first billing window: USD 1.48 of usage in July, entirely covered by credits, and a USD 6.38/month run rate in August once they stopped. Measuring it took two attempts - grouping Cost Explorer by service without filtering the record type nets credits into the same row as usage, and every service reads zero. Still open, by calendar rather than work: GuardDuty and Security Hub sit inside 30-day trials until late August, so September 2026 is the first month that can honestly be called a steady state.",
         href: "https://github.com/PontoPe/AwLZ",
         nodeIds: ["org"],
       },
@@ -647,6 +653,17 @@ export const projectCaseStudyProfiles: Record<string, ProjectCaseStudyProfile> =
           "No before existed, so the honest replacement was a control experiment on the throwaway account: measure it with its SCPs, detach them from that account only, measure again, reattach. All 35 controls came back identical in both states. No CIS v3.0.0 control reads a service control policy at all.",
         lesson:
           "A benchmark score describes resource configuration; it cannot describe a preventive guardrail. What does show the SCPs working is behavioural - a denied call in a forbidden region, allowed during the experiment window, denied again afterwards. Both probes name resources that do not exist, so nothing was created or destroyed to produce the evidence.",
+        nodeIds: ["org"],
+      },
+      {
+        layer: "AwLZ",
+        title: "The first cost actual said zero, and zero was wrong",
+        looked:
+          "The July billing window closed and Cost Explorer finally returned Estimated: false. Grouped by service, every single line came back at USD 0.00 - CloudTrail, Config, KMS, S3, all of it. A five-account organization with four customer-managed keys and five Config recorders appeared to cost nothing.",
+        actual:
+          "Cost Explorer sums the Credit record type into the same row as Usage unless the query filters on it. Filtered to usage only, July cost USD 1.4830 and credits covered exactly that much, then stopped at the month boundary with no signal anywhere. Config alone was USD 0.9970, reconciling to the cent against 325 configuration items and 22 rule evaluations at the published São Paulo rate. The recorder was healthy the whole time - and under the unfiltered grouping, a healthy recorder and a broken one produce the identical number.",
+        lesson:
+          "Publish gross, credit, and net - never only the invoice. The net is what was paid; the gross is the only figure that says anything about the design. The same pass corrected three lines of the model: Config was over-projected threefold because the estimate extrapolated a deployment day across a month, when Config bills what an organization does rather than how long it exists; nine CloudWatch alarms billed nothing because they sit inside a ten-alarm free tier, which makes the eleventh a cliff rather than a cut; and Secrets Manager was absent from the model entirely, which is worse than being estimated low. The superseded projection stays in the repository beside the actual, because the delta is the evidence.",
         nodeIds: ["org"],
       },
       {

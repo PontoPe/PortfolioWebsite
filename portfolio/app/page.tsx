@@ -184,6 +184,7 @@ const TechCard = ({ name, percent, icon }: { name: string, percent: string, icon
 
 
 import { virtualFS } from '../lib/virtualFS';
+import DebugPanel from '../components/DebugPanel';
 type DirNode = { type: 'dir'; children: Record<string, DirNode | FileNode>; };
 type FileNode = { type: 'file'; content: string; };
 type FSNode = DirNode | FileNode;
@@ -1295,6 +1296,9 @@ export default function Home() {
                  <IndexLink id="contact" label="Contact me" activeSection={activeSection} onClick={setActiveSection} />
             </div>
         </nav>
+
+        {/* Live telemetry readout - fills the empty tail of the index sidebar */}
+        <DebugPanel section={activeSection} theme={matrixMode ? "matrix" : "default"} />
       </aside>
 
       {/* BSOD Overlay - Konami Code Easter Egg */}
