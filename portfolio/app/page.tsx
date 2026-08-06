@@ -1281,7 +1281,10 @@ export default function Home() {
 
       </main>
 
-      <aside className="w-60 hidden xl:flex flex-col p-10 h-full border-l border-white/5 bg-[#181818] pt-32 z-20 overflow-y-auto custom-scrollbar">
+      {/* No overflow-y-auto here on purpose: a toggling scrollbar changes the
+          sidebar's content width, the index labels rewrap, and DebugPanel's fit
+          measurement oscillates. The panel trims itself instead. */}
+      <aside className="w-60 hidden xl:flex flex-col p-10 h-full border-l border-white/5 bg-[#181818] pt-32 z-20">
         <h3 className="text-white font-mono font-bold mb-10 uppercase tracking-widest">Index</h3>
         <nav className="flex flex-col gap-6 text-xs font-mono font-bold tracking-wider">
             <IndexLink id="hero" label="PontoPe" activeSection={activeSection} onClick={setActiveSection} />

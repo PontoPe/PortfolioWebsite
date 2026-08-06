@@ -133,6 +133,8 @@ export default function DebugPanel({
     const parent = el?.parentElement;
     if (!el || !parent) return;
 
+    let lastAvailable = Number.NaN;
+
     const measure = () => {
       const style = getComputedStyle(parent);
       const parentRect = parent.getBoundingClientRect();
@@ -146,8 +148,21 @@ export default function DebugPanel({
       const header = headerRef.current?.offsetHeight ?? 30;
       const available = bottomLimit - topLimit - header - CONTENT_PADDING - BREATHING_ROOM;
 
-      const fits = Math.floor(available / ROW_HEIGHT);
-      setMaxRows(Math.max(0, Math.min(PRIORITY.length, fits)));
+      // Sub-pixel churn (font metrics, scrollbar widths) must not restart the
+      // measure -> resize -> measure cycle.
+      if (Math.abs(available - lastAvailable) < 1) return;
+      lastAvailable = available;
+
+      const fits = Math.max(0, Math.min(PRIORITY.length, Math.floor(available / ROW_HEIGHT)));
+
+      setMaxRows((prev) => {
+        if (fits === prev) return prev;
+        // Shrink the moment a row stops fitting, but demand a spare half-row
+        // before growing back. Without that gap a layout sitting exactly on a
+        // row boundary flips between two counts every frame - the flashing.
+        if (fits < prev) return fits;
+        return available - fits * ROW_HEIGHT >= ROW_HEIGHT / 2 ? fits : prev;
+      });
     };
 
     measure();
