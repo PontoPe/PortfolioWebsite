@@ -15,6 +15,12 @@ const ROW_HEIGHT = 20; // text-[10px] + leading-5
 const CONTENT_PADDING = 20; // py-2.5 on the rows container
 const BREATHING_ROOM = 8;
 
+/**
+ * Below this the panel is not worth the space - it hides entirely rather than
+ * showing a stub, so short screens get a clean sidebar instead of two rows.
+ */
+const MIN_ROWS = 4;
+
 const format = (value: Primitive): string => {
   if (value === null) return "null";
   if (value === undefined) return "undefined";
@@ -153,7 +159,8 @@ export default function DebugPanel({
       if (Math.abs(available - lastAvailable) < 1) return;
       lastAvailable = available;
 
-      const fits = Math.max(0, Math.min(PRIORITY.length, Math.floor(available / ROW_HEIGHT)));
+      const raw = Math.max(0, Math.min(PRIORITY.length, Math.floor(available / ROW_HEIGHT)));
+      const fits = raw < MIN_ROWS ? 0 : raw; // too cramped to be useful - hide instead
 
       setMaxRows((prev) => {
         if (fits === prev) return prev;
@@ -189,11 +196,14 @@ export default function DebugPanel({
     .slice(0, maxRows);
 
   return (
-    // Stays mounted with no room at all (display:none) - measurement reads the
-    // sidebar and the sibling above, so it can find its way back once space returns.
+    // Absolutely positioned on purpose. As a flex item its height fed back into
+    // the sidebar's layout (flex-shrink squeezed the nav above, which freed room,
+    // which grew the panel again) and the row count oscillated. Out of flow, the
+    // measurement inputs cannot be moved by the thing being measured.
+    // Stays mounted when hidden so it can measure its way back once space returns.
     <div
       ref={wrapRef}
-      className={`mt-auto -mx-3 bg-black/20 border border-white/10 font-mono text-[10px] select-none ${maxRows === 0 ? "hidden" : ""} ${className}`}
+      className={`absolute bottom-10 left-7 right-7 bg-black/20 border border-white/10 font-mono text-[10px] select-none ${maxRows === 0 ? "hidden" : ""} ${className}`}
     >
       <button
         ref={headerRef}
