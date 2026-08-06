@@ -87,6 +87,13 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
+          # Pure-FTPd on the host advertises AUTH TLS and negotiates TLS 1.3.
+          # Plain FTP sent these credentials in cleartext on every deploy.
+          # security defaults to "loose", which tolerates the host's shared
+          # *.prod.phx3.secureserver.net certificate not matching the domain.
+          protocol: ftps
+          port: 21
+          timeout: 60000
           local-dir: ./portfolio/out/
           server-dir: ./
           exclude: |
