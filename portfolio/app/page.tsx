@@ -1044,7 +1044,6 @@ export default function Home() {
                     </section>
 
                     <section id="about" className="mb-48 scroll-mt-24">
-                        <AccessReveal label="Professional Profile">
                         <p className="text-sm text-[#555] mb-8 font-mono">&lt;!-- About, experience &amp; capabilities --&gt;</p>
                         <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white font-sans mb-12 tracking-tight">
                             Professional <span className="text-[#555]">Profile</span>
@@ -1122,11 +1121,9 @@ export default function Home() {
                                 </div>
                             </div>
                         </div>
-                        </AccessReveal>
                     </section>
 
                     <section id="certifications" className="mb-48 scroll-mt-24">
-                        <AccessReveal label="Certifications">
                         <p className="text-sm text-[#555] mb-8 font-mono">&lt;!-- Current certification focus --&gt;</p>
                         <div className="border-y border-white/10 bg-black/10 px-5 sm:px-8 py-9 flex flex-col md:flex-row md:items-center gap-7 md:gap-10">
                             <span className="font-mono text-sm text-[#555] md:w-24">2026</span>
@@ -1139,11 +1136,9 @@ export default function Home() {
                             </span>
                         </div>
                         {/* TODO(portfolio): Add certifications here only after they are earned or actively in progress. */}
-                        </AccessReveal>
                     </section>
 
                     <section id="stack" className="mb-32 scroll-mt-24">
-                        <AccessReveal label="Tech Stack">
                         <p className="text-sm text-[#555] mb-10 font-mono">&lt;!-- My tech stack --&gt;</p>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-0 border-l border-t border-white/5">
                             {stackData.map((tech) => (
@@ -1155,12 +1150,10 @@ export default function Home() {
                                 />
                             ))}
                         </div>
-                        </AccessReveal>
                     </section>
 
 
                     <section id="game" className="mb-48 scroll-mt-24">
-                        <AccessReveal label="Mini Game">
                         <p className="text-sm text-[#555] mb-10 font-mono">&lt;!-- Take a break --&gt;</p>
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
                             <div>
@@ -1176,11 +1169,9 @@ export default function Home() {
                                 <ColorSpotter />
                             </div>
                         </div>
-                        </AccessReveal>
                     </section>
 
                     <section id="quiz" className="mb-48 scroll-mt-24">
-                        <AccessReveal label="Quiz">
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
                             <div className="order-2 lg:order-1 flex justify-center lg:justify-start">
                                 <TechQuiz />
@@ -1195,11 +1186,9 @@ export default function Home() {
                                 </p>
                             </div>
                         </div>
-                        </AccessReveal>
                     </section>
 
                     <section id="contact" className="mb-24 scroll-mt-24">
-                        <AccessReveal label="Contact">
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
                             <div>
                                 <p className="text-sm text-[#555] mb-10 font-mono">&lt;!-- Get in Touch --&gt;</p>
@@ -1250,7 +1239,6 @@ export default function Home() {
                                 </button>
                             </form>
                         </div>
-                        </AccessReveal>
                     </section>
 
                     <TerminalSection />
