@@ -846,18 +846,18 @@ export default function Home() {
                 </div>
                 <div>
                     <h2 className="text-white font-bold font-mono text-lg">PontoPe</h2>
-                    <p className="text-xs uppercase tracking-widest text-[#666] mt-1 font-bold"><ScrambleText text="Cybersecurity Engineer" /></p>
+                    <p className="text-xs uppercase tracking-widest text-[#666] mt-1 font-bold"><ScrambleText text="Infrastructure &amp; Security Automation Engineer" /></p>
                 </div>
             </div>
 
             <p className="text-base leading-relaxed text-[#999] font-mono">
-                I&apos;m Pedro Martins, a cybersecurity engineer who builds, hardens, and runs production systems - from AWS pipelines to a self-hosted server publishing a national journal with zero open ports.
+                I&apos;m Pedro Martins, an infrastructure engineer who builds, hardens, and runs production systems - from AWS pipelines to a self-hosted server publishing a national journal with zero open ports.
             </p>
 
             <div className="flex flex-col gap-5 text-sm font-medium text-[#777]">
                 <div className="flex items-center gap-4 hover:text-white transition-colors cursor-default">
                     <Clock className="w-5 h-5 shrink-0" />
-                    <span>3+ years of experience</span>
+                    <span>2+ years of experience</span>
                 </div>
                 <div className="flex items-center gap-4 hover:text-white transition-colors cursor-default">
                     <MapPin className="w-5 h-5 shrink-0" />
@@ -871,9 +871,9 @@ export default function Home() {
                     </span>
                 </div>
 
-                <a href="mailto:pegradowski@hotmail.com" className="flex items-center gap-4 hover:text-white transition-colors">
+                <a href="mailto:pedro.gradowski@gmail.com" className="flex items-center gap-4 hover:text-white transition-colors">
                     <Mail className="w-5 h-5 shrink-0" />
-                    <span>pegradowski@hotmail.com</span>
+                    <span>pedro.gradowski@gmail.com</span>
                 </a>
                 <div className="flex items-center gap-4 hover:text-white transition-colors cursor-default">
                     <Phone className="w-5 h-5 shrink-0" />
@@ -941,8 +941,9 @@ export default function Home() {
 
                     <section id="hero" className="mb-12 md:mb-48 scroll-mt-32">
                         <p className="text-sm text-[#555] mb-5 font-mono">&lt;!-- Hero section --&gt;</p>
-                        <h1 className="portfolio-hero-title font-bold text-white font-sans leading-[0.95] md:leading-[0.9] tracking-tighter">
-                            <ScrambleText text="Cybersecurity" /><br/>
+                        <h1 className="portfolio-hero-title portfolio-hero-title--long font-bold text-white font-sans leading-[0.95] md:leading-[0.9] tracking-tighter">
+                            <ScrambleText text="Infrastructure &amp;" /><br/>
+                            <ScrambleText text="Security Automation" /><br/>
                             <span className="text-[#5c5c5c]"><ScrambleText text="Engineer" /></span>
                         </h1>
                     </section>
@@ -959,7 +960,7 @@ export default function Home() {
                         </div>
 
                         <p className="text-sm leading-relaxed text-[#999] font-mono">
-                            I&apos;m Pedro Martins, a cybersecurity engineer who builds, hardens, and runs production systems - from AWS pipelines to a self-hosted server publishing a national journal with zero open ports.
+                            I&apos;m Pedro Martins, an infrastructure engineer who builds, hardens, and runs production systems - from AWS pipelines to a self-hosted server publishing a national journal with zero open ports.
                         </p>
 
                         <div className="flex flex-col gap-4 text-sm font-medium text-[#777]">
@@ -967,9 +968,9 @@ export default function Home() {
                                 <MapPin className="w-5 h-5 shrink-0" />
                                 <span>Curitiba, Brazil</span>
                             </div>
-                            <a href="mailto:pegradowski@hotmail.com" className="flex items-center gap-4 hover:text-white transition-colors break-all">
+                            <a href="mailto:pedro.gradowski@gmail.com" className="flex items-center gap-4 hover:text-white transition-colors break-all">
                                 <Mail className="w-5 h-5 shrink-0" />
-                                <span>pegradowski@hotmail.com</span>
+                                <span>pedro.gradowski@gmail.com</span>
                             </a>
                             <div className="flex items-center gap-4">
                                 <Phone className="w-5 h-5 shrink-0" />
@@ -1051,7 +1052,7 @@ export default function Home() {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 text-[#B1B1B1] leading-relaxed text-lg md:text-xl">
                             <p>
-                                I&apos;m a <span className="text-white bg-[#333] px-1 font-medium">Cybersecurity Engineer</span> with 3+ years building and operating production systems across AWS, Linux, and containers. My approach starts with the adversarial questions: <span className="text-white underline decoration-white/30 underline-offset-4">how does this fail, and what leaks when it does?</span>
+                                <span className="text-white bg-[#333] px-1 font-medium">Infrastructure Engineer</span> with 2+ years building production automation and operating Linux/AWS/containerized systems, now specializing in DevSecOps and cloud security. My approach starts with the adversarial questions: <span className="text-white underline decoration-white/30 underline-offset-4">how does this fail, and what leaks when it does?</span>
                             </p>
                             <p>
                                 I came up through backend automation - securing <span className="text-white bg-[#333] px-1 font-medium">PII pipelines for enterprises like Hyundai</span> - and discovered the part I couldn&apos;t stop thinking about was protecting the systems, not just building them. Today I practice <span className="text-white font-bold">secure-by-default engineering</span>: least privilege, secrets management, hardening, and zero-open-port ingress.
@@ -1064,14 +1065,13 @@ export default function Home() {
                                     <p className="text-xs text-[#555] mb-3 font-mono uppercase tracking-[0.22em]">Experience</p>
                                     <h3 className="text-3xl md:text-4xl font-bold text-white font-sans">Systems owned in production</h3>
                                 </div>
-                                <span className="hidden md:block text-xs text-[#555] uppercase tracking-widest">2023 — present</span>
+                                <span className="hidden md:block text-xs text-[#555] uppercase tracking-widest">2024 — present</span>
                             </div>
                             <div className="space-y-0 border-t border-white/5">
                                 {[
                                     { year: "2026 - present", role: "Infrastructure Engineer", company: "BRASILCON" },
                                     { year: "2025 - 2026", role: "Junior Backend Engineer", company: "Way-V" },
-                                    { year: "2024", role: "Conversational AI Developer", company: "DeGOES Optimize" },
-                                    { year: "2023", role: "Backend Automation Engineer", company: "Fintech Client (NDA)" }
+                                    { year: "2024", role: "Conversational AI Developer", company: "DeGOES Optimize" }
                                 ].map((job) => (
                                     <div key={`${job.year}-${job.role}`} className="group grid grid-cols-1 md:grid-cols-[11rem_minmax(0,1fr)_auto] gap-2 md:gap-6 md:items-center py-8 border-b border-white/5 hover:bg-white/2 transition-colors px-4 -mx-4 cursor-default">
                                         <span className="font-mono text-sm text-[#555]">{job.year}</span>
@@ -1199,7 +1199,7 @@ export default function Home() {
                             </div>
 
                             <form
-                                action="https://formsubmit.co/pegradowski@hotmail.com"
+                                action="https://formsubmit.co/pedro.gradowski@gmail.com"
                                 method="POST"
                                 className="space-y-8 pt-16"
                             >
@@ -1260,7 +1260,7 @@ export default function Home() {
                     <a href="https://linkedin.com/in/pedro-g-martins" target="_blank" rel="noopener noreferrer">
                         <Linkedin className="w-5 h-5 hover:text-white cursor-pointer transition-colors" />
                     </a>
-                    <a href="mailto:pegradowski@hotmail.com" target="_blank" rel="noopener noreferrer">
+                    <a href="mailto:pedro.gradowski@gmail.com" target="_blank" rel="noopener noreferrer">
                         <Mail className="w-5 h-5 hover:text-white cursor-pointer transition-colors" />
                     </a>
                 </div>

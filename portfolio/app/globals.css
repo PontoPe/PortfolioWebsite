@@ -15,6 +15,12 @@ body {
   font-size: clamp(2.25rem, 14cqi, 8rem);
 }
 
+/* Longer multi-word titles need a smaller step so the widest line
+   ("Security Automation") still fits the content container. */
+.portfolio-hero-title--long {
+  font-size: clamp(1.75rem, 9cqi, 5.25rem);
+}
+
 /* TODO(responsive): Keep large hero typography container-relative if either
    desktop rail width changes; viewport breakpoints caused the original clip. */
 

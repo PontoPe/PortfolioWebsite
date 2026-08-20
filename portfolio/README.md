@@ -6,7 +6,7 @@ The site connects Pedro's professional experience with technical evidence: proje
 
 ## Highlights
 
-- Production case studies covering BRASILCON, Hyundai, JBS, and a confidential fintech engagement
+- Production case studies covering BRASILCON, Hyundai, and JBS
 - Security and infrastructure work spanning AWS, Linux, Docker, Kubernetes, Terraform, Cloudflare Tunnel, and CI/CD
 - Project pages for the BNPL platform, Docker Email Tracker, CowRec, TourneySys, and other selected work
 - Technical write-ups on secure onboarding automation, zero-open-port publishing infrastructure, and home-server hardening
