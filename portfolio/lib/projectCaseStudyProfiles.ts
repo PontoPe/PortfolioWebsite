@@ -479,7 +479,7 @@ export const projectCaseStudyProfiles: Record<string, ProjectCaseStudyProfile> =
     layout: "evidence-first",
     sectionOrder: ["layers", "overview", "findings", "security", "decisions", "implementation", "operations", "evidence", "results"],
     metrics: [
-      { value: "4 / 4", label: "layers applied to live infrastructure", note: "One item open by calendar: a steady-state cost month, earliest September 2026" },
+      { value: "4 / 4", label: "layers applied to live infrastructure", note: "Steady-state cost measured: September 2026, USD 7.31 against a USD 20 ceiling" },
       { value: "5.97s", label: "attacker API call to revoked rule", note: "Measured, not estimated - Stratus Red Team detonation" },
       { value: "0", label: "long-lived cloud or signing credentials", note: "OIDC federation and Sigstore keyless signing" },
       { value: "56", label: "architecture decision records", note: "Including the two that record being wrong" },
@@ -527,7 +527,7 @@ export const projectCaseStudyProfiles: Record<string, ProjectCaseStudyProfile> =
       { title: "Coarse pattern, precise handler", summary: "The event router matches broadly; the handler reads the resource back.", reason: "An EventBridge pattern cannot evaluate a port range or parse a policy document, so trusting it to be exact builds a wrong remediation.", tradeoff: "More Lambda invocations that decide to do nothing.", revisit: "Only if invocation cost ever outweighs the safety it buys - it does not at this volume.", nodeIds: ["detect", "respond"] },
       { title: "Deactivate credentials, never delete them", summary: "A leaked access key is set Inactive, and root escalates to a human.", reason: "Deleting a key destroys its last-used record, which is often the only evidence of what the attacker actually reached.", tradeoff: "The credential still exists and has to be cleaned up deliberately afterwards.", revisit: "Only if a retention system captures last-used data independently first.", nodeIds: ["respond"] },
       { title: "Claim SLSA Build L2, not L3", summary: "Meet a level honestly instead of implying the next one.", reason: "L2 is met: hosted builder, provenance signed with the workflow's own OIDC identity, public Rekor entries, and a consumer-side check that pins identity and fails closed. L3 is not, and the gap is real.", tradeoff: "The lower number is what appears on the page, next to competitors' louder claims.", revisit: "When provenance generation moves to a context the build job cannot tamper with.", nodeIds: ["supply", "cluster"] },
-      { title: "Keep Security Hub in one account and say what was lost", summary: "The benchmark in all five accounts cost more than the ceiling allowed.", reason: "CIS v3.0.0 across five accounts projected USD 24.77/month against a USD 20 ceiling; the delegated security account alone projected USD 13.73. The first closed billing window later measured the reduced configuration at USD 6.38, so the decision was right for a reason the projection got partly wrong - see the cost finding.", tradeoff: "There is no longer a live per-account CIS score, and the page says so rather than showing a stale one.", revisit: "If the budget rises, or if per-account scoring becomes evidence for something a behavioural test cannot cover.", nodeIds: ["org"] },
+      { title: "Keep Security Hub in one account and say what was lost", summary: "The benchmark in all five accounts cost more than the ceiling allowed.", reason: "CIS v3.0.0 across five accounts projected USD 24.77/month against a USD 20 ceiling; the delegated security account alone projected USD 13.73. The first month outside the trials measured the reduced configuration at USD 0.87 for Security Hub and USD 7.31 for the whole organization, so the decision was right for a reason the projection got partly wrong - see the cost finding.", tradeoff: "There is no longer a live per-account CIS score, and the page says so rather than showing a stale one.", revisit: "If the budget rises, or if per-account scoring becomes evidence for something a behavioural test cannot cover.", nodeIds: ["org"] },
       { title: "Report gross cost, credit, and net - never only the invoice", summary: "The first closed billing window said USD 0. The architecture cost USD 1.48 and a credit covered it.", reason: "Grouping AWS Cost Explorer by service without filtering the record type sums credits into the same row as usage, so every service reads zero and a healthy Config recorder is indistinguishable from a broken one. The net is what was paid; the gross is the only figure that is evidence about the design.", tradeoff: "Three numbers to publish instead of one, and the honest one is the larger.", revisit: "Never - this is the reporting rule, and the wrong answer came first precisely because it was not being followed.", nodeIds: ["org"] },
     ],
     operations: [
@@ -556,7 +556,7 @@ export const projectCaseStudyProfiles: Record<string, ProjectCaseStudyProfile> =
       "Three advertised claims corrected in public instead of quietly dropped",
       "A cost model measured against its first closed billing window and corrected in three places, with the superseded projection kept beside it",
       "A published program-level threat model whose main output is eight threats no component model could see - and the five of them that still have no control",
-      "One item open by calendar rather than work - a month outside two service trials, earliest September 2026",
+      "A steady-state cost month measured outside two service trials: USD 7.31 invoiced in September 2026, 37% of the ceiling",
     ],
     retrospective: {
       worked: [
@@ -570,7 +570,7 @@ export const projectCaseStudyProfiles: Record<string, ProjectCaseStudyProfile> =
         "Move provenance generation to an isolated context for SLSA L3",
         "Assert the live Kyverno policy still exists, from the repository that owns the cluster",
         "Gate image signing on the same protected environment as Terraform apply",
-        "Read a September billing window, the first outside two service trials",
+        "Measure a month with real Terraform activity - Config and Security Hub bill on change, so the quiet September figure is a floor",
       ],
       demonstrates: [
         "Cloud security engineering on live AWS, not a sandbox",
@@ -604,7 +604,7 @@ export const projectCaseStudyProfiles: Record<string, ProjectCaseStudyProfile> =
         proof:
           "All six stacks applied to a live five-account organization. A denied API call in a forbidden region and a denied StopLogging, captured from an account administrator - the only privilege level at which an SCP test proves anything. Five Config recorders reporting SUCCESS is what proves the cross-account delivery path works end to end.",
         limit:
-          "Cost actuals closed against the first billing window: USD 1.48 of usage in July, entirely covered by credits, and a USD 6.38/month run rate in August once they stopped. Measuring it took two attempts - grouping Cost Explorer by service without filtering the record type nets credits into the same row as usage, and every service reads zero. Still open, by calendar rather than work: GuardDuty and Security Hub sit inside 30-day trials until late August, so September 2026 is the first month that can honestly be called a steady state.",
+          "Cost actuals closed against the first billing window: USD 1.48 of usage in July, entirely covered by credits, and a USD 6.38/month run rate in August once they stopped. Measuring it took two attempts - grouping Cost Explorer by service without filtering the record type nets credits into the same row as usage, and every service reads zero. September 2026, the first month with neither credits nor service trials, closed at USD 7.31 invoiced: the GuardDuty and Security Hub trial cliff came to USD 0.95/month, against the USD 3.01 the model had reserved for it.",
         href: "https://github.com/PontoPe/AwLZ",
         nodeIds: ["org"],
       },
