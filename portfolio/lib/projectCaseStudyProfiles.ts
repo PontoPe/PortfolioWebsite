@@ -380,16 +380,16 @@ export const projectCaseStudyProfiles: Record<string, ProjectCaseStudyProfile> =
     metrics: [
       { value: "0", label: "inbound ports on the journal workload", note: "Outbound-only via Cloudflare Tunnel; the origin IP isn't in public DNS" },
       { value: "6 / 6", label: "ssh-bruteforce scenarios verified", note: "cscli explain confirmed detection without attacking production sshd" },
-      { value: "8 → 5", label: "CRITICAL CVEs on the OJS image", note: "One root-caused and patched same-day; the rest already scoped for the OJS 3.5 upgrade" },
+      { value: "8 → 5", label: "CRITICAL CVEs on the OJS image (August 2026)", note: "Historical scan: one patched same-day; not a current vulnerability count" },
       { value: "0", label: "drift on the first Ansible dry run", note: "ansible-playbook --check --diff reported changed=0 on every task against the live box" },
-      { value: "13", label: "restic snapshots, restore-tested", note: "6.8 GB in the B2 repo at 1.74x compression" },
-      { value: "26 / 78", label: "OJS submissions / registered users", note: "Real production client: Revista de Direito do Consumidor, BRASILCON" },
+      { value: "13", label: "restic snapshots (August 2026)", note: "Historical snapshot: 6.8 GB in B2 at 1.74x compression; restore-tested" },
+      { value: "26 / 78", label: "OJS submissions / users (August 2026)", note: "Historical snapshot for Revista de Direito do Consumidor, BRASILCON" },
       { value: "3 → 1", label: "network owners after the fix", note: "Two racing DHCP clients and three overlapping firewall managers, reduced to one of each" },
       { value: "0", label: "recurrences since the architectural fix" },
     ],
     problem: [
       "pontosv is a bare-metal Debian 12 server on a residential connection, run solo as a deliberately operated production platform rather than a home lab.",
-      "What's running is not a demo: OJS hosts a real academic journal - Revista de Direito do Consumidor, institutional client BRASILCON - with 26 submissions and 78 registered users as of August 2026, and zero inbound ports (outbound-only via Cloudflare Tunnel, origin IP absent from public DNS). Nextcloud, TeamSpeak 6, and a public status dashboard at sv.pegradowski.com run alongside it.",
+      "What's running is not a demo: OJS hosts a real academic journal - Revista de Direito do Consumidor, institutional client BRASILCON - with 26 submissions and 78 registered users as of August 2026, and zero inbound ports (outbound-only via Cloudflare Tunnel, origin IP absent from public DNS). Nextcloud, TeamSpeak 6, and an access-restricted status dashboard run alongside it.",
       "The box is monitored, detected, patched, and reproducible: CrowdSec verified against real and synthetic attack traffic, a weekly Trivy scan that diffs CRITICAL CVE IDs against the last run instead of alerting on raw totals, an Ansible role proven idempotent against production, and restic backups that are restore-tested rather than merely scheduled.",
       "Earlier in its life the server also survived a ten-week connectivity incident traced to three conflicting network owners - two racing DHCP clients, a rogue DHCP lease, and three overlapping firewall managers - fixed architecturally with zero recurrences since. That incident is covered further down as one entry among several, not the centerpiece.",
     ],
@@ -408,7 +408,7 @@ export const projectCaseStudyProfiles: Record<string, ProjectCaseStudyProfile> =
       { title: "Private services stop at the LAN", summary: "Management surfaces have no justified public route.", nodeIds: ["host", "lan"] },
     ],
     threats: [
-      { category: "Vulnerability", title: "Unpatched CRITICAL in a running container image", control: "Trivy scans weekly (pontosv-check-trivy.timer) and diffs CRITICAL CVE IDs against the last run instead of alerting on raw totals; a real CRITICAL, CVE-2026-31789 (an OpenSSL heap overflow), was found and patched the same day.", residual: "Five CRITICALs remain, tied to the OJS base image; closing them needs the already-scoped OJS 3.5 upgrade, not another scan.", nodeIds: ["docker"] },
+      { category: "Vulnerability", title: "Unpatched CRITICAL in a running container image", control: "Trivy scans weekly (pontosv-check-trivy.timer) and diffs CRITICAL CVE IDs against the last run instead of alerting on raw totals; a real CRITICAL, CVE-2026-31789 (an OpenSSL heap overflow), was found and patched the same day.", residual: "As of the August 2026 scan, five CRITICALs remained tied to the OJS base image; this is not a current count. Closing them required the scoped OJS 3.5 upgrade.", nodeIds: ["docker"] },
       { category: "Drift", title: "Manual changes silently diverging from documented config", control: "An Ansible role now codifies the monitoring and backup stack; ansible-playbook --check --diff against the live box reports changed=0, i.e. drift is actually checked, not assumed.", residual: "Only the monitoring/backup stack is codified so far - OJS, Nextcloud, TeamSpeak, and network config remain hand-managed and could still drift silently.", nodeIds: ["host"] },
       { category: "Exposure", title: "Accidental service publication", control: "Services-and-ports map plus default-drop host policy", residual: "Router configuration remains a separate enforcement layer.", nodeIds: ["wan", "router", "host"] },
       { category: "Identity", title: "Password-based SSH attack", control: "Key-only SSH with password authentication disabled, plus CrowdSec detection verified two ways: a real SSH session traced end-to-end through the pipeline, and cscli explain confirming all six ssh-bruteforce scenarios match synthetic attack-shaped input.", residual: "No bouncer installed yet, so CrowdSec detects and would alert but doesn't yet auto-block; private-key protection and endpoint security remain necessary.", nodeIds: ["wan", "host"] },
@@ -416,7 +416,7 @@ export const projectCaseStudyProfiles: Record<string, ProjectCaseStudyProfile> =
     ],
     decisions: [
       { title: "Zero inbound ports for the highest-value workload", summary: "The OJS journal is reachable only outbound, through a Cloudflare Tunnel; its origin IP isn't in public DNS.", reason: "The journal is the workload an outage or compromise would hurt most - a national academic institution's publication - so it gets the strictest exposure rule on the box: there is nothing to scan.", tradeoff: "Availability now depends on the tunnel provider staying up, not just the host.", revisit: "If a future workload needs inbound access no tunnel can provide.", nodeIds: ["wan", "host"] },
-      { title: "Separate the collector from the public reader", summary: "A root-run collector on a timer gathers privileged data; the internet-facing dashboard process only ever reads one JSON snapshot it wrote.", reason: "The public status dashboard needs data that requires root to gather (Docker, journald, cscli, restic), but the process answering public requests has no reason to hold that privilege itself.", tradeoff: "Status data is only as fresh as the last collector run, not live.", revisit: "If the dashboard ever needs to trigger actions rather than just report state.", nodeIds: ["host", "docker"] },
+      { title: "Separate the collector from the dashboard reader", summary: "A root-run collector on a timer gathers privileged data; the dashboard process only ever reads one JSON snapshot it wrote.", reason: "The access-restricted status dashboard needs data that requires root to gather (Docker, journald, cscli, restic), but the process answering requests has no reason to hold that privilege itself.", tradeoff: "Status data is only as fresh as the last collector run, not live.", revisit: "If the dashboard ever needs to trigger actions rather than just report state.", nodeIds: ["host", "docker"] },
       { title: "Document every public port", summary: "Exposure requires a written reason.", reason: "A production host should never rely on accidental or forgotten forwards.", tradeoff: "Adds operational discipline to each service change.", revisit: "Continuously, as services are added or retired.", nodeIds: ["wan", "router", "host"] },
       { title: "Treat documentation as a control", summary: "Make operation recoverable by another competent person.", reason: "Solo knowledge is a continuity risk.", tradeoff: "Runbooks must evolve with the machine.", revisit: "Whenever the topology, incident history, or service inventory changes.", nodeIds: ["host", "docker", "lan"] },
       { title: "One owner per layer", summary: "Remove overlapping network authorities.", reason: "Multiple valid configurations created an invalid combined system.", tradeoff: "Reduces tool flexibility in exchange for deterministic operation.", revisit: "Only when a migration plan names the replacement owner explicitly.", nodeIds: ["router", "host", "docker"] },
@@ -425,7 +425,7 @@ export const projectCaseStudyProfiles: Record<string, ProjectCaseStudyProfile> =
       { question: "Why did the internet disappear every few weeks, and why did earlier firewall fixes fail?", behavior: "Two racing DHCP clients and a rogue lease repeatedly replaced the default route, while firewalld, ufw, iptables-persistent, and Docker each affected an overlapping layer - so a fix in one tool often wasn't the layer actually blocking traffic.", signal: "journald recorded route changes at the moment of failure; rules changed in one tool while another tool or runtime remained authoritative.", response: "Reduce to one authoritative DHCP client and one firewall authority, with Docker keeping its own chains. Zero recurrences since.", nodeIds: ["router", "host", "docker"] },
     ],
     evidence: [
-      { label: "Public evidence", title: "Live status dashboard — sv.pegradowski.com", detail: "Publicly reachable right now: real container health, security posture (CrowdSec/Trivy/SSH), a node-graph of backup history built from actual restic diff output, and system stats. A reader can open it directly instead of taking the write-up's word for it.", href: "https://sv.pegradowski.com", nodeIds: ["host"] },
+      { label: "Restricted dashboard", title: "Operator dashboard — sv.pontope.pe", detail: "The dashboard contains live container health, security posture, backup history, and system stats. It requires authentication; this link does not grant public access to those metrics.", href: "https://sv.pontope.pe", nodeIds: ["host"] },
       { label: "Detection evidence", title: "CrowdSec verified two ways", detail: "A real SSH connection traced end-to-end through the pipeline, and cscli explain confirmed all six ssh-bruteforce scenarios match an attack-shaped synthetic log line without needing to attack production sshd. Runs via a journalctl_filter acquisition since this box has no /var/log/auth.log — everything's in journald.", nodeIds: ["host"] },
       { label: "Vulnerability evidence", title: "CVE-2026-31789 found and patched same-day", detail: "Weekly Trivy scan (pontosv-check-trivy.timer) diffs CRITICAL CVE IDs against the last run instead of alerting on raw totals. A real CRITICAL, an OpenSSL heap overflow, was found and patched the same day — CRITICAL count measured 8 to 5 on the next scan, not claimed.", nodeIds: ["docker"] },
       { label: "IaC evidence", title: "Ansible role proven idempotent on production", detail: "ansible-playbook --check --diff against the live box reported changed=0 on every task — drift detection actually running, not aspirational.", nodeIds: ["host"] },
@@ -435,7 +435,7 @@ export const projectCaseStudyProfiles: Record<string, ProjectCaseStudyProfile> =
     ],
     results: [
       "Detection (CrowdSec), vulnerability management (Trivy), and infrastructure-as-code drift checks (Ansible) run against production, not just incident response",
-      "A public status dashboard exposes real container health, security posture, and backup history for anyone to verify directly",
+      "An access-restricted status dashboard tracks container health, security posture, and backup history for the operator",
       "The highest-value workload has zero inbound ports and real production traffic — a national journal client, not a demo",
       "Recurring connectivity incident stopped after ownership was simplified",
       "Public and private services now have explicit exposure rationale",
@@ -469,7 +469,7 @@ export const projectCaseStudyProfiles: Record<string, ProjectCaseStudyProfile> =
   truststack: {
     slug: "truststack",
     vmName: "truststack-program",
-    status: "Applied · 1 item open",
+    status: "Applied · risks documented",
     environment: "Live 5-account AWS organization · real cluster · public repositories",
     role: "Platform architect, control author, and operator",
     outcome:
@@ -479,8 +479,9 @@ export const projectCaseStudyProfiles: Record<string, ProjectCaseStudyProfile> =
     layout: "evidence-first",
     sectionOrder: ["layers", "overview", "findings", "security", "decisions", "implementation", "operations", "evidence", "results"],
     metrics: [
-      { value: "4 / 4", label: "layers applied to live infrastructure", note: "Steady-state cost measured: September 2026, USD 7.31 against a USD 20 ceiling" },
+      { value: "4 / 4", label: "layers applied to live infrastructure", note: "September 2026 cost actual closed after the service trials" },
       { value: "5.97s", label: "attacker API call to revoked rule", note: "Measured, not estimated - Stratus Red Team detonation" },
+      { value: "USD 7.31", label: "September 2026 AWS cost", note: "First closed month without credits or service trials; quiet-month figure, not a universal run rate" },
       { value: "0", label: "long-lived cloud or signing credentials", note: "OIDC federation and Sigstore keyless signing" },
       { value: "56", label: "architecture decision records", note: "Including the two that record being wrong" },
     ],
@@ -541,6 +542,7 @@ export const projectCaseStudyProfiles: Record<string, ProjectCaseStudyProfile> =
       { label: "Program · the threat model", title: "TrustStack program threat model", detail: "STRIDE applied to the seams between the four repositories rather than inside them. Eight cross-boundary threats that no component model can see from the inside - five of which have no control yet and say so - plus twelve accepted risks consolidated from all four. Published in full, including the boundary where deleting one policy disables admission control while every gate in the program stays green.", href: "/work/truststack-threat-model/", nodeIds: ["org", "detect", "respond", "supply", "cluster"] },
       { label: "AwLZ · the negative result", title: "scp-verification.md", detail: "The control experiment where the answer was \"no effect\": all 35 CIS controls identical with and without the guardrails, plus the behavioural denials that do prove them, probed from inside a member account while holding administrator there.", href: "https://github.com/PontoPe/AwLZ/blob/main/docs/evidence/scp-verification.md", nodeIds: ["org"] },
       { label: "AwLZ · delivery path", title: "logging and detection verification", detail: "A real object delivered under the organization prefix into the Object Lock archive, and five Config recorders reporting SUCCESS - which is what proves the cross-account, key-encrypted path actually works.", href: "https://github.com/PontoPe/AwLZ/tree/main/docs/evidence", nodeIds: ["org"] },
+      { label: "AwLZ · cost actual", title: "September 2026 billing window", detail: "The first closed month without credits or GuardDuty/Security Hub trials: USD 7.31 invoiced against a USD 20 ceiling. A quiet-month measurement; months with substantial Terraform changes remain unmeasured.", href: "https://github.com/PontoPe/AwLZ/blob/main/docs/cost.md", nodeIds: ["org"] },
       { label: "PontoAntiCrack · the detonation", title: "detonation-sg-open.md", detail: "A real attack technique executed with Stratus Red Team against a fully green test suite, and the two defects it exposed that a green suite could not - 174 tests passing at the first, 176 at the second.", href: "https://github.com/PontoPe/PontoAntiCrack/blob/main/docs/evidence/detonation-sg-open.md", nodeIds: ["detect", "respond"] },
       { label: "PontoAntiCrack · the measurement", title: "time-to-remediate.md", detail: "5.97 seconds from the attacker's API call to the rule being revoked, with the group's unrelated port 443 rule untouched; the dry run that changed nothing; and the circuit breaker tripped on purpose.", href: "https://github.com/PontoPe/PontoAntiCrack/blob/main/docs/evidence/time-to-remediate.md", nodeIds: ["detect", "respond"] },
       { label: "PontoAntiCrack · the gate", title: "pattern-gate.md", detail: "All 17 fixtures replayed through aws events test-event-pattern - 17 agreements, zero disagreements - because \"our evaluator agrees with our evaluator\" is not a claim.", href: "https://github.com/PontoPe/PontoAntiCrack/blob/main/docs/evidence/pattern-gate.md", nodeIds: ["detect"] },
@@ -554,9 +556,8 @@ export const projectCaseStudyProfiles: Record<string, ProjectCaseStudyProfile> =
       "CIS PASS 67 to 86 and FAIL 12 to 0 on a kubeadm cluster, every remediation linked to the manifest that fixed it",
       "A cluster that refuses a genuinely signed image because the signature is not ours",
       "Three advertised claims corrected in public instead of quietly dropped",
-      "A cost model measured against its first closed billing window and corrected in three places, with the superseded projection kept beside it",
+      "September 2026 cost closed at USD 7.31 without credits or service trials; the superseded projection remains beside the actual",
       "A published program-level threat model whose main output is eight threats no component model could see - and the five of them that still have no control",
-      "A steady-state cost month measured outside two service trials: USD 7.31 invoiced in September 2026, 37% of the ceiling",
     ],
     retrospective: {
       worked: [
@@ -604,7 +605,7 @@ export const projectCaseStudyProfiles: Record<string, ProjectCaseStudyProfile> =
         proof:
           "All six stacks applied to a live five-account organization. A denied API call in a forbidden region and a denied StopLogging, captured from an account administrator - the only privilege level at which an SCP test proves anything. Five Config recorders reporting SUCCESS is what proves the cross-account delivery path works end to end.",
         limit:
-          "Cost actuals closed against the first billing window: USD 1.48 of usage in July, entirely covered by credits, and a USD 6.38/month run rate in August once they stopped. Measuring it took two attempts - grouping Cost Explorer by service without filtering the record type nets credits into the same row as usage, and every service reads zero. September 2026, the first month with neither credits nor service trials, closed at USD 7.31 invoiced: the GuardDuty and Security Hub trial cliff came to USD 0.95/month, against the USD 3.01 the model had reserved for it.",
+          "July's USD 1.48 of usage was covered by credits; August's USD 6.38 run rate still included service trials. September 2026 closed at USD 7.31 invoiced after both ended, against a USD 13.73 projection. GuardDuty and Security Hub cost USD 0.95/month versus USD 3.01 projected. This was a quiet month: a month with substantial Terraform changes has not been measured. Cost Explorer needs a usage-only record-type filter or credits can make active services look free.",
         href: "https://github.com/PontoPe/AwLZ",
         nodeIds: ["org"],
       },
@@ -1034,7 +1035,7 @@ export const projectCaseStudyProfiles: Record<string, ProjectCaseStudyProfile> =
   cowrec: {
     slug: "cowrec",
     vmName: "cowrec-edge",
-    status: "Live",
+    status: "Source available",
     environment: "Edge computer-vision system",
     role: "Computer vision and backend engineer",
     outcome:
@@ -1084,7 +1085,6 @@ export const projectCaseStudyProfiles: Record<string, ProjectCaseStudyProfile> =
     ],
     evidence: [
       { label: "Public source", title: "CowRec repository", detail: "Shows the computer-vision and backend project structure.", href: "https://github.com/PontoPe/CowRec", nodeIds: ["capture", "model", "registry"] },
-      { label: "Live surface", title: "CowRec web experience", detail: "Presents the project and its livestock-tracking outcome.", href: "https://cowrec.com", nodeIds: ["telemetry"] },
       { label: "Implementation", title: "Edge detection excerpt", detail: "Connects tracking, per-animal state, review alerts, and aggregate telemetry.", nodeIds: ["model", "registry", "telemetry"] },
     ],
     results: ["Raw video processing is kept at the edge", "Per-animal observations become useful aggregated telemetry", "Network loss does not automatically stop local inference"],

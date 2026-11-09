@@ -891,10 +891,10 @@ export default function Home() {
                     <span className="text-xs font-bold text-white font-mono tracking-wider">GitHub</span>
                     <Github className="w-5 h-5 text-[#666] group-hover:text-white transition-colors" />
                 </a>
-                <button onClick={() => window.open("https://drive.google.com/file/d/1H1ibCIFxXwg035Y5sUt0KdAwVfotQ4kp/view?usp=drive_link", "_blank")} className="flex items-center justify-between px-4 py-4 border border-white/10 rounded-sm hover:bg-white/5 hover:border-white/20 transition-colors group">
+                <a href="/Pedro-Gradowski-Martins-CV.pdf" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between px-4 py-4 border border-white/10 rounded-sm hover:bg-white/5 hover:border-white/20 transition-colors group">
                     <span className="text-xs font-bold text-white font-mono tracking-wider">CV</span>
                     <Download className="w-5 h-5 text-[#666] group-hover:text-white group-hover:translate-y-0.5 transition-transform" />
-                </button>
+                </a>
             </div>
         </div>
 
@@ -991,10 +991,10 @@ export default function Home() {
                             <button onClick={() => window.open("https://calendly.com/pegradowski/30min", "_blank")} className="w-full py-4 bg-white text-black font-mono font-bold text-sm uppercase tracking-widest rounded-sm hover:bg-gray-200 transition-colors">
                                 Schedule a call
                             </button>
-                            <button onClick={() => window.open("https://drive.google.com/file/d/1H1ibCIFxXwg035Y5sUt0KdAwVfotQ4kp/view?usp=drive_link", "_blank")} className="col-span-2 flex items-center justify-center gap-3 w-full py-4 border border-white/10 rounded-sm hover:bg-white/5 transition-colors group">
+                            <a href="/Pedro-Gradowski-Martins-CV.pdf" download className="col-span-2 flex items-center justify-center gap-3 w-full py-4 border border-white/10 rounded-sm hover:bg-white/5 transition-colors group">
                                 <span className="text-sm font-bold text-white font-mono tracking-widest">Download CV</span>
                                 <Download className="w-5 h-5 text-[#666] group-hover:text-white transition-colors" />
-                            </button>
+                            </a>
                         </div>
                     </div>
 
@@ -1003,13 +1003,19 @@ export default function Home() {
                         <div className="flex justify-between items-end mb-10">
                             <div className="font-mono">
                                 <p className="text-lg sm:text-xl text-[#888] mb-3">&lt;!-- Featured work --&gt;</p>
-                                <p className="text-sm text-[#555] max-w-3xl leading-relaxed">Most of the work below was built under NDA, so the source can&apos;t be published - only selected snippets. Happy to walk through a larger portion of the code 1-on-1. </p>
+                                <p className="text-sm text-[#555] max-w-3xl leading-relaxed">The Hyundai and JBS client work is under NDA; public projects below link to available source or evidence. Happy to discuss the client work 1-on-1.</p>
                             </div>
             
                             
                         </div>
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+                            <ProjectCard title="TrustStack" slug="truststack" status="Applied" subtitle="A practical reference for platform and security teams: govern AWS accounts, detect and safely remediate exposure, admit only verified images, and monitor hardened Kubernetes workloads">
+                                <Image src="/projects/truststack.svg" alt="TrustStack cloud security architecture" fill className="object-cover" />
+                            </ProjectCard>
+                          <ProjectCard title="pontosv" slug="pontosv" status="Online" subtitle="Hardened bare-metal Debian server I run solo - zero-open-port ingress for the BRASILCON journal">
+                            <Image src="/projects/pontosv.png" alt="pontosv Home Server" fill className="object-cover" />
+                          </ProjectCard>
                             <ProjectCard title="Revista BRASILCON" slug="brasilcon" status="Live" subtitle="Self-hosted OJS publishing platform for Brazil's consumer-law journal - officially recognized by BRASILCON">
                                 <Image src="/projects/brasilcon.png" alt="Revista BRASILCON OJS Platform" fill className="object-cover object-top" />
                             </ProjectCard>
@@ -1018,12 +1024,6 @@ export default function Home() {
                           </ProjectCard>
                             <ProjectCard title="JBS Backend" slug="jbs" subtitle="High-throughput data processing system">
                                 <Image src="/projects/jbs.png" alt="JBS Project" fill className="object-cover" />
-                            </ProjectCard>
-                          <ProjectCard title="pontosv" slug="pontosv" status="Online" subtitle="Hardened bare-metal Debian server I run solo - zero-open-port ingress for the BRASILCON journal">
-                            <Image src="/projects/pontosv.png" alt="pontosv Home Server" fill className="object-cover" />
-                          </ProjectCard>
-                            <ProjectCard title="TrustStack" slug="truststack" status="Applied" subtitle="A practical reference for platform and security teams: govern AWS accounts, detect and safely remediate exposure, admit only verified images, and monitor hardened Kubernetes workloads">
-                                <Image src="/projects/truststack.svg" alt="TrustStack cloud security architecture" fill className="object-cover" />
                             </ProjectCard>
                           <ProjectCard title="ZombiesWeb" slug="zombiesweb" status="Live" subtitle="Interactive CoD Zombies lore timeline and map guides">
                             <Image src="/projects/zombiesweb.png" alt="ZombiesWeb Project" fill className="object-cover" />
@@ -1034,7 +1034,7 @@ export default function Home() {
                           <ProjectCard title="BNPL Platform" slug="fintech" subtitle="Full-stack Buy Now Pay Later microservices in Go">
                             <Image src="/projects/fintech.png" alt="FinTech BNPL Platform" fill className="object-cover" />
                           </ProjectCard>
-                            <ProjectCard title="CowRec" slug="cowrec" status="Live" subtitle="Computer Vision backend for livestock tracking">
+                            <ProjectCard title="CowRec" slug="cowrec" subtitle="Computer Vision backend for livestock tracking">
                                 <Image src="/projects/cow1.jpeg" alt="CowRec Project" fill className="object-cover" />
                             </ProjectCard>
                             <ProjectCard title="Clinical Chart" slug="ficha-clinica" status="In Development" subtitle="Local-first dental anamnesis - AES-256-GCM at the edge, LGPD by architecture, zero server">
